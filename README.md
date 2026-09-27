@@ -87,7 +87,7 @@ port `next dev` picks — check the terminal output).
 ## Commit conventions
 
 This repo uses [Conventional Commits](https://www.conventionalcommits.org/), enforced by
-commitlint via a Husky `commit-msg` hook:
+commitlint via a [Lefthook](https://lefthook.dev) `commit-msg` hook:
 
 ```
 <type>(<optional scope>): <short summary>
@@ -98,9 +98,10 @@ chore: bump dependency versions
 docs: update setup instructions
 ```
 
-Common types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `ci`. A pre-commit hook
-(Husky + lint-staged) also runs Prettier and the relevant linter on staged files before
-each commit.
+Common types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `ci`. A Lefthook
+pre-commit hook also runs Prettier and the relevant linter on staged files before each
+commit — it's installed automatically the moment you run `npm install` (no extra setup
+step), see [`lefthook.yml`](lefthook.yml).
 
 ## Repo layout
 

@@ -65,6 +65,18 @@ implementations (`mongoose-*.repository.ts`), `common/filters/`, `config/`, and
 `apps/web/vitest.config.mts` (not `.ts`) — avoids a CJS/ESM parsing warning from Vite's
 native config loader, since `apps/web/package.json` doesn't set `"type": "module"`.
 
+## Git hooks: Lefthook, not Husky
+
+Pre-commit/commit-msg hooks are managed by [Lefthook](https://lefthook.dev)
+(`lefthook.yml` at repo root), not Husky — the assignment brief never actually
+mandated a specific git-hook tool, Husky was just the first scaffold's default and got
+swapped out. `npm install -D lefthook`'s own `postinstall` script runs
+`lefthook install` automatically, so **anyone who clones and runs a plain
+`npm install` gets the hooks active with zero extra steps** (no `npm run prepare`
+needed, unlike Husky). If hooks ever seem inactive after a fresh clone, run
+`npx lefthook install` manually and check `git config core.hooksPath` isn't pointing
+somewhere stale (e.g. a leftover `.husky/_` from before this switch).
+
 ## Repository pattern (all 4 API modules)
 
 Each module (`warnings`, `hazard-reports`, `response`, `analytics`) follows: service →
