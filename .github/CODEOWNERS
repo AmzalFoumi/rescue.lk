@@ -1,0 +1,18 @@
+# Each use-case owner reviews changes to their module.
+# Replace these placeholders with real GitHub usernames once roles are assigned.
+
+/apps/api/src/modules/warnings/       @uc1-owner
+/apps/web/src/app/warnings/           @uc1-owner
+/apps/web/src/features/warnings/      @uc1-owner
+
+/apps/api/src/modules/hazard-reports/  @uc2-owner
+/apps/web/src/app/hazard-reports/      @uc2-owner
+/apps/web/src/features/hazard-reports/ @uc2-owner
+
+/apps/api/src/modules/response/       @uc3-owner
+/apps/web/src/app/response/           @uc3-owner
+/apps/web/src/features/response/      @uc3-owner
+
+/apps/api/src/modules/analytics/      @uc4-owner
+/apps/web/src/app/analytics/          @uc4-owner
+/apps/web/src/features/analytics/     @uc4-owner
