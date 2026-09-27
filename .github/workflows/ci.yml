@@ -27,6 +27,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Generate Next.js types (web)
+        run: npm run typegen --workspace=apps/web
+
       - name: Typecheck (api)
         run: npm run typecheck --workspace=apps/api
 
