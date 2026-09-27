@@ -19,7 +19,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      exclude: ["**/*.config.*", "**/layout.tsx", "src/app/**/page.tsx", ".next/**"],
+      exclude: ["**/*.config.*", "**/layout.tsx", ".next/**"],
     },
   },
 });
