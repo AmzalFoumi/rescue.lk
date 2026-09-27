@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Env files (real secrets — never commit)
+.env
+.env.local
+.env.*.local
+apps/*/.env
+apps/*/.env.local
+
+# Logs
+npm-debug.log*
+*.log
+
+# Testing / coverage
+coverage/
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Husky (local hook state, not the config)
+.husky/_
