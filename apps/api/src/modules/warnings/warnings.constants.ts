@@ -40,3 +40,7 @@ export const WARNING_TITLE_MIN_LENGTH = 5;
 export const WARNING_TITLE_MAX_LENGTH = 120;
 export const WARNING_MESSAGE_MIN_LENGTH = 10;
 export const WARNING_MESSAGE_MAX_LENGTH = 1000;
+
+// Step 8.2 validateWarning: a warning may stay active for at most this long.
+export const MAX_WARNING_DURATION_HOURS = 72;
+export const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
