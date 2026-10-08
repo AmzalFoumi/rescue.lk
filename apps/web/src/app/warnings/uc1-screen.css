@@ -20,3 +20,9 @@ main:has([data-uc1-screen]) {
   max-width: none;
   padding: 0;
 }
+
+/* The UC1 screen brings the design's own header (AppHeader), so the shared
+   scaffold header is hidden here instead of showing two headers. */
+body:has([data-uc1-screen]) > header {
+  display: none;
+}

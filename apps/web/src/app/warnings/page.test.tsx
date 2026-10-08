@@ -7,18 +7,23 @@ vi.mock('next/font/google', () => ({
 }));
 
 vi.mock('@/features/warnings', () => ({
+  AppHeader: () => <header>rescue.lk</header>,
   WarningWorkflow: () => <h1>Hazard monitoring</h1>,
 }));
 
 describe('WarningsPage', () => {
-  it('renders the UC1 workflow in the design font', () => {
+  it('renders the design header above the UC1 workflow in the design font', () => {
     const { container } = render(<WarningsPage />);
 
+    const header = screen.getByRole('banner');
+    const heading = screen.getByRole('heading', { name: /hazard monitoring/i });
     expect(
-      screen.getByRole('heading', { name: /hazard monitoring/i }),
-    ).toBeInTheDocument();
+      header.compareDocumentPosition(heading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(container.firstChild).toHaveClass('noto-sans');
-    // uc1-screen.css widens the page and keeps it light only when this is present.
+    // uc1-screen.css widens the page, keeps it light and hides the scaffold header
+    // only when this is present.
     expect(container.firstChild).toHaveAttribute('data-uc1-screen');
   });
 });

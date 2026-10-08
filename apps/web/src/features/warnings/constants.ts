@@ -20,6 +20,12 @@ export const OTHER_HAZARD = 'OTHER';
 // Who is recorded as creating a warning until login exists.
 export const CREATED_BY = 'Assessment Officer';
 
+// The officer shown in the header, from the design, until login exists.
+export const SIGNED_IN_USER = {
+  name: 'S. Wickramasinghe',
+  role: CREATED_BY,
+} as const;
+
 // Mirrors of the API limits, used only for input hints and maxLength; the API
 // (WarningValidator and the request DTOs) remains the source of truth.
 export const MESSAGE_MIN_LENGTH = 20;
