@@ -23,3 +23,10 @@ export const DEMO_OPERATOR: OperatorIdentity = {
   id: 'operator-kj',
   name: 'K. Jayawardena',
 };
+
+/** A name to show for a person id. Ids that are not the demo operator are shown as they are. */
+export function displayName(id: string): string {
+  if (id === DEMO_OPERATOR.id) return DEMO_OPERATOR.name;
+  if (id === DEMO_CITIZEN.id) return DEMO_CITIZEN.name;
+  return id;
+}

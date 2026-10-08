@@ -3,6 +3,8 @@ import type { HazardType } from '@rescue-lk/shared';
 export const MIN_DESCRIPTION_LENGTH = 10;
 export const MAX_DESCRIPTION_LENGTH = 1000;
 
+export const TOTAL_STEPS = 4;
+
 /** The four screens of the report form. */
 export type WizardStep = 1 | 2 | 3 | 4;
 

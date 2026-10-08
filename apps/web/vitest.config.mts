@@ -25,6 +25,7 @@ export default defineConfig({
         '**/layout.tsx',
         '.next/**',
         '**/*.test.{ts,tsx}',
+        '**/testing/**',
         '**/*.d.ts',
       ],
       // UC2 hazard reports is held to 80%. Other use cases add their own entry when they build their UI.

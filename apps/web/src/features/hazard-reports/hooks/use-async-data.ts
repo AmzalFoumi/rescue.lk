@@ -20,8 +20,12 @@ interface LoadState<T> {
 /**
  * Loads data when the screen opens and gives back loading and error states.
  * `load` must keep the same identity between renders (wrap it in useCallback).
+ * When `refreshKey` changes, the data is loaded again.
  */
-export function useAsyncData<T>(load: () => Promise<T>): AsyncData<T> {
+export function useAsyncData<T>(
+  load: () => Promise<T>,
+  refreshKey?: unknown,
+): AsyncData<T> {
   const [state, setState] = useState<LoadState<T>>({
     data: null,
     loading: true,
@@ -51,7 +55,7 @@ export function useAsyncData<T>(load: () => Promise<T>): AsyncData<T> {
     return () => {
       active = false;
     };
-  }, [load, version]);
+  }, [load, version, refreshKey]);
 
   return { ...state, reload };
 }

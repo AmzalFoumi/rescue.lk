@@ -54,4 +54,16 @@ describe('useAsyncData', () => {
 
     expect(result.current.data).toBeNull();
   });
+
+  it('loads again when the refresh key changes', async () => {
+    const load = vi.fn().mockResolvedValue('data');
+    const { rerender } = renderHook(({ key }) => useAsyncData(load, key), {
+      initialProps: { key: 1 },
+    });
+    await waitFor(() => expect(load).toHaveBeenCalledTimes(1));
+
+    rerender({ key: 2 });
+
+    await waitFor(() => expect(load).toHaveBeenCalledTimes(2));
+  });
 });
