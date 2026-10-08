@@ -16,6 +16,9 @@ import type { OfflineReportQueue, SyncResult } from './offline-report-queue.js';
 import type { SubmitHazardReportDto } from './dto/submit-hazard-report.dto.js';
 import type { HazardReportDocument } from './schemas/hazard-report.schema.js';
 
+// Report ids are 24-character hex strings (MongoDB ObjectIds).
+const REPORT_ID_FORMAT = /^[0-9a-f]{24}$/i;
+
 @Injectable()
 export class HazardReportsService {
   private readonly duplicateChecker = new DuplicateChecker();
@@ -86,7 +89,10 @@ export class HazardReportsService {
 
   // selectReport(reportId) and getStatus()
   async getById(id: string): Promise<HazardReportDocument> {
-    const report = await this.repository.findById(id);
+    // An id that cannot exist is "not found", not a server error.
+    const report = REPORT_ID_FORMAT.test(id)
+      ? await this.repository.findById(id)
+      : null;
     if (!report) {
       throw new NotFoundException(`Hazard report ${id} not found`);
     }
@@ -121,7 +127,7 @@ export class HazardReportsService {
     const report = await this.getById(id);
     if (!canChangeStatus(report.status, newStatus)) {
       throw new ConflictException(
-        `A report that is ${report.status} cannot become ${newStatus}`,
+        `Only a pending report can be changed, this one is already ${report.status}`,
       );
     }
     const updated = await this.repository.updateStatus(id, {
