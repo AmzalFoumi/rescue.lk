@@ -65,4 +65,19 @@ describe('InMemoryOfflineReportQueue', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('network down'));
     warn.mockRestore();
   });
+
+  it('logs a warning even when something other than an Error is thrown', async () => {
+    const warn = vi
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => {});
+    const queue = new InMemoryOfflineReportQueue();
+    queue.enqueue(report('bad'));
+
+    await queue.syncWhenOnline(async () => {
+      throw 'offline';
+    });
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('offline'));
+    warn.mockRestore();
+  });
 });
