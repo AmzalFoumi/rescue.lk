@@ -46,6 +46,8 @@ export class MongooseHazardReportsRepository implements HazardReportsRepository 
     id: string,
     change: StatusChange,
   ): Promise<HazardReportDocument | null> {
-    return this.model.findByIdAndUpdate(id, change, { new: true }).exec();
+    return this.model
+      .findByIdAndUpdate(id, change, { returnDocument: 'after' })
+      .exec();
   }
 }
