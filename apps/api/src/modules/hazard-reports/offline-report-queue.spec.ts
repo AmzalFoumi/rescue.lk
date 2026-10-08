@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { describe, it, expect, vi } from 'vitest';
 import { InMemoryOfflineReportQueue } from './offline-report-queue.js';
 import type { ReportSubmission } from './report-submission.js';
@@ -48,5 +49,20 @@ describe('InMemoryOfflineReportQueue', () => {
 
     expect(result).toEqual({ synced: 1, stillQueued: 1 });
     expect(queue.pendingCount()).toBe(1);
+  });
+
+  it('logs a warning with the reason when a report fails to sync', async () => {
+    const warn = vi
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => {});
+    const queue = new InMemoryOfflineReportQueue();
+    queue.enqueue(report('bad'));
+
+    await queue.syncWhenOnline(async () => {
+      throw new Error('network down');
+    });
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('network down'));
+    warn.mockRestore();
   });
 });
