@@ -1,4 +1,4 @@
-import type { SubmitHazardReportDto } from './dto/submit-hazard-report.dto.js';
+import type { ReportSubmission } from './report-submission.js';
 
 export const OFFLINE_REPORT_QUEUE = Symbol('OFFLINE_REPORT_QUEUE');
 
@@ -9,19 +9,19 @@ export interface SyncResult {
 
 // OfflineReportQueue from the class diagram.
 export interface OfflineReportQueue {
-  enqueue(report: SubmitHazardReportDto): void;
+  enqueue(report: ReportSubmission): void;
   pendingCount(): number;
   syncWhenOnline(
-    send: (report: SubmitHazardReportDto) => Promise<void>,
+    send: (report: ReportSubmission) => Promise<void>,
   ): Promise<SyncResult>;
 }
 
 // A mock queue that lives in memory. Reports are lost if the server restarts.
 // The real queue would live on the reporter's phone.
 export class InMemoryOfflineReportQueue implements OfflineReportQueue {
-  private queue: SubmitHazardReportDto[] = [];
+  private queue: ReportSubmission[] = [];
 
-  enqueue(report: SubmitHazardReportDto): void {
+  enqueue(report: ReportSubmission): void {
     this.queue.push(report);
   }
 
@@ -31,9 +31,9 @@ export class InMemoryOfflineReportQueue implements OfflineReportQueue {
 
   // Tries to send every queued report. A report that fails stays queued for next time.
   async syncWhenOnline(
-    send: (report: SubmitHazardReportDto) => Promise<void>,
+    send: (report: ReportSubmission) => Promise<void>,
   ): Promise<SyncResult> {
-    const failed: SubmitHazardReportDto[] = [];
+    const failed: ReportSubmission[] = [];
     let synced = 0;
     for (const report of this.queue) {
       try {

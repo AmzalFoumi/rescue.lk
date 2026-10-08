@@ -1,6 +1,7 @@
 import type { HazardReportStatus } from './hazard-report-status.js';
-import type { HazardType, ReporterRole } from './hazard-type.js';
-import type { HazardReportDocument } from './schemas/hazard-report.schema.js';
+import type { HazardReportRecord } from './hazard-report-record.js';
+import type { HazardType } from './hazard-type.js';
+import type { ReporterRole } from './reporter-role.js';
 
 export const HAZARD_REPORTS_REPOSITORY = Symbol('HAZARD_REPORTS_REPOSITORY');
 
@@ -26,17 +27,17 @@ export interface StatusChange {
 }
 
 export interface HazardReportsRepository {
-  create(report: NewHazardReport): Promise<HazardReportDocument>;
-  findById(id: string): Promise<HazardReportDocument | null>;
-  findByStatus(status: HazardReportStatus): Promise<HazardReportDocument[]>;
+  create(report: NewHazardReport): Promise<HazardReportRecord>;
+  findById(id: string): Promise<HazardReportRecord | null>;
+  findByStatus(status: HazardReportStatus): Promise<HazardReportRecord[]>;
   // Reports of one hazard type captured between two dates (used by the duplicate check).
   findByTypeBetween(
     type: HazardType,
     from: Date,
     to: Date,
-  ): Promise<HazardReportDocument[]>;
+  ): Promise<HazardReportRecord[]>;
   updateStatus(
     id: string,
     change: StatusChange,
-  ): Promise<HazardReportDocument | null>;
+  ): Promise<HazardReportRecord | null>;
 }

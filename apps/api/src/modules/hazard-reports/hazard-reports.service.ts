@@ -13,8 +13,8 @@ import { HAZARD_REPORTS_REPOSITORY } from './hazard-reports.repository.interface
 import type { HazardReportsRepository } from './hazard-reports.repository.interface.js';
 import { OFFLINE_REPORT_QUEUE } from './offline-report-queue.js';
 import type { OfflineReportQueue, SyncResult } from './offline-report-queue.js';
-import type { SubmitHazardReportDto } from './dto/submit-hazard-report.dto.js';
-import type { HazardReportDocument } from './schemas/hazard-report.schema.js';
+import type { HazardReportRecord } from './hazard-report-record.js';
+import type { ReportSubmission } from './report-submission.js';
 
 // Report ids are 24-character hex strings (MongoDB ObjectIds).
 const REPORT_ID_FORMAT = /^[0-9a-f]{24}$/i;
@@ -35,7 +35,7 @@ export class HazardReportsService {
   }
 
   // submitReport(data): check for duplicates, then store as "Pending Verification".
-  async submit(dto: SubmitHazardReportDto): Promise<HazardReportDocument> {
+  async submit(dto: ReportSubmission): Promise<HazardReportRecord> {
     const capturedAt = new Date(dto.capturedAt);
     const windowMs = DUPLICATE_WINDOW_HOURS * 60 * 60 * 1000;
     const sameTypeNearInTime = await this.repository.findByTypeBetween(
@@ -64,7 +64,7 @@ export class HazardReportsService {
   }
 
   // queueOffline(): used when there is no network. The report waits in the queue.
-  queueOffline(dto: SubmitHazardReportDto): {
+  queueOffline(dto: ReportSubmission): {
     status: HazardReportStatus;
     pendingCount: number;
   } {
@@ -83,12 +83,12 @@ export class HazardReportsService {
   }
 
   // getPendingReports()
-  listPending(): Promise<HazardReportDocument[]> {
+  listPending(): Promise<HazardReportRecord[]> {
     return this.repository.findByStatus(HazardReportStatus.PendingVerification);
   }
 
   // selectReport(reportId) and getStatus()
-  async getById(id: string): Promise<HazardReportDocument> {
+  async getById(id: string): Promise<HazardReportRecord> {
     // An id that cannot exist is "not found", not a server error.
     const report = REPORT_ID_FORMAT.test(id)
       ? await this.repository.findById(id)
@@ -100,7 +100,7 @@ export class HazardReportsService {
   }
 
   // verifyReport(reportId) then setStatus(Verified)
-  verify(id: string, operatorId: string): Promise<HazardReportDocument> {
+  verify(id: string, operatorId: string): Promise<HazardReportRecord> {
     return this.changeStatus(id, HazardReportStatus.Verified, operatorId);
   }
 
@@ -109,7 +109,7 @@ export class HazardReportsService {
     id: string,
     operatorId: string,
     reason: string,
-  ): Promise<HazardReportDocument> {
+  ): Promise<HazardReportRecord> {
     return this.changeStatus(
       id,
       HazardReportStatus.Rejected,
@@ -123,7 +123,7 @@ export class HazardReportsService {
     newStatus: HazardReportStatus,
     operatorId: string,
     rejectionReason?: string,
-  ): Promise<HazardReportDocument> {
+  ): Promise<HazardReportRecord> {
     const report = await this.getById(id);
     if (!canChangeStatus(report.status, newStatus)) {
       throw new ConflictException(

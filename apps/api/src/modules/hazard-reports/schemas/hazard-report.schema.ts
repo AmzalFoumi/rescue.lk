@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { HazardReportStatus } from '../hazard-report-status.js';
-import { HazardType, ReporterRole } from '../hazard-type.js';
+import { HazardType } from '../hazard-type.js';
+import { ReporterRole } from '../reporter-role.js';
 
 export type HazardReportDocument = HydratedDocument<HazardReport>;
 
@@ -53,6 +54,9 @@ export class HazardReport {
 
   @Prop()
   rejectionReason?: string;
+
+  // Added by Mongoose because of `timestamps: true`.
+  createdAt?: Date;
 }
 
 export const HazardReportSchema = SchemaFactory.createForClass(HazardReport);

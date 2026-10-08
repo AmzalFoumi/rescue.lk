@@ -12,11 +12,13 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { HazardType, ReporterRole } from '../hazard-type.js';
+import { HazardType } from '../hazard-type.js';
+import type { ReportSubmission } from '../report-submission.js';
+import { ReporterRole } from '../reporter-role.js';
 
 // enterReportDetails + attachPhoto + captureLocation from the sequence diagram.
 // The client app captures the GPS position, so it is sent as plain numbers.
-export class SubmitHazardReportDto {
+export class SubmitHazardReportDto implements ReportSubmission {
   @ApiProperty({ enum: HazardType, example: HazardType.Flood })
   @IsEnum(HazardType)
   hazardType!: HazardType;

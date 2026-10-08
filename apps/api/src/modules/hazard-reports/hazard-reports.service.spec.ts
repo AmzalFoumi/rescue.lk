@@ -2,16 +2,17 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { HazardReportsService } from './hazard-reports.service.js';
 import { HazardReportStatus } from './hazard-report-status.js';
-import { HazardType, ReporterRole } from './hazard-type.js';
+import { HazardType } from './hazard-type.js';
+import { ReporterRole } from './reporter-role.js';
 import { InMemoryOfflineReportQueue } from './offline-report-queue.js';
 import type { HazardReportsRepository } from './hazard-reports.repository.interface.js';
-import type { SubmitHazardReportDto } from './dto/submit-hazard-report.dto.js';
-import type { HazardReportDocument } from './schemas/hazard-report.schema.js';
+import type { HazardReportRecord } from './hazard-report-record.js';
+import type { ReportSubmission } from './report-submission.js';
 
 const ID = '6ac71f73f776c0e7b5e78e36';
 const MISSING_ID = '000000000000000000000000';
 
-const dto: SubmitHazardReportDto = {
+const dto: ReportSubmission = {
   hazardType: HazardType.Flood,
   description: 'Water is rising',
   latitude: 6.9271,
@@ -32,7 +33,7 @@ const stored = (overrides: Record<string, unknown> = {}) =>
     capturedAt: new Date('2026-10-08T08:00:00Z'),
     status: HazardReportStatus.PendingVerification,
     ...overrides,
-  }) as unknown as HazardReportDocument;
+  }) as unknown as HazardReportRecord;
 
 describe('HazardReportsService', () => {
   let service: HazardReportsService;
@@ -43,7 +44,7 @@ describe('HazardReportsService', () => {
     repository = {
       create: vi.fn(
         async (report) =>
-          ({ id: 'new', ...report }) as unknown as HazardReportDocument,
+          ({ id: 'new', ...report }) as unknown as HazardReportRecord,
       ),
       findById: vi.fn().mockResolvedValue(stored()),
       findByStatus: vi.fn().mockResolvedValue([]),

@@ -1,9 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { InMemoryOfflineReportQueue } from './offline-report-queue.js';
-import type { SubmitHazardReportDto } from './dto/submit-hazard-report.dto.js';
+import type { ReportSubmission } from './report-submission.js';
 
-const report = (description: string) =>
-  ({ description }) as SubmitHazardReportDto;
+const report = (description: string) => ({ description }) as ReportSubmission;
 
 describe('InMemoryOfflineReportQueue', () => {
   it('starts empty', () => {
@@ -41,7 +40,7 @@ describe('InMemoryOfflineReportQueue', () => {
     const queue = new InMemoryOfflineReportQueue();
     queue.enqueue(report('ok'));
     queue.enqueue(report('bad'));
-    const send = vi.fn(async (r: SubmitHazardReportDto) => {
+    const send = vi.fn(async (r: ReportSubmission) => {
       if (r.description === 'bad') throw new Error('network down');
     });
 
