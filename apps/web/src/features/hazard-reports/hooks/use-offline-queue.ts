@@ -4,13 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { errorMessage } from '@/lib/api';
 import type { HazardReportsApi } from '../api/hazard-reports-api';
 import type { QueuedReport } from '../domain/queued-report';
-
-/** What the screen shows about sending the saved reports. */
-export type SyncState =
-  | { phase: 'idle' }
-  | { phase: 'syncing'; count: number }
-  | { phase: 'done'; synced: number; stillQueued: number }
-  | { phase: 'error'; message: string };
+import type { SyncState } from '../domain/sync-state';
 
 export interface OfflineQueue {
   /** Reports saved on this device that are waiting to be sent. */
