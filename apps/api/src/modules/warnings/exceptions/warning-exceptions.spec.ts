@@ -4,10 +4,20 @@ import { HazardReportNotFoundException } from './hazard-report-not-found.excepti
 import { ReportNotVerifiedException } from './report-not-verified.exception.js';
 import { InvalidWarningException } from './invalid-warning.exception.js';
 import { UnsupportedChannelException } from './unsupported-channel.exception.js';
+import { WarningNotFoundException } from './warning-not-found.exception.js';
 
 const REPORT_ID = '665f1b2c9d3e4a0012345678';
+const WARNING_ID = '665f1b2c9d3e4a0012345670';
 
 describe('warning domain exceptions', () => {
+  it('WarningNotFoundException is a 404 naming the warning', () => {
+    const exception = new WarningNotFoundException(WARNING_ID);
+
+    expect(exception).toBeInstanceOf(HttpException);
+    expect(exception.getStatus()).toBe(HttpStatus.NOT_FOUND);
+    expect(exception.message).toContain(WARNING_ID);
+  });
+
   it('HazardReportNotFoundException is a 404 naming the report', () => {
     const exception = new HazardReportNotFoundException(REPORT_ID);
 

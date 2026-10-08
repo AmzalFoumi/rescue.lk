@@ -21,6 +21,8 @@ import { SmsChannel } from './channels/sms.channel.js';
 import { AudibleChannel } from './channels/audible.channel.js';
 import { ChannelRegistry } from './channels/channel.registry.js';
 import { RetryPolicy } from './delivery/retry.policy.js';
+import { WarningDeliveryService } from './delivery/warning-delivery.service.js';
+import { CLOCK, SystemClock } from './domain/clock.js';
 
 // Adding a channel (e.g. email) means one new class here; nothing else changes.
 const CHANNEL_IMPLEMENTATIONS = [PushChannel, SmsChannel, AudibleChannel];
@@ -51,6 +53,8 @@ const CHANNEL_IMPLEMENTATIONS = [PushChannel, SmsChannel, AudibleChannel];
     },
     ChannelRegistry,
     RetryPolicy,
+    WarningDeliveryService,
+    { provide: CLOCK, useClass: SystemClock },
   ],
 })
 export class WarningsModule {}
