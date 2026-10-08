@@ -1,2 +1,2 @@
-// UC1 warnings feature components go here (each member builds their own use case).
-export {};
+// UC1: Manage & Issue Disaster Warnings.
+export { WarningWorkflow } from './WarningWorkflow';

@@ -1,0 +1,22 @@
+/*
+ * Page frame for the UC1 screen, matching the design (light grey page,
+ * content up to 1360px wide).
+ *
+ * The shared root layout caps <main> at max-w-5xl and globals.css turns the
+ * page black in dark mode. Rather than change those shared files, these rules
+ * apply only while the UC1 screen is on the page: Next keeps imported global
+ * CSS loaded after navigating away, so every selector is scoped with
+ * :has([data-uc1-screen]) and has no effect on other routes.
+ */
+
+body:has([data-uc1-screen]) {
+  background: #f3f5f7;
+  color: #17212b;
+  /* The design is light only: keep native inputs and scrollbars light too. */
+  color-scheme: light;
+}
+
+main:has([data-uc1-screen]) {
+  max-width: none;
+  padding: 0;
+}
