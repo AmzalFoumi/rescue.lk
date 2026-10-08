@@ -41,6 +41,14 @@ export class MongooseHazardReportsRepository implements HazardReportsRepository 
     return docs.map((doc) => this.toRecord(doc));
   }
 
+  async findByReporter(reporterId: string): Promise<HazardReportRecord[]> {
+    const docs = await this.model
+      .find({ reporterId })
+      .sort({ capturedAt: -1 })
+      .exec();
+    return docs.map((doc) => this.toRecord(doc));
+  }
+
   async findByTypeBetween(
     type: HazardType,
     from: Date,
@@ -69,6 +77,9 @@ export class MongooseHazardReportsRepository implements HazardReportsRepository 
       hazardType: doc.hazardType,
       description: doc.description,
       photoUrl: doc.photoUrl,
+      placeName: doc.placeName,
+      reporterName: doc.reporterName,
+      otherHazard: doc.otherHazard,
       location: {
         latitude: doc.location.latitude,
         longitude: doc.location.longitude,

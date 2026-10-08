@@ -20,6 +20,7 @@ import type { ReportSubmission } from '../report-submission.js';
 import { ReporterRole } from '../reporter-role.js';
 
 const MAX_DESCRIPTION_LENGTH = 1000;
+const MAX_SHORT_TEXT_LENGTH = 100;
 
 /** A GPS position: latitude between -90 and 90, longitude between -180 and 180. */
 export class LocationDto implements Location {
@@ -55,6 +56,30 @@ export class SubmitHazardReportDto implements ReportSubmission {
   @IsOptional()
   @IsUrl()
   photoUrl?: string;
+
+  @ApiPropertyOptional({ example: 'Kuruwita bridge' })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(MAX_SHORT_TEXT_LENGTH)
+  placeName?: string;
+
+  @ApiPropertyOptional({ example: 'Nimal Perera' })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(MAX_SHORT_TEXT_LENGTH)
+  reporterName?: string;
+
+  @ApiPropertyOptional({
+    description: 'Used when the type is other',
+    example: 'Fallen power line',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(MAX_SHORT_TEXT_LENGTH)
+  otherHazard?: string;
 
   @ApiProperty({ type: LocationDto })
   @ValidateNested()

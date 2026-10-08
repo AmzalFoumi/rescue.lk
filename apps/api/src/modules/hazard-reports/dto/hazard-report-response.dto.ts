@@ -18,6 +18,15 @@ export class HazardReportResponseDto {
   @ApiPropertyOptional({ example: 'https://example.com/photos/flood.jpg' })
   photoUrl?: string;
 
+  @ApiPropertyOptional({ example: 'Kuruwita bridge' })
+  placeName?: string;
+
+  @ApiPropertyOptional({ example: 'Nimal Perera' })
+  reporterName?: string;
+
+  @ApiPropertyOptional({ example: 'Fallen power line' })
+  otherHazard?: string;
+
   @ApiProperty({ type: LocationDto })
   location!: LocationDto;
 

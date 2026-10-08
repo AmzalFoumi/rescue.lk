@@ -28,6 +28,15 @@ export class HazardReport {
   @Prop()
   photoUrl?: string;
 
+  @Prop()
+  placeName?: string;
+
+  @Prop()
+  reporterName?: string;
+
+  @Prop()
+  otherHazard?: string;
+
   @Prop({ type: LocationDataSchema, required: true })
   location!: LocationData;
 

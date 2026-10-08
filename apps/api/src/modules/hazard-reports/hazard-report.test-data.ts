@@ -49,6 +49,7 @@ export function fakeRepository(): HazardReportsRepository {
     ),
     findById: vi.fn().mockResolvedValue(storedReport()),
     findByStatus: vi.fn().mockResolvedValue([]),
+    findByReporter: vi.fn().mockResolvedValue([]),
     findByTypeBetween: vi.fn().mockResolvedValue([]),
     updateStatus: vi.fn(async (_id, change) => storedReport({ ...change })),
   };
