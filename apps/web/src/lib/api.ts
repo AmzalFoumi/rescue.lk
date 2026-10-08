@@ -34,6 +34,13 @@ export function readErrorMessages(body: unknown): string[] {
   return [];
 }
 
+/** Readable text for anything that was thrown, safe to show to the user. */
+export function errorMessage(error: unknown): string {
+  if (error instanceof ApiError) return error.messages.join(' ');
+  if (error instanceof Error) return error.message;
+  return 'Something went wrong. Please try again.';
+}
+
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {

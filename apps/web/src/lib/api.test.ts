@@ -3,6 +3,7 @@ import {
   ApiError,
   NETWORK_ERROR_MESSAGE,
   api,
+  errorMessage,
   readErrorMessages,
   request,
 } from './api';
@@ -120,5 +121,21 @@ describe('api', () => {
     );
     expect(urls[0]).toMatch(/\/warnings$/);
     expect(urls[1]).toMatch(/\/response\/incidents$/);
+  });
+});
+
+describe('errorMessage', () => {
+  it('joins the messages of an ApiError', () => {
+    expect(errorMessage(new ApiError(400, ['a', 'b']))).toBe('a b');
+  });
+
+  it('uses the message of a normal Error', () => {
+    expect(errorMessage(new Error('boom'))).toBe('boom');
+  });
+
+  it('has a friendly fallback for anything else', () => {
+    expect(errorMessage('oops')).toBe(
+      'Something went wrong. Please try again.',
+    );
   });
 });
