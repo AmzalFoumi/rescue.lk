@@ -7,15 +7,15 @@ module by its owner.
 
 ## Use case ownership
 
-| UC  | Module           | Description                               | Owner           |
-| --- | ---------------- | ----------------------------------------- | --------------- |
-| UC1 | `warnings`       | Manage & Issue Disaster Warnings          | _(assign name)_ |
-| UC2 | `hazard-reports` | Submit & Verify Hazard Reports            | _(assign name)_ |
-| UC3 | `response`       | Coordinate Emergency Response & Resources | _(assign name)_ |
-| UC4 | `analytics`      | Analyse Disaster & Generate Reports       | _(assign name)_ |
+| UC  | Module           | Description                               | Owner                                                       |
+| --- | ---------------- | ----------------------------------------- | ----------------------------------------------------------- |
+| UC1 | `warnings`       | Manage & Issue Disaster Warnings          | Rimasha ([@rismyrimasha](https://github.com/rismyrimasha))  |
+| UC2 | `hazard-reports` | Submit & Verify Hazard Reports            | Amzal M F M ([@AmzalFoumi](https://github.com/AmzalFoumi))  |
+| UC3 | `response`       | Coordinate Emergency Response & Resources | Lakindu ([@lakindu62](https://github.com/lakindu62))        |
+| UC4 | `analytics`      | Analyse Disaster & Generate Reports       | Tharushi ([@Tharushi5729](https://github.com/Tharushi5729)) |
 
-See [`.github/CODEOWNERS`](.github/CODEOWNERS) — update the `@uc*-owner` placeholders
-with real GitHub usernames once roles are assigned.
+Each owner is auto-requested as reviewer for their module via
+[`.github/CODEOWNERS`](.github/CODEOWNERS).
 
 ## Stack
 

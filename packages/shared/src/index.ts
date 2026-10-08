@@ -3,7 +3,8 @@
 
 export type WarningSeverity = 'low' | 'moderate' | 'severe' | 'extreme';
 
-export type HazardReportStatus = 'pending' | 'verified' | 'rejected';
+export type HazardReportStatus =
+  'pending_verification' | 'pending_synchronisation' | 'verified' | 'rejected';
 
 export type ResourceStatus = 'available' | 'allocated' | 'depleted';
 
