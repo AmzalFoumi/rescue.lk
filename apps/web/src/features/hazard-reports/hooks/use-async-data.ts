@@ -15,12 +15,14 @@ interface LoadState<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
+  /** What this state was loaded for. When the screen asks for something else, the state is stale. */
+  loadedFor: { load: () => Promise<T>; refreshKey: unknown };
 }
 
 /**
  * Loads data when the screen opens and gives back loading and error states.
  * `load` must keep the same identity between renders (wrap it in useCallback).
- * When `refreshKey` changes, the data is loaded again.
+ * When `load` or `refreshKey` changes, the data is loaded again and shows as loading meanwhile.
  */
 export function useAsyncData<T>(
   load: () => Promise<T>,
@@ -30,6 +32,7 @@ export function useAsyncData<T>(
     data: null,
     loading: true,
     error: null,
+    loadedFor: { load, refreshKey },
   });
   const [version, setVersion] = useState(0);
 
@@ -40,22 +43,34 @@ export function useAsyncData<T>(
 
   useEffect(() => {
     let active = true;
+    const loadedFor = { load, refreshKey };
     load()
       .then((data) => {
-        if (active) setState({ data, loading: false, error: null });
+        if (active) setState({ data, loading: false, error: null, loadedFor });
       })
       .catch((error: unknown) => {
         if (active)
-          setState((current) => ({
-            ...current,
+          setState({
+            data: null,
             loading: false,
             error: errorMessage(error),
-          }));
+            loadedFor,
+          });
       });
     return () => {
       active = false;
     };
   }, [load, version, refreshKey]);
 
-  return { ...state, reload };
+  const stale =
+    state.loadedFor.load !== load || state.loadedFor.refreshKey !== refreshKey;
+  if (stale) {
+    return { data: null, loading: true, error: null, reload };
+  }
+  return {
+    data: state.data,
+    loading: state.loading,
+    error: state.error,
+    reload,
+  };
 }

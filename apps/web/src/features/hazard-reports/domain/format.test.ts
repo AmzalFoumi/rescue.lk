@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { formatAge, formatCoordinates, formatDateTime } from './format';
+import {
+  formatAge,
+  formatCoordinates,
+  formatDateTime,
+  formatTime,
+} from './format';
 
 const now = new Date('2026-10-08T10:00:00Z');
 const ago = (minutes: number) =>
@@ -8,6 +13,13 @@ const ago = (minutes: number) =>
 describe('formatDateTime', () => {
   it('shows day, month and 24-hour time in the given time zone', () => {
     expect(formatDateTime('2026-10-07T10:40:00Z', 'UTC')).toBe('7 Oct, 10:40');
+  });
+});
+
+describe('formatTime', () => {
+  it('shows hours and minutes in 24-hour time', () => {
+    expect(formatTime(new Date('2026-10-07T10:42:00Z'), 'UTC')).toBe('10:42');
+    expect(formatTime(new Date('2026-10-07T07:05:00Z'), 'UTC')).toBe('07:05');
   });
 });
 

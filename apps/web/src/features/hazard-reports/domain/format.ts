@@ -14,6 +14,16 @@ export function formatDateTime(iso: string, timeZone?: string): string {
   });
 }
 
+/** A time of day like "10:42" (24-hour). Pass a time zone to get the same text everywhere. */
+export function formatTime(date: Date, timeZone?: string): string {
+  return date.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone,
+  });
+}
+
 /** How long ago something happened, like "56 min ago" or "2 h ago". */
 export function formatAge(iso: string, now: Date): string {
   const minutes = Math.floor(

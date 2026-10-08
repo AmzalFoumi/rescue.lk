@@ -66,4 +66,26 @@ describe('useAsyncData', () => {
 
     await waitFor(() => expect(load).toHaveBeenCalledTimes(2));
   });
+
+  it('shows loading again, not the old data, when the loader changes', async () => {
+    const first = vi.fn().mockResolvedValue('one');
+    let finishSecond: (value: string) => void = () => {};
+    const second = vi.fn(
+      () => new Promise<string>((resolve) => (finishSecond = resolve)),
+    );
+    const { result, rerender } = renderHook(({ load }) => useAsyncData(load), {
+      initialProps: { load: first as () => Promise<string> },
+    });
+    await waitFor(() => expect(result.current.data).toBe('one'));
+
+    rerender({ load: second });
+
+    expect(result.current).toMatchObject({
+      data: null,
+      loading: true,
+      error: null,
+    });
+    await act(async () => finishSecond('two'));
+    expect(result.current).toMatchObject({ data: 'two', loading: false });
+  });
 });
