@@ -1,4 +1,4 @@
-// The kinds of hazard a reporter can choose from the report form.
+/** The kinds of hazard a reporter can choose from the report form. */
 export enum HazardType {
   Flood = 'flood',
   Landslide = 'landslide',

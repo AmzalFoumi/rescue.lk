@@ -16,8 +16,12 @@ import { HazardType } from '../hazard-type.js';
 import type { ReportSubmission } from '../report-submission.js';
 import { ReporterRole } from '../reporter-role.js';
 
-// enterReportDetails + attachPhoto + captureLocation from the sequence diagram.
-// The client app captures the GPS position, so it is sent as plain numbers.
+const MAX_DESCRIPTION_LENGTH = 1000;
+
+/**
+ * enterReportDetails + attachPhoto + captureLocation from the sequence diagram.
+ * The client app captures the GPS position, so it is sent as plain numbers.
+ */
 export class SubmitHazardReportDto implements ReportSubmission {
   @ApiProperty({ enum: HazardType, example: HazardType.Flood })
   @IsEnum(HazardType)
@@ -26,7 +30,7 @@ export class SubmitHazardReportDto implements ReportSubmission {
   @ApiProperty({ example: 'Water is rising on Main Street' })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(1000)
+  @MaxLength(MAX_DESCRIPTION_LENGTH)
   description!: string;
 
   @ApiPropertyOptional({ example: 'https://example.com/photos/flood.jpg' })

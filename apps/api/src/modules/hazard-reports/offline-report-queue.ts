@@ -8,7 +8,7 @@ export interface SyncResult {
   stillQueued: number;
 }
 
-// OfflineReportQueue from the class diagram.
+/** OfflineReportQueue from the class diagram. */
 export interface OfflineReportQueue {
   enqueue(report: ReportSubmission): void;
   pendingCount(): number;
@@ -17,8 +17,10 @@ export interface OfflineReportQueue {
   ): Promise<SyncResult>;
 }
 
-// A mock queue that lives in memory. Reports are lost if the server restarts.
-// The real queue would live on the reporter's phone.
+/**
+ * A mock queue that lives in memory. Reports are lost if the server restarts.
+ * The real queue would live on the reporter's phone.
+ */
 export class InMemoryOfflineReportQueue implements OfflineReportQueue {
   private readonly logger = new Logger(InMemoryOfflineReportQueue.name);
   private queue: ReportSubmission[] = [];
@@ -31,7 +33,7 @@ export class InMemoryOfflineReportQueue implements OfflineReportQueue {
     return this.queue.length;
   }
 
-  // Tries to send every queued report. A report that fails stays queued for next time.
+  /** Tries to send every queued report. A report that fails stays queued for next time. */
   async syncWhenOnline(
     send: (report: ReportSubmission) => Promise<void>,
   ): Promise<SyncResult> {

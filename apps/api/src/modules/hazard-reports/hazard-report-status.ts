@@ -5,8 +5,10 @@ export enum HazardReportStatus {
   Rejected = 'rejected',
 }
 
-// A tiny state machine: a report may only leave "pending verification" once,
-// to either "verified" or "rejected". Everything else is final.
+/**
+ * A tiny state machine: a report may only leave "pending verification" once,
+ * to either "verified" or "rejected". Everything else is final.
+ */
 const ALLOWED_CHANGES: Record<HazardReportStatus, HazardReportStatus[]> = {
   [HazardReportStatus.PendingVerification]: [
     HazardReportStatus.Verified,
@@ -17,6 +19,7 @@ const ALLOWED_CHANGES: Record<HazardReportStatus, HazardReportStatus[]> = {
   [HazardReportStatus.Rejected]: [],
 };
 
+/** True when a report may move from one status to the other. */
 export function canChangeStatus(
   from: HazardReportStatus,
   to: HazardReportStatus,

@@ -21,6 +21,7 @@ import {
   QueuedReportResponseDto,
   SyncResponseDto,
 } from './dto/queued-report-response.dto.js';
+import { HazardReportResponseDto } from './dto/hazard-report-response.dto.js';
 import { SubmitHazardReportDto } from './dto/submit-hazard-report.dto.js';
 import {
   RejectHazardReportDto,
@@ -42,6 +43,7 @@ export class HazardReportsController {
 
   // Submit Hazard Report
   @Post()
+  @ApiCreatedResponse({ type: HazardReportResponseDto })
   @ApiBadRequestResponse({ description: 'A field is missing or invalid' })
   submit(@Body() dto: SubmitHazardReportDto) {
     return this.submissionService.submit(dto);
@@ -63,18 +65,21 @@ export class HazardReportsController {
 
   // Verify Hazard Report
   @Get()
+  @ApiOkResponse({ type: HazardReportResponseDto, isArray: true })
   listPending() {
     // Lists reports waiting for verification (getPendingReports in the sequence diagram).
     return this.verificationService.listPending();
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: HazardReportResponseDto })
   @ApiNotFoundResponse({ description: 'No report with this id' })
   getById(@Param('id') id: string) {
     return this.verificationService.getById(id);
   }
 
   @Patch(':id/verify')
+  @ApiOkResponse({ type: HazardReportResponseDto })
   @ApiNotFoundResponse({ description: 'No report with this id' })
   @ApiConflictResponse({
     description: 'The report is not pending verification',
@@ -84,6 +89,7 @@ export class HazardReportsController {
   }
 
   @Patch(':id/reject')
+  @ApiOkResponse({ type: HazardReportResponseDto })
   @ApiBadRequestResponse({ description: 'The reason is missing' })
   @ApiNotFoundResponse({ description: 'No report with this id' })
   @ApiConflictResponse({
