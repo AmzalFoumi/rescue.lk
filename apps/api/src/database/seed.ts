@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import { District, DistrictSchema } from './schemas/district.schema.js';
+import { seedResponse } from './seed-response.js';
 
 const DISTRICTS: Array<{
   name: string;
@@ -100,6 +101,12 @@ async function seed(): Promise<void> {
   }
 
   console.log(`Seeded ${DISTRICTS.length} districts.`);
+
+  const districtIds = new Map(
+    (await DistrictModel.find().exec()).map((doc) => [doc.name, doc._id]),
+  );
+  await seedResponse(districtIds);
+
   await mongoose.disconnect();
 }
 
