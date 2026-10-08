@@ -44,6 +44,13 @@ export interface WarningListFilter {
   status?: WarningStatus;
 }
 
+// WarningsRepository is how services create, find, list and update warnings.
+// Repository pattern: the services see only this interface and plain WarningRecords;
+// Mongoose stays inside MongooseWarningsRepository.
+// DIP: the high-level services depend on this abstraction, not on the database, so
+// tests use an in-memory fake and the database could change without touching them.
+// update() takes a status guard (GuardedWarningUpdate), so status rules hold even when
+// two officers act at the same time.
 export interface WarningsRepository {
   create(input: CreateWarningInput): Promise<WarningRecord>;
   findById(id: string): Promise<WarningRecord | null>;

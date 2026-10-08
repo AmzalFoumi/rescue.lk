@@ -15,10 +15,13 @@ export interface DeliveryAttemptRecorderDeps {
   clock: Clock;
 }
 
-// Sequence diagram DeliveryRecord.recordDelivery(): saves every status change
-// of one delivery record as RetryPolicy reports it (Observer). Attempt numbers
-// continue from the record's stored count, so a manual retry after 3 failed
-// attempts is attempt 4.
+// DeliveryAttemptRecorder saves every status change of one delivery record as
+// RetryPolicy reports it: QUEUED -> RETRYING -> SENT or FAILED.
+// Observer: it implements RetryListener, so RetryPolicy does not know the database
+// exists and the recorder does not know how retries work.
+// SRP: it only records. Sequence diagram: DeliveryRecord.recordDelivery().
+// Attempt numbers continue from the stored count, so a manual retry after 3 failed
+// attempts is saved as attempt 4 and the history stays honest.
 export class DeliveryAttemptRecorder implements RetryListener {
   private latest: DeliveryRecordEntry;
   private readonly baseAttempts: number;

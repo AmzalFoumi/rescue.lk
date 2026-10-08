@@ -11,8 +11,11 @@ export interface WarningStatusConflict {
   requiredStatus: WarningStatus;
 }
 
-// An action was attempted on a warning in the wrong lifecycle state
-// (DRAFT -> ACTIVE -> CANCELLED).
+// WarningStatusConflictException (409): an action was tried on a warning in the wrong
+// lifecycle state, e.g. cancelling a DRAFT (DRAFT -> ACTIVE -> CANCELLED).
+// Parameter Object: it takes one WarningStatusConflict object, so the message always
+// names the action and both statuses.
+// It extends ConflictException, so the global AllExceptionsFilter sets the status.
 export class WarningStatusConflictException extends ConflictException {
   constructor({
     warningId,

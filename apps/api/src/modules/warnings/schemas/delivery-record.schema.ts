@@ -13,6 +13,10 @@ import { Warning } from './warning.schema.js';
 
 export type DeliveryRecordDocument = HydratedDocument<DeliveryRecord>;
 
+// DeliveryRecord is the MongoDB document shape of one channel's delivery of one
+// warning version; only MongooseDeliveryRecordsRepository uses it.
+// SRP: it only describes storage; status changes are decided by the delivery classes.
+// Enums and starting values come from warnings.constants (no magic strings or numbers).
 @Schema({ timestamps: true, collection: 'delivery_records' })
 export class DeliveryRecord {
   @Prop({ type: Types.ObjectId, ref: Warning.name, required: true })

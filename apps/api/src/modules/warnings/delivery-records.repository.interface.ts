@@ -35,6 +35,12 @@ export interface WarningVersionRef {
   warningVersion: number;
 }
 
+// DeliveryRecordsRepository is how services save and read delivery records (one per
+// channel per warning version).
+// Repository pattern + DIP: services depend on this interface, never on Mongoose,
+// which stays inside MongooseDeliveryRecordsRepository; tests use a fake.
+// ISP: it offers only the four operations UC1 needs (create, findById,
+// findByWarningVersion, update), so a fake or a new database adapter stays small.
 export interface DeliveryRecordsRepository {
   create(input: CreateDeliveryRecordInput): Promise<DeliveryRecordEntry>;
   findById(id: string): Promise<DeliveryRecordEntry | null>;

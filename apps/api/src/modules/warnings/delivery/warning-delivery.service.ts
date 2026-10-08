@@ -18,12 +18,13 @@ import { TARGET_AREA_CATALOG } from '../target-areas/target-area-catalog.interfa
 import type { TargetAreaCatalog } from '../target-areas/target-area-catalog.interface.js';
 import { DeliveryRecordNotFoundException } from '../exceptions/delivery-record-not-found.exception.js';
 import { DeliveryNotRetryableException } from '../exceptions/delivery-not-retryable.exception.js';
-import { WarningNotFoundException } from '../exceptions/warning-not-found.exception.js';
 import { MANUAL_RETRY_ATTEMPTS } from '../warnings.constants.js';
+import { requireWarning } from '../require-warning.js';
 import { RetryPolicy } from './retry.policy.js';
 import { DeliveryAttemptRecorder } from './delivery-attempt.recorder.js';
+import { retryRefusal } from './retry-eligibility.js';
 
-// Parameter object for sending one warning on one channel.
+// Parameter Object for sending one warning on one channel.
 interface ChannelRun {
   warning: WarningRecord;
   channel: AlertChannel;
@@ -41,9 +42,13 @@ const isFulfilled = <T>(
   outcome: PromiseSettledResult<T>,
 ): outcome is PromiseFulfilledResult<T> => outcome.status === 'fulfilled';
 
-// Sequence diagram step 10 deliver(): par fragment over the selected channels,
-// each send wrapped in loop(0,3) [send failed], with every status change
-// recorded (QUEUED -> RETRYING -> SENT | FAILED).
+// WarningDeliveryService sends a published warning on every selected channel and
+// handles a manual retry of one failed channel (sequence diagram step 10 deliver()).
+// SRP: it only orchestrates. The retry rule is retryRefusal, the retry loop is
+// RetryPolicy, and saving each status change is DeliveryAttemptRecorder.
+// Strategy: it calls channel.send() without knowing which channel it is, so a new
+// channel needs no change here (OCP). Channels run in parallel (par fragment), so a slow
+// or failing channel never holds up the others.
 @Injectable()
 export class WarningDeliveryService {
   private readonly logger = new Logger(WarningDeliveryService.name);
@@ -71,7 +76,8 @@ export class WarningDeliveryService {
       ),
     );
 
-    // allSettled: one channel failing never stops the others.
+    // Promise.allSettled for parallel delivery (par fragment): one channel failing never
+    // stops or delays the others. Recording failures are reported in collectRecords.
     const outcomes = await Promise.allSettled(
       channels.map((channel, index) =>
         this.runChannel({ warning, channel, record: records[index] }),
@@ -83,7 +89,7 @@ export class WarningDeliveryService {
   // Manual retry from the delivery status screen: one extra attempt.
   async retry(recordId: string): Promise<DeliveryRecordEntry> {
     const record = await this.findRecordOrThrow(recordId);
-    const warning = await this.findWarningOrThrow(record.warningId);
+    const warning = await requireWarning(this.warnings, record.warningId);
     this.assertRetryable(record, warning);
 
     const [channel] = this.channelRegistry.resolve([record.channel]);
@@ -98,6 +104,8 @@ export class WarningDeliveryService {
     });
   }
 
+  // Strategy + Observer: channel.send() is the strategy and the recorder observes each
+  // attempt, so one method works for every channel and never saves statuses itself.
   private async runChannel({
     warning,
     channel,
@@ -135,27 +143,11 @@ export class WarningDeliveryService {
     record: DeliveryRecordEntry,
     warning: WarningRecord,
   ): void {
-    const reason = this.notRetryableReason(record, warning);
+    const reason = retryRefusal(record, warning);
     if (reason) {
       this.logger.warn(`Retry of delivery ${record.id} refused: ${reason}`);
       throw new DeliveryNotRetryableException({ recordId: record.id, reason });
     }
-  }
-
-  private notRetryableReason(
-    record: DeliveryRecordEntry,
-    warning: WarningRecord,
-  ): string | null {
-    if (record.status !== 'FAILED') {
-      return `it is ${record.status}; only FAILED deliveries can be retried`;
-    }
-    if (warning.status !== 'ACTIVE') {
-      return `warning ${warning.id} is ${warning.status}`;
-    }
-    if (record.warningVersion !== warning.version) {
-      return `it belongs to version ${record.warningVersion}, but the warning is now version ${warning.version}`;
-    }
-    return null;
   }
 
   private async findRecordOrThrow(
@@ -168,15 +160,8 @@ export class WarningDeliveryService {
     return record;
   }
 
-  private async findWarningOrThrow(warningId: string): Promise<WarningRecord> {
-    const warning = await this.warnings.findById(warningId);
-    if (!warning) {
-      throw new WarningNotFoundException(warningId);
-    }
-    return warning;
-  }
-
-  // Returns every record, or logs and rethrows if any could not be recorded.
+  // Never swallow: a delivery that could not be recorded is logged and rethrown (several
+  // become one AggregateError), so a database failure is not hidden.
   private collectRecords(
     warningId: string,
     channels: readonly AlertChannel[],

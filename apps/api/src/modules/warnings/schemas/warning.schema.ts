@@ -16,9 +16,13 @@ import {
 
 export type WarningDocument = HydratedDocument<Warning>;
 
-// Timestamps are set by WarningsService from the injected Clock (createdAt,
-// publishedAt, updatedAt, cancelledAt), so Mongoose timestamps are off.
-// Business rules (lengths, required-for-publish) live in WarningValidator.
+// Warning is the MongoDB document shape of a warning; only
+// MongooseWarningsRepository uses it.
+// Dates are set from the injected Clock (createdAt, publishedAt, updatedAt,
+// cancelledAt), so Mongoose timestamps are off and tests can control time.
+// SRP: the schema only describes storage. Business rules (minimum lengths, what
+// publishing requires) live in WarningValidator, and enums come from
+// warnings.constants (no magic strings).
 @Schema({ timestamps: false, collection: 'warnings' })
 export class Warning {
   @Prop({ type: Types.ObjectId, ref: 'HazardReport', required: true })

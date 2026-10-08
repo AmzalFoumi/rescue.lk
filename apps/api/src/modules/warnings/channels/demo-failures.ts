@@ -15,8 +15,11 @@ export const parseChannelList = (
       ALERT_CHANNEL_TYPES.includes(item as AlertChannelType),
     );
 
-// DEMO ONLY: wraps the named channels so their first attempt fails; the rest
-// are returned unchanged, in the same order.
+// DEMO ONLY: wraps the channels named in MOCK_FAIL_FIRST_ATTEMPT_CHANNELS in
+// FirstAttemptFailingChannel, so the retry loop can be shown in a demo.
+// SRP: it only decides which channels to wrap. The rest are returned unchanged and in
+// the same order, so with the setting empty the app behaves exactly as normal.
+// Decorator: the real channels are wrapped, never edited (OCP).
 export const withDemoFailures = (
   channels: readonly AlertChannel[],
   failFirstAttempt: readonly AlertChannelType[],

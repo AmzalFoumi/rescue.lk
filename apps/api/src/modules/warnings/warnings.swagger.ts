@@ -14,6 +14,10 @@ const ERROR_DESCRIPTIONS = {
 
 export type ApiErrorStatus = keyof typeof ERROR_DESCRIPTIONS;
 
+// ApiErrorResponses documents the error statuses of a route in Swagger.
+// DRY: one decorator call such as ApiErrorResponses(404, 409) replaces an
+// @ApiResponse block per status on every route, and every route describes the same
+// status the same way, using the shared ErrorResponseDto shape.
 export const ApiErrorResponses = (...statuses: ApiErrorStatus[]) =>
   applyDecorators(
     ...statuses.map((status) =>

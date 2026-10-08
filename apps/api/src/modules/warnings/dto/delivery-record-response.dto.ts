@@ -9,6 +9,10 @@ import {
   DELIVERY_STATUSES,
 } from '../warnings.constants.js';
 
+// DeliveryRecordResponseDto is the shape of one channel's delivery in API responses,
+// documented in Swagger.
+// It implements the shared DeliveryRecordDto, so the API and the web app cannot
+// drift apart.
 export class DeliveryRecordResponseDto implements DeliveryRecordDto {
   @ApiProperty({ example: '665f1b2c9d3e4a0012345671' })
   id!: string;

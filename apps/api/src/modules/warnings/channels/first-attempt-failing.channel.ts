@@ -6,10 +6,13 @@ import type {
   ChannelSendResult,
 } from './alert-channel.interface.js';
 
-// DEMO ONLY (Decorator pattern): wraps a real channel so that the first send
-// of each warning version fails, then every later attempt goes through. This
-// makes RetryPolicy's loop(0,3) [send failed] visible: the channel ends SENT
-// after 2 attempts. Switched on per channel by MOCK_FAIL_FIRST_ATTEMPT_CHANNELS.
+// DEMO ONLY: a channel wrapper whose first send of each warning version fails, then
+// lets every later attempt through to the real channel.
+// Decorator pattern: it implements AlertChannel and wraps another AlertChannel, so it
+// adds behaviour without editing the wrapped class (OCP) and can stand in for it (LSP).
+// Purpose: makes RetryPolicy's loop(0,3) [send failed] visible, because the channel
+// ends SENT after 2 attempts.
+// Switched on per channel by MOCK_FAIL_FIRST_ATTEMPT_CHANNELS; empty by default.
 export class FirstAttemptFailingChannel implements AlertChannel {
   private readonly logger = new Logger(FirstAttemptFailingChannel.name);
   // Warning versions whose first attempt has already failed.

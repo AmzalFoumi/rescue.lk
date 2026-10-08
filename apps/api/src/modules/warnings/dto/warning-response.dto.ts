@@ -13,6 +13,9 @@ import {
   WARNING_STATUSES,
 } from '../warnings.constants.js';
 
+// WarningResponseDto is the shape of a warning in API responses, documented in Swagger.
+// It implements the shared WarningDto, so the compiler stops the API and the web app
+// from drifting apart.
 export class WarningResponseDto implements WarningDto {
   @ApiProperty({ example: '665f1b2c9d3e4a0012345670' })
   id!: string;

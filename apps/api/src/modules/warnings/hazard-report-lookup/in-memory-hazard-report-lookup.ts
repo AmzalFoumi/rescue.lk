@@ -72,6 +72,12 @@ const isVerified = (
   report.verifiedAt !== null &&
   report.verifiedBy !== null;
 
+// InMemoryHazardReportLookup serves a fixed set of hazard reports until the UC2
+// adapter exists.
+// Adapter (stub) for the HazardReportLookup port. LSP: any HazardReportLookup can
+// replace it, so swapping in the UC2 adapter needs no change to the services.
+// It includes reports that are not verified, so the "report not verified" rule can be
+// shown and tested.
 @Injectable()
 export class InMemoryHazardReportLookup implements HazardReportLookup {
   findById(id: string): Promise<HazardReportSummary | null> {

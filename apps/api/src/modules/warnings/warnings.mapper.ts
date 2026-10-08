@@ -12,8 +12,12 @@ import { OTHER_HAZARD } from './warnings.constants.js';
 import type { WarningRecord } from './warnings.repository.interface.js';
 import type { DeliveryRecordEntry } from './delivery-records.repository.interface.js';
 
-// The single place that maps between the shared API DTOs and the module's own
-// types (Dates become ISO 8601 strings, missing dates stay null).
+// warnings.mapper converts between the shared API DTOs and the module's own types:
+// request DTO -> WarningForm/commands, and WarningRecord -> WarningDto.
+// SRP: this is the single place for that conversion, so controllers and repositories
+// never convert data themselves and a field rename is fixed in one place.
+// Dates become ISO 8601 strings and missing dates stay null; text is trimmed and
+// optional fields get defaults before validation.
 
 // Request -> domain: trims text, defaults optional fields, and keeps otherHazard
 // only when the hazard is OTHER.

@@ -1,6 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 
-// Step 11 deliveryStatus was requested for a warning that does not exist.
+// WarningNotFoundException (404): the warning does not exist.
+// Thrown from one place (requireWarning). It extends NotFoundException, so the global
+// AllExceptionsFilter sets the status.
 export class WarningNotFoundException extends NotFoundException {
   constructor(warningId: string) {
     super(`Warning ${warningId} was not found`);

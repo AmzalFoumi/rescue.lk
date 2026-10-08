@@ -1,7 +1,10 @@
 import { UnprocessableEntityException } from '@nestjs/common';
 import type { HazardReportStatus } from '@rescue-lk/shared';
 
-// Sequence diagram alt [invalid]: getStatus() is not verified, so no warning may be issued.
+// ReportNotVerifiedException (422): the source hazard report is not verified, so no
+// warning may be issued from it (sequence diagram alt [invalid]).
+// It extends a Nest HttpException, so the global AllExceptionsFilter maps it to the
+// right status and no controller needs try/catch.
 export class ReportNotVerifiedException extends UnprocessableEntityException {
   constructor(hazardReportId: string, status: HazardReportStatus) {
     super(

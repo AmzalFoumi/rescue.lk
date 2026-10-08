@@ -19,7 +19,7 @@ export interface RetryListener {
   afterFailedAttempt(failure: FailedAttempt): Promise<void>;
 }
 
-// Parameter object for one retry run.
+// Parameter Object for one retry run.
 export interface RetryRequest {
   operation: SendOperation;
   // Who is being retried, for the logs (e.g. "SMS for warning 665f... v2").
@@ -35,9 +35,13 @@ export interface RetryOutcome {
   attempts: number;
 }
 
-// Sequence diagram loop(0,3) [send failed]: re-attempts a channel send up to
-// MAX_SEND_ATTEMPTS. A thrown send error counts as a failed attempt; its
-// message is kept as the error and logged, so it is recorded rather than lost.
+// RetryPolicy tries a channel send again until it succeeds or the attempts run out
+// (sequence diagram loop(0,3) [send failed]).
+// SRP: it only decides when to try again; it never saves anything. The limit is
+// MAX_SEND_ATTEMPTS from config, so there is no magic number and it can change per
+// environment without code changes.
+// Observer: a RetryListener is told about each attempt, so the caller decides what to
+// record. A thrown send error counts as a failed attempt and is kept, never swallowed.
 @Injectable()
 export class RetryPolicy {
   private readonly logger = new Logger(RetryPolicy.name);
@@ -47,6 +51,9 @@ export class RetryPolicy {
     this.defaultMaxAttempts = config.getOrThrow<number>('MAX_SEND_ATTEMPTS');
   }
 
+  // Parameter Object (RetryRequest): a manual retry sets maxAttempts to 1 without a
+  // second method. Observer: the listener hears every attempt, so this class never
+  // touches the database (SRP).
   async execute({
     operation,
     context,
@@ -76,6 +83,8 @@ export class RetryPolicy {
     return { result, attempts };
   }
 
+  // A thrown send error becomes a failed result that keeps its message, so the loop
+  // retries a crash like any other failure and execute() logs it.
   private async attempt(operation: SendOperation): Promise<ChannelSendResult> {
     try {
       return await operation();

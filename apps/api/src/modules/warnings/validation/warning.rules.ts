@@ -38,6 +38,12 @@ const checkAreas = ({ form, areas }: RuleInput): string | null => {
   return unknown.length > 0 ? `Unknown area(s): ${unknown.join(', ')}.` : null;
 };
 
+// WARNING_RULES: the business rules of a warning, one entry per form field.
+// OCP: a new rule is one more entry here; WarningValidator never changes.
+// Each rule names the modes it applies to: a DRAFT may be saved before instructions
+// and channels are chosen, while PUBLISH requires everything.
+// Each check returns a readable message for its field, or null when the form passes,
+// so the UI can show the message next to the right input.
 export const WARNING_RULES: readonly WarningRule[] = [
   {
     field: 'hazard',

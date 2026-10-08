@@ -16,6 +16,11 @@ import { INITIAL_DELIVERY_STATUS } from './warnings.constants.js';
 
 type LeanDeliveryRecord = DeliveryRecord & { _id: Types.ObjectId };
 
+// MongooseDeliveryRecordsRepository stores delivery records in MongoDB Atlas.
+// Repository pattern: it is the only class that touches the DeliveryRecord Mongoose
+// Model, and it maps documents to plain DeliveryRecordEntry objects.
+// DIP: services depend on the DeliveryRecordsRepository interface; this class is bound
+// to it in warnings.module.ts, so the database can change without touching services.
 @Injectable()
 export class MongooseDeliveryRecordsRepository implements DeliveryRecordsRepository {
   private readonly logger = new Logger(MongooseDeliveryRecordsRepository.name);

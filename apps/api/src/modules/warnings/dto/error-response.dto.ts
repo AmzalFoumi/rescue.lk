@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-// Body written by the global AllExceptionsFilter. For a 400 from the warning
-// rules, message is { message, errors } with one error per form field.
+// ErrorResponseDto documents the body of every error answer in Swagger.
+// SRP: only the global AllExceptionsFilter turns exceptions into HTTP answers, so
+// controllers have no try/catch and every error has this same shape.
+// A 400 from the warning rules carries { message, errors } with one error per form
+// field, which the web app shows next to each input.
 export class ErrorResponseDto {
   @ApiProperty({ example: 400 })
   statusCode!: number;

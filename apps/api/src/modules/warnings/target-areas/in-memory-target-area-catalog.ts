@@ -82,7 +82,10 @@ const RIVER_BASIN_AREAS: readonly TargetAreaDto[] = [
   },
 ];
 
-// TEMPORARY STUB - static reference data until areas are stored in the database.
+// InMemoryTargetAreaCatalog holds the districts and main flood-prone river basins as
+// static reference data, until areas are stored in the database.
+// Adapter (stub) for the TargetAreaCatalog port. LSP: any TargetAreaCatalog can
+// replace it without changes to the classes that use it.
 @Injectable()
 export class InMemoryTargetAreaCatalog implements TargetAreaCatalog {
   private readonly areas = new Map<string, TargetAreaDto>(

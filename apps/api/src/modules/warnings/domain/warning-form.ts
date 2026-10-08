@@ -4,9 +4,11 @@ import type {
   WarningSeverity,
 } from '@rescue-lk/shared';
 
-// Parameter object: the warning content an officer edits, already normalised
-// (trimmed, optional fields defaulted). Drafts may leave instructions and
-// channels empty; WarningValidator decides what each mode requires.
+// WarningForm is the warning content an officer edits, already normalised (text
+// trimmed, optional fields defaulted) by warnings.mapper.
+// Parameter Object: services and the validator pass the whole form as one value.
+// Drafts may leave instructions and channels empty. SRP: WarningValidator, not this
+// type, decides what each mode (DRAFT or PUBLISH) requires.
 export interface WarningForm {
   sourceReportId: string;
   hazard: HazardType;

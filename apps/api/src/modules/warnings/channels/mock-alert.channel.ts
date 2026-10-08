@@ -6,9 +6,13 @@ import type {
   ChannelSendResult,
 } from './alert-channel.interface.js';
 
-// Shared behaviour for the mock gateways: always succeed and report an
-// estimated reach. A real gateway would implement AlertChannel directly;
-// nothing outside the channels folder needs to change.
+// MockAlertChannel is the shared base of the mock gateways: they always succeed and
+// report an estimated reach per district.
+// DRY: the send and reach logic is written once; each subclass only sets its type and
+// its reach per district.
+// LSP: every subclass can stand in for AlertChannel without surprises.
+// A real gateway (e.g. an SMS provider) would implement AlertChannel directly, and
+// nothing outside the channels folder would need to change.
 export abstract class MockAlertChannel implements AlertChannel {
   abstract readonly type: AlertChannelType;
   // Mock reach per targeted district (phones, app users or siren towers).

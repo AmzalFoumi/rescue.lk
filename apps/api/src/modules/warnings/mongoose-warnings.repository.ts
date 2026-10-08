@@ -14,6 +14,12 @@ type LeanWarning = Warning & { _id: Types.ObjectId };
 
 const NEWEST_FIRST = { publishedAt: -1, createdAt: -1 } as const;
 
+// MongooseWarningsRepository stores warnings in MongoDB Atlas.
+// Repository pattern: it is the only class that touches the Warning Mongoose Model,
+// and it turns documents into plain WarningRecords so no Mongoose type leaks out.
+// DIP: services depend on the WarningsRepository interface; this class is bound to it
+// in warnings.module.ts, so replacing the database changes only this file and that
+// binding. LSP: it can stand in for any other WarningsRepository, e.g. the test fake.
 @Injectable()
 export class MongooseWarningsRepository implements WarningsRepository {
   private readonly logger = new Logger(MongooseWarningsRepository.name);
@@ -46,6 +52,8 @@ export class MongooseWarningsRepository implements WarningsRepository {
     return found.map((warning) => this.toRecord(warning));
   }
 
+  // Status guard: expectedStatus is part of the filter, so the check and the write are
+  // one atomic step; if two officers act at once only one succeeds (null = refused).
   async update({
     id,
     expectedStatus,

@@ -4,12 +4,18 @@ import { ALERT_CHANNELS } from './alert-channel.interface.js';
 import type { AlertChannel } from './alert-channel.interface.js';
 import { UnsupportedChannelException } from '../exceptions/unsupported-channel.exception.js';
 
-// Registry: maps the channel types an officer selected to their implementations,
-// so callers never branch on channel type.
+// ChannelRegistry turns the channel types an officer picked (e.g. ['SMS', 'SIREN'])
+// into the AlertChannel objects that send them.
+// Registry pattern: one lookup table, so no caller writes an if/switch on channel type
+// and adding a channel never edits those callers (OCP).
+// DIP: it receives the channels through the ALERT_CHANNELS token instead of creating
+// them, so tests can register fake channels.
+// It fails fast on a duplicate or unknown channel instead of silently skipping it.
 @Injectable()
 export class ChannelRegistry {
   private readonly channels = new Map<AlertChannelType, AlertChannel>();
 
+  // Fail fast at startup: two channels for one type would make the choice ambiguous.
   constructor(@Inject(ALERT_CHANNELS) channels: readonly AlertChannel[]) {
     for (const channel of channels) {
       if (this.channels.has(channel.type)) {
@@ -26,6 +32,8 @@ export class ChannelRegistry {
     return [...this.channels.values()];
   }
 
+  // Fail fast: an unknown type throws UnsupportedChannelException before anything is
+  // saved or sent, instead of silently skipping that channel.
   resolve(types: readonly AlertChannelType[]): AlertChannel[] {
     const resolved: AlertChannel[] = [];
     const unsupported: AlertChannelType[] = [];

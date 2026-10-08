@@ -7,8 +7,11 @@ import type {
   WarningStatus,
 } from '@rescue-lk/shared';
 
-// Runtime mirrors of the shared union types (packages/shared ships types only),
-// used for schema enums and DTO validation.
+// warnings.constants names every UC1 limit, starting value and allowed value once.
+// No magic numbers or strings: schemas, DTOs and services import these names, so a
+// limit is changed in one place (DRY).
+// The lists mirror the shared union types at runtime (packages/shared ships types
+// only) and are used for schema enums and DTO validation.
 export const ALERT_CHANNEL_TYPES: readonly AlertChannelType[] = [
   'SMS',
   'PUSH',

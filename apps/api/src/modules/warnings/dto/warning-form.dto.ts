@@ -23,8 +23,12 @@ import {
   WARNING_SEVERITIES,
 } from '../warnings.constants.js';
 
-// Shape and type checks only. Business rules (minimum message length, at least
-// one area, publish-only requirements) are reported per field by WarningValidator.
+// WarningFormDto checks the shape of the warning form in a request body.
+// SRP: only shape and type checks here (ids, enums, maximum lengths), run by the
+// ValidationPipe before the controller is reached (fail fast).
+// Business rules (minimum message length, at least one area, publish-only fields)
+// belong to WarningValidator and come back as one error per field.
+// It implements the shared WarningFormRequestDto, so the web app sends the same shape.
 export class WarningFormDto implements WarningFormRequestDto {
   @ApiProperty({
     description: 'Verified hazard report this warning is based on',

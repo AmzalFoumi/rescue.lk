@@ -10,7 +10,9 @@ import type { SubmitWarningRequestDto } from '@rescue-lk/shared';
 import { CREATED_BY_MAX_LENGTH } from '../warnings.constants.js';
 import { WarningFormDto } from './warning-form.dto.js';
 
-// Body for saving a draft or publishing: the form plus who submitted it.
+// SubmitWarningDto is the request body for saving a draft or publishing: the warning
+// form plus who submitted it (and the draft id when continuing a draft).
+// DRY: it extends WarningFormDto, so each field's validation rule is written once.
 export class SubmitWarningDto
   extends WarningFormDto
   implements SubmitWarningRequestDto
