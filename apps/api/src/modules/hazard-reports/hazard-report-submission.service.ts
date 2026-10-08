@@ -38,8 +38,7 @@ export class HazardReportSubmissionService {
     // A duplicate is flagged, not rejected: the operator decides later.
     const possibleDuplicateOf = this.duplicateChecker.findDuplicateIds(
       {
-        latitude: submission.latitude,
-        longitude: submission.longitude,
+        location: submission.location,
         capturedAt,
       },
       sameTypeNearInTime,

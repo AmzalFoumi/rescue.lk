@@ -62,7 +62,7 @@ describe('HazardReportSubmissionService', () => {
 
     it('does not flag a report that is far away', async () => {
       vi.mocked(repository.findByTypeBetween).mockResolvedValue([
-        storedReport({ latitude: 7.5 }),
+        storedReport({ location: { latitude: 7.5, longitude: 79.8612 } }),
       ]);
 
       await service.submit(submission);

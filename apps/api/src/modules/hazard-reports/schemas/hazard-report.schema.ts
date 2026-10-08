@@ -6,6 +6,17 @@ import { ReporterRole } from '../reporter-role.js';
 
 export type HazardReportDocument = HydratedDocument<HazardReport>;
 
+// The position is stored as a sub-document without its own _id.
+@Schema({ _id: false })
+export class LocationData {
+  @Prop({ required: true })
+  latitude!: number;
+
+  @Prop({ required: true })
+  longitude!: number;
+}
+const LocationDataSchema = SchemaFactory.createForClass(LocationData);
+
 @Schema({ timestamps: true, collection: 'hazard_reports' })
 export class HazardReport {
   @Prop({ type: String, enum: Object.values(HazardType), required: true })
@@ -17,11 +28,8 @@ export class HazardReport {
   @Prop()
   photoUrl?: string;
 
-  @Prop({ required: true })
-  latitude!: number;
-
-  @Prop({ required: true })
-  longitude!: number;
+  @Prop({ type: LocationDataSchema, required: true })
+  location!: LocationData;
 
   @Prop({ type: Types.ObjectId, ref: 'District', required: true })
   district!: Types.ObjectId;

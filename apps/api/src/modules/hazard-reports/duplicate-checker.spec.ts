@@ -16,8 +16,10 @@ const known = (
   hoursAgo: number,
 ): KnownReport => ({
   id,
-  latitude: colombo.latitude + latOffset,
-  longitude: colombo.longitude,
+  location: {
+    latitude: colombo.latitude + latOffset,
+    longitude: colombo.longitude,
+  },
   capturedAt: new Date(now.getTime() - hoursAgo * 3600 * 1000),
 });
 
@@ -38,7 +40,7 @@ describe('distanceInMetres', () => {
 
 describe('DuplicateChecker', () => {
   const checker = new DuplicateChecker();
-  const report = { ...colombo, capturedAt: now };
+  const report = { location: colombo, capturedAt: now };
 
   it('flags a nearby, recent report', () => {
     expect(checker.findDuplicateIds(report, [known('a', 0.001, 1)])).toEqual([
@@ -58,9 +60,9 @@ describe('DuplicateChecker', () => {
 
   it('flags a report just inside the radius', () => {
     // 0.0044 degrees is about 489 m
-    expect(distanceInMetres(report, known('a', 0.0044, 1))).toBeLessThan(
-      DUPLICATE_RADIUS_METRES,
-    );
+    expect(
+      distanceInMetres(report.location, known('a', 0.0044, 1).location),
+    ).toBeLessThan(DUPLICATE_RADIUS_METRES);
     expect(checker.findDuplicateIds(report, [known('a', 0.0044, 1)])).toEqual([
       'a',
     ]);

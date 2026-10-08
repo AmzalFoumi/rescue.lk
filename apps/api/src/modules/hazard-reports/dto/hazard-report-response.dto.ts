@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HazardReportStatus } from '../hazard-report-status.js';
 import { HazardType } from '../hazard-type.js';
 import { ReporterRole } from '../reporter-role.js';
+import { LocationDto } from './submit-hazard-report.dto.js';
 
 /** How a stored hazard report looks in API responses (documents Swagger). */
 export class HazardReportResponseDto {
@@ -17,11 +18,8 @@ export class HazardReportResponseDto {
   @ApiPropertyOptional({ example: 'https://example.com/photos/flood.jpg' })
   photoUrl?: string;
 
-  @ApiProperty({ example: 6.9271 })
-  latitude!: number;
-
-  @ApiProperty({ example: 79.8612 })
-  longitude!: number;
+  @ApiProperty({ type: LocationDto })
+  location!: LocationDto;
 
   @ApiProperty({
     description: 'District id',

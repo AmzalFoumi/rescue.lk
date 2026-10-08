@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { Location } from './location.js';
 
 // Limits for deciding that two reports describe the same event.
 export const DUPLICATE_RADIUS_METRES = 500;
@@ -8,8 +9,7 @@ const EARTH_RADIUS_METRES = 6_371_000;
 const MS_PER_HOUR = 60 * 60 * 1000;
 
 export interface ReportPlace {
-  latitude: number;
-  longitude: number;
+  location: Location;
   capturedAt: Date;
 }
 
@@ -25,10 +25,7 @@ function toRadians(degrees: number): number {
  * Haversine formula: straight-line distance in metres between two GPS points
  * on the Earth.
  */
-export function distanceInMetres(
-  a: { latitude: number; longitude: number },
-  b: { latitude: number; longitude: number },
-): number {
+export function distanceInMetres(a: Location, b: Location): number {
   const dLat = toRadians(b.latitude - a.latitude);
   const dLng = toRadians(b.longitude - a.longitude);
   const h =
@@ -70,7 +67,8 @@ export class DuplicateChecker {
             newReport.capturedAt.getTime() - known.capturedAt.getTime(),
           ) < windowMs;
         const closeInSpace =
-          distanceInMetres(newReport, known) <= DUPLICATE_RADIUS_METRES;
+          distanceInMetres(newReport.location, known.location) <=
+          DUPLICATE_RADIUS_METRES;
         return closeInTime && closeInSpace;
       })
       .map((known) => known.id);

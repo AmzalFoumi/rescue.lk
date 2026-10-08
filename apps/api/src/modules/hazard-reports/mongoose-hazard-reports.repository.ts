@@ -69,8 +69,10 @@ export class MongooseHazardReportsRepository implements HazardReportsRepository 
       hazardType: doc.hazardType,
       description: doc.description,
       photoUrl: doc.photoUrl,
-      latitude: doc.latitude,
-      longitude: doc.longitude,
+      location: {
+        latitude: doc.location.latitude,
+        longitude: doc.location.longitude,
+      },
       district: String(doc.district),
       capturedAt: doc.capturedAt,
       submittedAt: doc.createdAt ?? doc.capturedAt,

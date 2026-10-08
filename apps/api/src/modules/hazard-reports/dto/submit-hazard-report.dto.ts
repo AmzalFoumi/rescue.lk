@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsEnum,
@@ -11,12 +12,29 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { HazardType } from '../hazard-type.js';
+import type { Location } from '../location.js';
 import type { ReportSubmission } from '../report-submission.js';
 import { ReporterRole } from '../reporter-role.js';
 
 const MAX_DESCRIPTION_LENGTH = 1000;
+
+/** A GPS position: latitude between -90 and 90, longitude between -180 and 180. */
+export class LocationDto implements Location {
+  @ApiProperty({ example: 6.9271 })
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude!: number;
+
+  @ApiProperty({ example: 79.8612 })
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude!: number;
+}
 
 /**
  * enterReportDetails + attachPhoto + captureLocation from the sequence diagram.
@@ -38,17 +56,10 @@ export class SubmitHazardReportDto implements ReportSubmission {
   @IsUrl()
   photoUrl?: string;
 
-  @ApiProperty({ example: 6.9271 })
-  @IsNumber()
-  @Min(-90)
-  @Max(90)
-  latitude!: number;
-
-  @ApiProperty({ example: 79.8612 })
-  @IsNumber()
-  @Min(-180)
-  @Max(180)
-  longitude!: number;
+  @ApiProperty({ type: LocationDto })
+  @ValidateNested()
+  @Type(() => LocationDto)
+  location!: LocationDto;
 
   @ApiProperty({
     description: 'District id',

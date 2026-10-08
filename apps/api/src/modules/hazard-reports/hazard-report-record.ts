@@ -1,5 +1,6 @@
 import type { HazardReportStatus } from './hazard-report-status.js';
 import type { HazardType } from './hazard-type.js';
+import type { Location } from './location.js';
 import type { ReporterRole } from './reporter-role.js';
 
 /**
@@ -12,8 +13,7 @@ export interface HazardReportRecord {
   hazardType: HazardType;
   description: string;
   photoUrl?: string;
-  latitude: number;
-  longitude: number;
+  location: Location;
   /** District id. */
   district: string;
   capturedAt: Date;

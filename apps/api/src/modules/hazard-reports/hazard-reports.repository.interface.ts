@@ -1,6 +1,7 @@
 import type { HazardReportStatus } from './hazard-report-status.js';
 import type { HazardReportRecord } from './hazard-report-record.js';
 import type { HazardType } from './hazard-type.js';
+import type { Location } from './location.js';
 import type { ReporterRole } from './reporter-role.js';
 
 export const HAZARD_REPORTS_REPOSITORY = Symbol('HAZARD_REPORTS_REPOSITORY');
@@ -9,8 +10,7 @@ export interface NewHazardReport {
   hazardType: HazardType;
   description: string;
   photoUrl?: string;
-  latitude: number;
-  longitude: number;
+  location: Location;
   district: string;
   capturedAt: Date;
   status: HazardReportStatus;
