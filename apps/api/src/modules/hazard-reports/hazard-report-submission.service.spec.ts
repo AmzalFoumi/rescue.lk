@@ -39,6 +39,23 @@ describe('HazardReportSubmissionService', () => {
       expect(result.status).toBe(HazardReportStatus.PendingVerification);
     });
 
+    it('stores the place name, reporter name and other-hazard text', async () => {
+      await service.submit({
+        ...submission,
+        placeName: 'Kuruwita bridge',
+        reporterName: 'Nimal Perera',
+        otherHazard: 'Fallen power line',
+      });
+
+      expect(repository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          placeName: 'Kuruwita bridge',
+          reporterName: 'Nimal Perera',
+          otherHazard: 'Fallen power line',
+        }),
+      );
+    });
+
     it('looks for duplicates only inside the time window', async () => {
       await service.submit(submission);
 

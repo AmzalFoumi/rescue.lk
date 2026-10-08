@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { Location } from './location.js';
 
 // Limits for deciding that two reports describe the same event.
-export const DUPLICATE_RADIUS_METRES = 500;
+export const DUPLICATE_RADIUS_METRES = 1000;
 export const DUPLICATE_WINDOW_HOURS = 24;
 
 const EARTH_RADIUS_METRES = 6_371_000;

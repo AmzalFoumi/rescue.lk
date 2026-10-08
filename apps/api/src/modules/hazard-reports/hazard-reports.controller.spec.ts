@@ -1,6 +1,7 @@
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { HazardReportsController } from './hazard-reports.controller.js';
 import type { HazardReportSubmissionService } from './hazard-report-submission.service.js';
+import type { HazardReportTrackingService } from './hazard-report-tracking.service.js';
 import type { HazardReportVerificationService } from './hazard-report-verification.service.js';
 import type { SubmitHazardReportDto } from './dto/submit-hazard-report.dto.js';
 
@@ -20,6 +21,9 @@ describe('HazardReportsController', () => {
     verify: vi.fn().mockResolvedValue({ id: 'r1' }),
     reject: vi.fn().mockResolvedValue({ id: 'r1' }),
   };
+  const trackingService = {
+    listByReporter: vi.fn().mockResolvedValue([]),
+  };
   const dto = { description: 'x' } as SubmitHazardReportDto;
 
   beforeEach(() => {
@@ -27,6 +31,7 @@ describe('HazardReportsController', () => {
     controller = new HazardReportsController(
       submissionService as unknown as HazardReportSubmissionService,
       verificationService as unknown as HazardReportVerificationService,
+      trackingService as unknown as HazardReportTrackingService,
     );
   });
 
@@ -53,8 +58,15 @@ describe('HazardReportsController', () => {
   });
 
   it('lists pending reports', async () => {
-    await controller.listPending();
+    await controller.list({});
     expect(verificationService.listPending).toHaveBeenCalled();
+    expect(trackingService.listByReporter).not.toHaveBeenCalled();
+  });
+
+  it('lists the reports of one reporter when a reporterId is given', async () => {
+    await controller.list({ reporterId: 'citizen-1' });
+    expect(trackingService.listByReporter).toHaveBeenCalledWith('citizen-1');
+    expect(verificationService.listPending).not.toHaveBeenCalled();
   });
 
   it('gets one report', async () => {

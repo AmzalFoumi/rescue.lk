@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { describe, it, expect } from 'vitest';
 import { DuplicateChecker } from './duplicate-checker.js';
 import { HazardReportSubmissionService } from './hazard-report-submission.service.js';
+import { HazardReportTrackingService } from './hazard-report-tracking.service.js';
 import { HazardReportVerificationService } from './hazard-report-verification.service.js';
 import { fakeRepository } from './hazard-report.test-data.js';
 import { HazardReportsController } from './hazard-reports.controller.js';
@@ -20,6 +21,7 @@ describe('HazardReports wiring', () => {
       providers: [
         HazardReportSubmissionService,
         HazardReportVerificationService,
+        HazardReportTrackingService,
         DuplicateChecker,
         { provide: HAZARD_REPORTS_REPOSITORY, useValue: fakeRepository() },
         { provide: OFFLINE_REPORT_QUEUE, useClass: InMemoryOfflineReportQueue },
@@ -29,5 +31,6 @@ describe('HazardReports wiring', () => {
     expect(moduleRef.get(HazardReportsController)).toBeDefined();
     expect(moduleRef.get(HazardReportSubmissionService)).toBeDefined();
     expect(moduleRef.get(HazardReportVerificationService)).toBeDefined();
+    expect(moduleRef.get(HazardReportTrackingService)).toBeDefined();
   });
 });

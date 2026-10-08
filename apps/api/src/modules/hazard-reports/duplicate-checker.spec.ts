@@ -49,7 +49,7 @@ describe('DuplicateChecker', () => {
   });
 
   it('ignores a report that is too far away', () => {
-    expect(checker.findDuplicateIds(report, [known('a', 0.01, 1)])).toEqual([]);
+    expect(checker.findDuplicateIds(report, [known('a', 0.05, 1)])).toEqual([]);
   });
 
   it('ignores a report older than the time window', () => {
@@ -59,18 +59,18 @@ describe('DuplicateChecker', () => {
   });
 
   it('flags a report just inside the radius', () => {
-    // 0.0044 degrees is about 489 m
+    // 0.0089 degrees is about 990 m
     expect(
-      distanceInMetres(report.location, known('a', 0.0044, 1).location),
+      distanceInMetres(report.location, known('a', 0.0089, 1).location),
     ).toBeLessThan(DUPLICATE_RADIUS_METRES);
-    expect(checker.findDuplicateIds(report, [known('a', 0.0044, 1)])).toEqual([
+    expect(checker.findDuplicateIds(report, [known('a', 0.0089, 1)])).toEqual([
       'a',
     ]);
   });
 
   it('ignores a report just outside the radius', () => {
-    // 0.0046 degrees is about 511 m
-    expect(checker.findDuplicateIds(report, [known('a', 0.0046, 1)])).toEqual(
+    // 0.0091 degrees is about 1010 m
+    expect(checker.findDuplicateIds(report, [known('a', 0.0091, 1)])).toEqual(
       [],
     );
   });

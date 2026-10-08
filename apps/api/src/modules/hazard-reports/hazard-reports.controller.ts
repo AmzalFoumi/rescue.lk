@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -15,6 +16,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { HazardReportTrackingService } from './hazard-report-tracking.service.js';
 import { HazardReportSubmissionService } from './hazard-report-submission.service.js';
 import { HazardReportVerificationService } from './hazard-report-verification.service.js';
 import {
@@ -22,6 +24,7 @@ import {
   SyncResponseDto,
 } from './dto/queued-report-response.dto.js';
 import { HazardReportResponseDto } from './dto/hazard-report-response.dto.js';
+import { ListHazardReportsQueryDto } from './dto/list-hazard-reports-query.dto.js';
 import { SubmitHazardReportDto } from './dto/submit-hazard-report.dto.js';
 import {
   RejectHazardReportDto,
@@ -34,6 +37,7 @@ export class HazardReportsController {
   constructor(
     private readonly submissionService: HazardReportSubmissionService,
     private readonly verificationService: HazardReportVerificationService,
+    private readonly trackingService: HazardReportTrackingService,
   ) {}
 
   @Get('health')
@@ -66,9 +70,12 @@ export class HazardReportsController {
   // Verify Hazard Report
   @Get()
   @ApiOkResponse({ type: HazardReportResponseDto, isArray: true })
-  listPending() {
-    // Lists reports waiting for verification (getPendingReports in the sequence diagram).
-    return this.verificationService.listPending();
+  list(@Query() query: ListHazardReportsQueryDto) {
+    // With a reporterId: that reporter's own reports (trackReportStatus).
+    // Without it: the reports waiting for verification (getPendingReports in the sequence diagram).
+    return query.reporterId
+      ? this.trackingService.listByReporter(query.reporterId)
+      : this.verificationService.listPending();
   }
 
   @Get(':id')

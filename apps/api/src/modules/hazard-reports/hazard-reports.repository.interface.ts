@@ -10,6 +10,12 @@ export interface NewHazardReport {
   hazardType: HazardType;
   description: string;
   photoUrl?: string;
+  /** Name of the place, for example the landmark typed in by hand. */
+  placeName?: string;
+  /** Name of the reporter. */
+  reporterName?: string;
+  /** What the hazard is, when the type is "other". */
+  otherHazard?: string;
   location: Location;
   district: string;
   capturedAt: Date;
@@ -30,6 +36,8 @@ export interface HazardReportsRepository {
   create(report: NewHazardReport): Promise<HazardReportRecord>;
   findById(id: string): Promise<HazardReportRecord | null>;
   findByStatus(status: HazardReportStatus): Promise<HazardReportRecord[]>;
+  // All reports sent by one reporter, newest first.
+  findByReporter(reporterId: string): Promise<HazardReportRecord[]>;
   // Reports of one hazard type captured between two dates (used by the duplicate check).
   findByTypeBetween(
     type: HazardType,

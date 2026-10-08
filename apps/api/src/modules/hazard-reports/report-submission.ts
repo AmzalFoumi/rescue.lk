@@ -11,6 +11,12 @@ export interface ReportSubmission {
   hazardType: HazardType;
   description: string;
   photoUrl?: string;
+  /** Name of the place, for example the landmark typed in by hand. */
+  placeName?: string;
+  /** Name of the reporter. */
+  reporterName?: string;
+  /** What the hazard is, when the type is "other". */
+  otherHazard?: string;
   location: Location;
   /** District id. */
   district: string;
