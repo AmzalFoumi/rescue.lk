@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WarningsController } from './warnings.controller.js';
 import { WarningsService } from './warnings.service.js';
@@ -20,6 +21,10 @@ import { PushChannel } from './channels/push.channel.js';
 import { SmsChannel } from './channels/sms.channel.js';
 import { SirenChannel } from './channels/siren.channel.js';
 import { ChannelRegistry } from './channels/channel.registry.js';
+import {
+  parseChannelList,
+  withDemoFailures,
+} from './channels/demo-failures.js';
 import { RetryPolicy } from './delivery/retry.policy.js';
 import { WarningDeliveryService } from './delivery/warning-delivery.service.js';
 import { CLOCK, SystemClock } from './domain/clock.js';
@@ -51,8 +56,16 @@ const CHANNEL_IMPLEMENTATIONS = [SmsChannel, PushChannel, SirenChannel];
     ...CHANNEL_IMPLEMENTATIONS,
     {
       provide: ALERT_CHANNELS,
-      useFactory: (...channels: AlertChannel[]) => channels,
-      inject: CHANNEL_IMPLEMENTATIONS,
+      // MOCK_FAIL_FIRST_ATTEMPT_CHANNELS (demo only) wraps the named channels
+      // so their first attempt fails; empty by default, leaving them as is.
+      useFactory: (config: ConfigService, ...channels: AlertChannel[]) =>
+        withDemoFailures(
+          channels,
+          parseChannelList(
+            config.get<string>('MOCK_FAIL_FIRST_ATTEMPT_CHANNELS'),
+          ),
+        ),
+      inject: [ConfigService, ...CHANNEL_IMPLEMENTATIONS],
     },
     ChannelRegistry,
     RetryPolicy,
