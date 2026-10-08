@@ -186,15 +186,12 @@ describe('AreaStep', () => {
       report: undefined,
       reach: null,
       editorLabel: 'New warning',
-      canSaveDraft: true,
       isUpdate: false,
       failure: null,
       busy: false,
       updatedAt: null,
       onFieldChange: vi.fn(),
-      onBack: vi.fn(),
-      onSaveDraft: vi.fn(),
-      onReview: vi.fn(),
+      actions: { onBack: vi.fn(), onSaveDraft: vi.fn(), onReview: vi.fn() },
       ...overrides,
     };
     render(<AreaStep {...props} />);
@@ -210,14 +207,13 @@ describe('AreaStep', () => {
       screen.getByRole('button', { name: 'Back to warning level' }),
     );
 
-    expect(props.onSaveDraft).toHaveBeenCalled();
-    expect(props.onReview).toHaveBeenCalled();
-    expect(props.onBack).toHaveBeenCalled();
+    expect(props.actions.onSaveDraft).toHaveBeenCalled();
+    expect(props.actions.onReview).toHaveBeenCalled();
+    expect(props.actions.onBack).toHaveBeenCalled();
   });
 
   it('only reviews an update, without a draft option', () => {
     renderStep({
-      canSaveDraft: false,
       isUpdate: true,
       editorLabel: 'Updating W-345670',
     });

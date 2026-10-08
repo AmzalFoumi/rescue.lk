@@ -39,3 +39,19 @@ describe('warning text', () => {
     expect(areaSummary([], {})).toBe('No area yet');
   });
 });
+
+describe('cancelDescription', () => {
+  it('explains what cancelling a warning does', async () => {
+    const { cancelDescription } = await import('./format');
+
+    expect(
+      cancelDescription(
+        { hazard: 'FLOOD', otherHazard: '', areaIds: ['B-KALU'] },
+        { 'B-KALU': 'Kalu Ganga basin' },
+        ['Ratnapura', 'Kalutara'],
+      ),
+    ).toBe(
+      'Flood warning for Kalu Ganga basin. It will be removed from the Citizen App for Ratnapura, Kalutara. This cannot be undone.',
+    );
+  });
+});

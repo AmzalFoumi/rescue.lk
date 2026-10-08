@@ -114,3 +114,41 @@ describe('PUBLISH_CHECKS', () => {
     expect(PUBLISH_CHECKS).toHaveLength(4);
   });
 });
+
+describe('publishReviewText', () => {
+  const values = {
+    ...EMPTY_FORM,
+    hazard: 'OTHER' as const,
+    otherHazard: 'Dam breach',
+    channels: ['SMS' as const],
+  };
+
+  it('asks to publish a new warning, with a draft option', async () => {
+    const { publishReviewText } = await import('./publishing');
+
+    expect(
+      publishReviewText(values, { updatingId: null, areaNames: {}, reach }),
+    ).toMatchObject({
+      title: 'Publish this warning?',
+      hazardLabel: 'Dam breach',
+      confirmLabel: 'Confirm and publish',
+      canSaveDraft: true,
+    });
+  });
+
+  it('asks to send an update, without a draft option', async () => {
+    const { publishReviewText } = await import('./publishing');
+
+    expect(
+      publishReviewText(values, {
+        updatingId: '665f1b2c9d3e4a0012345670',
+        areaNames: {},
+        reach,
+      }),
+    ).toMatchObject({
+      title: 'Send update to W-345670?',
+      confirmLabel: 'Confirm and send update',
+      canSaveDraft: false,
+    });
+  });
+});

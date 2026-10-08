@@ -6,10 +6,15 @@ import type {
 } from '@rescue-lk/shared';
 import { SMS_PART_LENGTH, SMS_SINGLE_LENGTH } from './constants';
 import type { WarningFormValues } from './form';
-import { areaSummary, formatCount, shortId } from './format';
+import { areaSummary, formatCount, hazardName, shortId } from './format';
 import { CHANNEL_META } from './meta';
 
 const UNKNOWN = '—';
+
+// publishing.ts: the pure rules behind publishing: SMS length, reach per channel, the
+// error banner and the confirmation dialog text.
+// SRP: kept out of components, so they are unit tested without rendering.
+// The four checklist items are data (PUBLISH_CHECKS), so a new check is one entry.
 
 // The design's four confirmations before a warning goes out.
 export const PUBLISH_CHECKS = [
@@ -114,3 +119,37 @@ export const errorBanner = (errors: WarningFormErrors): ErrorBanner | null => {
     }),
   };
 };
+
+export interface PublishReviewText {
+  title: string;
+  hazardLabel: string;
+  summary: SummaryRow[];
+  confirmLabel: string;
+  // An update of an ACTIVE warning cannot be saved back as a draft.
+  canSaveDraft: boolean;
+}
+
+// Everything the publish confirmation says, for a new warning or an update.
+export const publishReviewText = (
+  values: WarningFormValues,
+  {
+    updatingId,
+    areaNames,
+    reach,
+  }: {
+    // The ACTIVE warning being updated, or null for a new warning or draft.
+    updatingId: string | null;
+    areaNames: Record<string, string>;
+    reach: ReachEstimateDto | null;
+  },
+): PublishReviewText => ({
+  title: updatingId
+    ? `Send update to ${shortId('W', updatingId)}?`
+    : 'Publish this warning?',
+  hazardLabel: values.hazard
+    ? hazardName({ hazard: values.hazard, otherHazard: values.otherHazard })
+    : '',
+  summary: publishSummary(values, { areaNames, reach }),
+  confirmLabel: updatingId ? 'Confirm and send update' : 'Confirm and publish',
+  canSaveDraft: !updatingId,
+});

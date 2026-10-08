@@ -20,6 +20,13 @@ import { ScreenHeader } from '../shell/ScreenHeader';
 import { SummaryStrip } from '../shell/SummaryStrip';
 import { editorStrip } from './editorStrip';
 
+// Parameter object: what the step's buttons do.
+export interface AreaStepActions {
+  onBack: () => void;
+  onSaveDraft: () => void;
+  onReview: () => void;
+}
+
 interface AreaStepProps {
   values: WarningFormValues;
   errors: WarningFormErrors;
@@ -27,20 +34,21 @@ interface AreaStepProps {
   report: VerifiedHazardReportDto | undefined;
   reach: ReachEstimateDto | null;
   editorLabel: string;
-  // Updates of an ACTIVE warning cannot be saved as a draft.
-  canSaveDraft: boolean;
+  // Updating an ACTIVE warning: no draft option, and "Review update".
   isUpdate: boolean;
   // A failed save or publish that is not about one field (e.g. 409, offline).
   failure: ApiError | null;
   busy: boolean;
   updatedAt: Date | null;
   onFieldChange: SetFormField;
-  onBack: () => void;
-  onSaveDraft: () => void;
-  onReview: () => void;
+  actions: AreaStepActions;
 }
 
-// Step 4: where the warning goes, what it says, and on which channels.
+// Step 4 "Area & message": where the warning goes, what it says, and on which
+// channels.
+// Presentational: form state and saving live in hooks.
+// Parameter Object: the buttons come in as one AreaStepActions object instead of
+// loose props, so the step's signature stays short and clear.
 export function AreaStep({
   values,
   errors,
@@ -48,24 +56,21 @@ export function AreaStep({
   report,
   reach,
   editorLabel,
-  canSaveDraft,
   isUpdate,
   failure,
   busy,
   updatedAt,
   onFieldChange,
-  onBack,
-  onSaveDraft,
-  onReview,
+  actions,
 }: AreaStepProps) {
   const banner = errorBanner(errors);
   const right: ActionSpec[] = [
-    ...(canSaveDraft
+    ...(!isUpdate
       ? [
           {
             label: busy ? 'Saving…' : 'Save as draft',
             icon: Save,
-            onClick: onSaveDraft,
+            onClick: actions.onSaveDraft,
             variant: 'secondary' as const,
             disabled: busy,
           },
@@ -74,7 +79,7 @@ export function AreaStep({
     {
       label: isUpdate ? 'Review update' : 'Review and publish',
       icon: ArrowRight,
-      onClick: onReview,
+      onClick: actions.onReview,
       variant: 'primary',
       disabled: busy,
     },
@@ -115,7 +120,7 @@ export function AreaStep({
           {
             label: 'Back to warning level',
             icon: ArrowLeft,
-            onClick: onBack,
+            onClick: actions.onBack,
             variant: 'secondary',
           },
         ]}

@@ -31,6 +31,8 @@ async function readBody(response: Response): Promise<unknown> {
   }
 }
 
+// Exception mapping in one place: a network failure or HTTP error always becomes an
+// ApiError, so hooks never read status codes or parse error bodies themselves.
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
@@ -54,8 +56,14 @@ const send = (method: 'POST' | 'PATCH', body?: unknown): RequestInit => ({
   ...(body === undefined ? {} : { body: JSON.stringify(body) }),
 });
 
-const id = (value: string) => encodeURIComponent(value);
+// Makes a value safe to place inside a URL path or query.
+const encodePath = (value: string) => encodeURIComponent(value);
 
+// api is the one typed client for every UC1 endpoint.
+// DRY: hooks call api.warnings.* instead of writing fetch calls, so URLs, headers and
+// error handling are written once.
+// Requests and responses use the shared DTO types, so the web app and the API agree
+// on every shape at compile time.
 export const api = {
   districts: {
     list: () => request<DistrictDto[]>('/districts'),
@@ -63,7 +71,7 @@ export const api = {
   warnings: {
     list: (status?: WarningStatus) =>
       request<WarningDto[]>(
-        status ? `/warnings?status=${id(status)}` : '/warnings',
+        status ? `/warnings?status=${encodePath(status)}` : '/warnings',
       ),
     verifiedReports: () =>
       request<VerifiedHazardReportDto[]>('/warnings/verified-reports'),
@@ -71,7 +79,7 @@ export const api = {
     reach: (areaIds: readonly string[]) =>
       request<ReachEstimateDto>(
         areaIds.length
-          ? `/warnings/reach?${areaIds.map((areaId) => `areaIds=${id(areaId)}`).join('&')}`
+          ? `/warnings/reach?${areaIds.map((areaId) => `areaIds=${encodePath(areaId)}`).join('&')}`
           : '/warnings/reach',
       ),
     saveDraft: (body: SubmitWarningRequestDto) =>
@@ -83,19 +91,21 @@ export const api = {
       ),
     update: (warningId: string, body: UpdateWarningRequestDto) =>
       request<WarningDeliveryResultDto>(
-        `/warnings/${id(warningId)}`,
+        `/warnings/${encodePath(warningId)}`,
         send('PATCH', body),
       ),
     cancel: (warningId: string, body: CancelWarningRequestDto) =>
       request<WarningDto>(
-        `/warnings/${id(warningId)}/cancel`,
+        `/warnings/${encodePath(warningId)}/cancel`,
         send('POST', body),
       ),
     deliveries: (warningId: string) =>
-      request<DeliveryRecordDto[]>(`/warnings/${id(warningId)}/deliveries`),
+      request<DeliveryRecordDto[]>(
+        `/warnings/${encodePath(warningId)}/deliveries`,
+      ),
     retryDelivery: (recordId: string) =>
       request<DeliveryRecordDto>(
-        `/warnings/deliveries/${id(recordId)}/retry`,
+        `/warnings/deliveries/${encodePath(recordId)}/retry`,
         send('POST'),
       ),
   },
