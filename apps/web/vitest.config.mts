@@ -28,9 +28,17 @@ export default defineConfig({
         '**/testing/**',
         '**/*.d.ts',
       ],
-      // UC2 hazard reports is held to 80%. Other use cases add their own entry when they build their UI.
+      // Each use case is held to 80% on its own folder, so one member's
+      // coverage cannot hide another's. Owners add their entry when they
+      // build their UI.
       thresholds: {
         'src/features/hazard-reports/**': {
+          lines: 80,
+          functions: 80,
+          branches: 80,
+          statements: 80,
+        },
+        'src/features/response/**': {
           lines: 80,
           functions: 80,
           branches: 80,

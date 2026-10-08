@@ -83,6 +83,9 @@ export class ResponseTargetResponseDto {
   @ApiProperty({ example: 'Water is rising on Main Street' })
   description!: string;
 
+  @ApiPropertyOptional({ example: 'Riverside Road' })
+  placeName?: string;
+
   @ApiProperty({ description: 'District id' })
   district!: string;
 

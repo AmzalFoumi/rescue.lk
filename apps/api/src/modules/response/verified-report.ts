@@ -9,6 +9,8 @@ export interface VerifiedReportSummary {
   id: string;
   hazardType: string;
   description: string;
+  /** What the reporter called the place, when they gave one. */
+  placeName?: string;
   /** District id. */
   district: string;
   location: Location;

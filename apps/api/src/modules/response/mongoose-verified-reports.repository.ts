@@ -41,6 +41,7 @@ export class MongooseVerifiedReportsRepository implements VerifiedReportsPort {
       id: doc.id,
       hazardType: doc.hazardType,
       description: doc.description,
+      placeName: doc.placeName,
       district: String(doc.district),
       location: {
         latitude: doc.location.latitude,

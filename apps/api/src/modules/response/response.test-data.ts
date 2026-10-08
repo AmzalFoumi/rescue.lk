@@ -58,6 +58,7 @@ export function verifiedReport(
     description: 'Water is rising on Main Street',
     district: DISTRICT_ID,
     location: { latitude: 7.2906, longitude: 80.6337 },
+    placeName: 'Riverside Road',
     capturedAt: new Date('2026-10-09T08:00:00Z'),
     ...overrides,
   };
