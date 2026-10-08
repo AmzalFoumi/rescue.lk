@@ -8,6 +8,13 @@ export const TOTAL_STEPS = 4;
 /** The four screens of the report form. */
 export type WizardStep = 1 | 2 | 3 | 4;
 
+export const STEP_TITLES: Record<WizardStep, string> = {
+  1: 'Select hazard type',
+  2: 'Hazard details and location',
+  3: 'Add photo evidence',
+  4: 'Review and submit',
+};
+
 export interface GpsFix {
   latitude: number;
   longitude: number;

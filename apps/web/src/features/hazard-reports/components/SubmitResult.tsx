@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ROUTES } from '../routes';
 import { DUPLICATE_NOTICE } from '../domain/report-card';
 import { shortReportId } from '../domain/report-id';
 import type { SubmitOutcome } from '../hooks/use-submit-report';
@@ -40,7 +41,7 @@ export function SubmitResult({ outcome, onNewReport }: SubmitResultProps) {
       )}
       <div className="flex flex-col gap-3">
         <Link
-          href="/hazard-reports/mine"
+          href={ROUTES.myReports}
           className="inline-flex min-h-12 items-center justify-center rounded-[10px] bg-primary px-5 font-semibold text-white hover:bg-primary-hover"
         >
           View my reports
