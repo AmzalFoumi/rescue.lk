@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DuplicateChecker } from './duplicate-checker.js';
 import { HazardReportsController } from './hazard-reports.controller.js';
 import { HazardReportsService } from './hazard-reports.service.js';
 import { MongooseHazardReportsRepository } from './mongoose-hazard-reports.repository.js';
@@ -22,6 +23,7 @@ import {
   controllers: [HazardReportsController],
   providers: [
     HazardReportsService,
+    DuplicateChecker,
     {
       provide: HAZARD_REPORTS_REPOSITORY,
       useClass: MongooseHazardReportsRepository,

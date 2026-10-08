@@ -1,5 +1,6 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
+import { DuplicateChecker } from './duplicate-checker.js';
 import { HazardReportsService } from './hazard-reports.service.js';
 import { HazardReportStatus } from './hazard-report-status.js';
 import { HazardType } from './hazard-type.js';
@@ -52,7 +53,11 @@ describe('HazardReportsService', () => {
       updateStatus: vi.fn(async (_id, change) => stored({ ...change })),
     };
     queue = new InMemoryOfflineReportQueue();
-    service = new HazardReportsService(repository, queue);
+    service = new HazardReportsService(
+      repository,
+      queue,
+      new DuplicateChecker(),
+    );
   });
 
   it('reports health', () => {

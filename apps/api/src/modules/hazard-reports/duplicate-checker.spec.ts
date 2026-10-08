@@ -86,3 +86,14 @@ describe('DuplicateChecker', () => {
     expect(checker.findDuplicateIds(report, list)).toEqual(['near']);
   });
 });
+
+describe('DuplicateChecker.searchWindow', () => {
+  const checker = new DuplicateChecker();
+  const hour = 60 * 60 * 1000;
+
+  it('spans the time window on both sides of the capture time', () => {
+    const { from, to } = checker.searchWindow(now);
+    expect(from.getTime()).toBe(now.getTime() - 24 * hour);
+    expect(to.getTime()).toBe(now.getTime() + 24 * hour);
+  });
+});

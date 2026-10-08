@@ -4,10 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  DUPLICATE_WINDOW_HOURS,
-  DuplicateChecker,
-} from './duplicate-checker.js';
+import { DuplicateChecker } from './duplicate-checker.js';
 import { HazardReportStatus, canChangeStatus } from './hazard-report-status.js';
 import { HAZARD_REPORTS_REPOSITORY } from './hazard-reports.repository.interface.js';
 import type { HazardReportsRepository } from './hazard-reports.repository.interface.js';
@@ -21,13 +18,13 @@ const REPORT_ID_FORMAT = /^[0-9a-f]{24}$/i;
 
 @Injectable()
 export class HazardReportsService {
-  private readonly duplicateChecker = new DuplicateChecker();
-
   constructor(
     @Inject(HAZARD_REPORTS_REPOSITORY)
     private readonly repository: HazardReportsRepository,
     @Inject(OFFLINE_REPORT_QUEUE)
     private readonly offlineQueue: OfflineReportQueue,
+    @Inject(DuplicateChecker)
+    private readonly duplicateChecker: DuplicateChecker,
   ) {}
 
   health(): { status: string; module: string } {
@@ -37,22 +34,17 @@ export class HazardReportsService {
   // submitReport(data): check for duplicates, then store as "Pending Verification".
   async submit(dto: ReportSubmission): Promise<HazardReportRecord> {
     const capturedAt = new Date(dto.capturedAt);
-    const windowMs = DUPLICATE_WINDOW_HOURS * 60 * 60 * 1000;
+    const { from, to } = this.duplicateChecker.searchWindow(capturedAt);
     const sameTypeNearInTime = await this.repository.findByTypeBetween(
       dto.hazardType,
-      new Date(capturedAt.getTime() - windowMs),
-      new Date(capturedAt.getTime() + windowMs),
+      from,
+      to,
     );
 
     // A duplicate is flagged, not rejected: the operator decides later.
     const possibleDuplicateOf = this.duplicateChecker.findDuplicateIds(
       { latitude: dto.latitude, longitude: dto.longitude, capturedAt },
-      sameTypeNearInTime.map((r) => ({
-        id: r.id,
-        latitude: r.latitude,
-        longitude: r.longitude,
-        capturedAt: r.capturedAt,
-      })),
+      sameTypeNearInTime,
     );
 
     return this.repository.create({

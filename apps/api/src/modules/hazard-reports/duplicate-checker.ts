@@ -1,8 +1,11 @@
+import { Injectable } from '@nestjs/common';
+
 // Limits for deciding that two reports describe the same event.
 export const DUPLICATE_RADIUS_METRES = 500;
 export const DUPLICATE_WINDOW_HOURS = 24;
 
 const EARTH_RADIUS_METRES = 6_371_000;
+const MS_PER_HOUR = 60 * 60 * 1000;
 
 export interface ReportPlace {
   latitude: number;
@@ -18,7 +21,10 @@ function toRadians(degrees: number): number {
   return (degrees * Math.PI) / 180;
 }
 
-// Haversine formula: straight-line distance between two GPS points on the Earth.
+/**
+ * Haversine formula: straight-line distance in metres between two GPS points
+ * on the Earth.
+ */
 export function distanceInMetres(
   a: { latitude: number; longitude: number },
   b: { latitude: number; longitude: number },
@@ -33,14 +39,30 @@ export function distanceInMetres(
   return 2 * EARTH_RADIUS_METRES * Math.asin(Math.sqrt(h));
 }
 
-// checkDuplicate(report) from the sequence diagram.
-// The caller passes reports of the same hazard type; we check place and time.
+/** checkDuplicate(report) from the Submit Hazard Report sequence diagram. */
+@Injectable()
 export class DuplicateChecker {
+  /**
+   * The dates between which an earlier report can still be a duplicate.
+   * The caller uses it to fetch candidates, so the time rule lives only here.
+   */
+  searchWindow(capturedAt: Date): { from: Date; to: Date } {
+    const windowMs = DUPLICATE_WINDOW_HOURS * MS_PER_HOUR;
+    return {
+      from: new Date(capturedAt.getTime() - windowMs),
+      to: new Date(capturedAt.getTime() + windowMs),
+    };
+  }
+
+  /**
+   * Ids of the known reports that are close in place and time to the new one.
+   * The caller passes reports of the same hazard type.
+   */
   findDuplicateIds(
     newReport: ReportPlace,
     knownReports: KnownReport[],
   ): string[] {
-    const windowMs = DUPLICATE_WINDOW_HOURS * 60 * 60 * 1000;
+    const windowMs = DUPLICATE_WINDOW_HOURS * MS_PER_HOUR;
     return knownReports
       .filter((known) => {
         const closeInTime =
