@@ -13,7 +13,7 @@ export class QueuedReportResponseDto {
 }
 
 export class SyncResponseDto {
-  @ApiProperty({ example: 2 })
+  @ApiProperty({ example: 1 })
   synced!: number;
 
   @ApiProperty({ example: 0 })

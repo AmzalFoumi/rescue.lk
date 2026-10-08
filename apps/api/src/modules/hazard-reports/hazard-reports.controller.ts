@@ -7,7 +7,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { HazardReportsService } from './hazard-reports.service.js';
 import {
   QueuedReportResponseDto,
@@ -31,12 +38,14 @@ export class HazardReportsController {
 
   // Submit Hazard Report
   @Post()
+  @ApiBadRequestResponse({ description: 'A field is missing or invalid' })
   submit(@Body() dto: SubmitHazardReportDto) {
     return this.hazardReportsService.submit(dto);
   }
 
   @Post('offline')
-  @ApiOkResponse({ type: QueuedReportResponseDto })
+  @ApiCreatedResponse({ type: QueuedReportResponseDto })
+  @ApiBadRequestResponse({ description: 'A field is missing or invalid' })
   queueOffline(@Body() dto: SubmitHazardReportDto) {
     return this.hazardReportsService.queueOffline(dto);
   }
@@ -56,16 +65,26 @@ export class HazardReportsController {
   }
 
   @Get(':id')
+  @ApiNotFoundResponse({ description: 'No report with this id' })
   getById(@Param('id') id: string) {
     return this.hazardReportsService.getById(id);
   }
 
   @Patch(':id/verify')
+  @ApiNotFoundResponse({ description: 'No report with this id' })
+  @ApiConflictResponse({
+    description: 'The report is not pending verification',
+  })
   verify(@Param('id') id: string, @Body() dto: VerifyHazardReportDto) {
     return this.hazardReportsService.verify(id, dto.operatorId);
   }
 
   @Patch(':id/reject')
+  @ApiBadRequestResponse({ description: 'The reason is missing' })
+  @ApiNotFoundResponse({ description: 'No report with this id' })
+  @ApiConflictResponse({
+    description: 'The report is not pending verification',
+  })
   reject(@Param('id') id: string, @Body() dto: RejectHazardReportDto) {
     return this.hazardReportsService.reject(id, dto.operatorId, dto.reason);
   }
