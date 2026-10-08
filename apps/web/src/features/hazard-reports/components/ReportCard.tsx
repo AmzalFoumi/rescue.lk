@@ -11,11 +11,11 @@ export function ReportCard({ card }: { card: ReportCardModel }) {
         <span className="rounded-lg bg-primary-tint p-2 text-primary">
           <HazardIcon name={card.icon} className="size-6" />
         </span>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 space-y-1">
           <h2 className="font-semibold">
             {card.title}
             {card.shortId && (
-              <span className="ml-2 font-mono text-sm text-ink-muted">
+              <span className="ml-2 whitespace-nowrap font-mono text-sm text-ink-muted">
                 {card.shortId}
               </span>
             )}
@@ -23,8 +23,8 @@ export function ReportCard({ card }: { card: ReportCardModel }) {
           <p className="text-sm text-ink-muted">
             {card.place} · {card.time}
           </p>
+          <StatusChip status={card.status} />
         </div>
-        <StatusChip status={card.status} />
       </div>
       <p>{card.description}</p>
       {card.notes.map((note) => (
