@@ -6,6 +6,7 @@ import { UnsupportedChannelException } from '../exceptions/unsupported-channel.e
 
 const fakeChannel = (type: AlertChannelType): AlertChannel => ({
   type,
+  estimateRecipients: () => 1,
   send: () => Promise.resolve({ success: true, recipients: 1 }),
 });
 
@@ -18,6 +19,14 @@ describe('ChannelRegistry', () => {
     const registry = new ChannelRegistry([sms, push, siren]);
 
     expect(registry.resolve(['SIREN', 'SMS'])).toEqual([siren, sms]);
+  });
+
+  it('lists every registered channel in registration order', () => {
+    expect(new ChannelRegistry([sms, push, siren]).all()).toEqual([
+      sms,
+      push,
+      siren,
+    ]);
   });
 
   it('throws UnsupportedChannelException naming every missing channel', () => {

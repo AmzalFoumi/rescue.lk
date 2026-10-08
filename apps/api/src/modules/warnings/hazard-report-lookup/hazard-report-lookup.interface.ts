@@ -8,8 +8,14 @@ import type {
 export const HAZARD_REPORT_LOOKUP = Symbol('HAZARD_REPORT_LOOKUP');
 
 // A report in any status, so step 8.2 can reject ones that are not verified.
-export type HazardReportSummary = Omit<VerifiedHazardReportDto, 'status'> & {
+// Only a verified report has verification details.
+export type HazardReportSummary = Omit<
+  VerifiedHazardReportDto,
+  'status' | 'verifiedAt' | 'verifiedBy'
+> & {
   status: HazardReportStatus;
+  verifiedAt: string | null;
+  verifiedBy: string | null;
 };
 
 export interface HazardReportLookup {

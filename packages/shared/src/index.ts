@@ -115,12 +115,32 @@ export interface WarningDeliveryResultDto {
 }
 
 // UC1's read view of a UC2 hazard report that has passed verification.
+// Dates are ISO 8601 strings.
 export interface VerifiedHazardReportDto {
   id: HazardReportDto['id'];
   hazardType: HazardType;
   district: DistrictDto['id'];
+  districtName: string;
+  place: string;
+  reporter: string;
   status: Extract<HazardReportStatus, 'verified'>;
   description: string;
+  submittedAt: string;
+  verifiedAt: string;
+  verifiedBy: string;
+}
+
+// Expected reach of a warning on each channel before it is sent
+// (people for SMS and push, siren towers for SIREN).
+export interface ChannelReachDto {
+  channel: AlertChannelType;
+  recipients: number;
+}
+
+export interface ReachEstimateDto {
+  // District names the selected areas cover.
+  districts: string[];
+  channels: ChannelReachDto[];
 }
 
 export interface HazardReportDto {

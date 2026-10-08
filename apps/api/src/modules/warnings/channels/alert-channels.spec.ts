@@ -50,4 +50,17 @@ describe.each<[AlertChannel['type'], () => AlertChannel]>([
       expect(two.recipients).toBe(one.recipients * TWO_DISTRICTS.length);
     }
   });
+
+  it('estimates the same reach it reports when sending', async () => {
+    vi.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    const channel = createChannel();
+
+    const result = await channel.send({ warning, districts: TWO_DISTRICTS });
+
+    expect(result).toEqual({
+      success: true,
+      recipients: channel.estimateRecipients(TWO_DISTRICTS),
+    });
+    expect(channel.estimateRecipients([])).toBe(0);
+  });
 });

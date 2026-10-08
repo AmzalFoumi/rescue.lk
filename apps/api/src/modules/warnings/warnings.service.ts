@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type {
   DeliveryRecordDto,
+  ReachEstimateDto,
   TargetAreaDto,
   VerifiedHazardReportDto,
   WarningDeliveryResultDto,
@@ -209,6 +210,19 @@ export class WarningsService {
   // Feeds the "Affected area" step: every district and river basin.
   listTargetAreas(): TargetAreaDto[] {
     return this.areas.findAll();
+  }
+
+  // Expected reach of a warning on every channel before it is sent, for the
+  // "Target citizen summary" and the publish confirmation.
+  estimateReach(areaIds: readonly string[]): ReachEstimateDto {
+    const districts = this.areas.resolveDistricts(areaIds);
+    return {
+      districts,
+      channels: this.channelRegistry.all().map((channel) => ({
+        channel: channel.type,
+        recipients: channel.estimateRecipients(districts),
+      })),
+    };
   }
 
   // Sequence diagram step 11: delivery status of the current version only.

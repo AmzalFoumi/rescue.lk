@@ -37,6 +37,7 @@ type WarningsServiceMock = Mocked<
     | 'health'
     | 'listVerifiedReports'
     | 'listTargetAreas'
+    | 'estimateReach'
     | 'list'
     | 'saveDraft'
     | 'publish'
@@ -58,6 +59,7 @@ describe('WarningsController', () => {
       health: vi.fn().mockReturnValue({ status: 'ok', module: 'warnings' }),
       listVerifiedReports: vi.fn().mockResolvedValue([VERIFIED_REPORT]),
       listTargetAreas: vi.fn().mockReturnValue([]),
+      estimateReach: vi.fn().mockReturnValue({ districts: [], channels: [] }),
       list: vi.fn().mockResolvedValue([warningDto]),
       saveDraft: vi.fn().mockResolvedValue(warningDto),
       publish: vi.fn().mockResolvedValue(result),
@@ -87,6 +89,14 @@ describe('WarningsController', () => {
   it('lists target areas', () => {
     expect(controller.listTargetAreas()).toEqual([]);
     expect(service.listTargetAreas).toHaveBeenCalled();
+  });
+
+  it('estimates reach for the requested areas', () => {
+    expect(controller.estimateReach({ areaIds: ['B-KALU'] })).toEqual({
+      districts: [],
+      channels: [],
+    });
+    expect(service.estimateReach).toHaveBeenCalledWith(['B-KALU']);
   });
 
   it('lists warnings, passing the status filter through', async () => {

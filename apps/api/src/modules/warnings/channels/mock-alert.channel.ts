@@ -15,8 +15,12 @@ export abstract class MockAlertChannel implements AlertChannel {
   protected abstract readonly recipientsPerDistrict: number;
   private readonly logger = new Logger(this.constructor.name);
 
+  estimateRecipients(districts: readonly string[]): number {
+    return districts.length * this.recipientsPerDistrict;
+  }
+
   send({ warning, districts }: ChannelMessage): Promise<ChannelSendResult> {
-    const recipients = districts.length * this.recipientsPerDistrict;
+    const recipients = this.estimateRecipients(districts);
     this.logger.log(
       `Mock ${this.type} gateway sent warning ${warning.id} v${warning.version} to ${recipients} recipient(s) in ${districts.length} district(s)`,
     );

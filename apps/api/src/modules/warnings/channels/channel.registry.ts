@@ -21,6 +21,11 @@ export class ChannelRegistry {
     }
   }
 
+  // Every registered channel, in registration order.
+  all(): AlertChannel[] {
+    return [...this.channels.values()];
+  }
+
   resolve(types: readonly AlertChannelType[]): AlertChannel[] {
     const resolved: AlertChannel[] = [];
     const unsupported: AlertChannelType[] = [];

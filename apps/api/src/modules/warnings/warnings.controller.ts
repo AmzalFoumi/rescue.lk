@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import type {
   DeliveryRecordDto,
+  ReachEstimateDto,
   TargetAreaDto,
   VerifiedHazardReportDto,
   WarningDeliveryResultDto,
@@ -39,6 +40,8 @@ import { WarningDeliveryResultResponseDto } from './dto/warning-delivery-result-
 import { DeliveryRecordResponseDto } from './dto/delivery-record-response.dto.js';
 import { VerifiedHazardReportResponseDto } from './dto/verified-hazard-report-response.dto.js';
 import { TargetAreaResponseDto } from './dto/target-area-response.dto.js';
+import { ReachQueryDto } from './dto/reach-query.dto.js';
+import { ReachEstimateResponseDto } from './dto/reach-estimate-response.dto.js';
 
 // Thin HTTP adapter: maps requests to WarningsService calls, nothing else.
 // Static routes are declared before the :id routes.
@@ -65,6 +68,16 @@ export class WarningsController {
   @ApiOkResponse({ type: [TargetAreaResponseDto] })
   listTargetAreas(): TargetAreaDto[] {
     return this.warningsService.listTargetAreas();
+  }
+
+  @Get('reach')
+  @ApiOperation({
+    summary: 'Estimate the reach of each channel for the selected areas',
+  })
+  @ApiOkResponse({ type: ReachEstimateResponseDto })
+  @ApiErrorResponses(HttpStatus.BAD_REQUEST)
+  estimateReach(@Query() { areaIds }: ReachQueryDto): ReachEstimateDto {
+    return this.warningsService.estimateReach(areaIds);
   }
 
   @Get()

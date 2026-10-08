@@ -48,8 +48,13 @@ import {
   fixedClock,
 } from './testing/warning.fixtures.js';
 
+// Each fake channel reaches this many recipients per district.
+const REACH_PER_DISTRICT = { SMS: 100, PUSH: 40, SIREN: 2 } as const;
+
 const fakeChannel = (type: AlertChannelType) => ({
   type,
+  estimateRecipients: (districts: readonly string[]) =>
+    districts.length * REACH_PER_DISTRICT[type],
   send: vi
     .fn<AlertChannel['send']>()
     .mockResolvedValue({ success: true, recipients: 1 }),
@@ -503,6 +508,28 @@ describe('WarningsService', () => {
         expect.objectContaining({ id: 'D-COLOMBO', kind: 'DISTRICT' }),
       ]),
     );
+  });
+
+  describe('estimateReach', () => {
+    it('estimates each registered channel for the districts the areas cover', () => {
+      expect(service.estimateReach(['B-KALU', 'D-RATNAPURA'])).toEqual({
+        districts: ['Ratnapura', 'Kalutara'],
+        channels: [
+          { channel: 'SMS', recipients: 2 * REACH_PER_DISTRICT.SMS },
+          { channel: 'PUSH', recipients: 2 * REACH_PER_DISTRICT.PUSH },
+        ],
+      });
+    });
+
+    it('reaches nobody when no area is selected', () => {
+      expect(service.estimateReach([])).toEqual({
+        districts: [],
+        channels: [
+          { channel: 'SMS', recipients: 0 },
+          { channel: 'PUSH', recipients: 0 },
+        ],
+      });
+    });
   });
 
   it('listVerifiedReports returns the verified reports from the lookup', async () => {

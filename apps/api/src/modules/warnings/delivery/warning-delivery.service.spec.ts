@@ -112,7 +112,11 @@ class FakeDeliveryRecordsRepository implements DeliveryRecordsRepository {
 
 const fakeChannel = (type: AlertChannelType) => {
   const send = vi.fn<AlertChannel['send']>().mockResolvedValue(SENT);
-  return { type, send } satisfies AlertChannel;
+  return {
+    type,
+    send,
+    estimateRecipients: () => RECIPIENTS,
+  } satisfies AlertChannel;
 };
 
 const sentEntry = (

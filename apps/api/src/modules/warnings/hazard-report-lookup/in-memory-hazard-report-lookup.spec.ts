@@ -50,4 +50,25 @@ describe('InMemoryHazardReportLookup', () => {
   it('findById returns null for an unknown id', async () => {
     await expect(lookup.findById(UNKNOWN_ID)).resolves.toBeNull();
   });
+
+  it('gives verified reports the place, district, reporter and verification details', async () => {
+    const reports = await lookup.findVerified();
+
+    for (const report of reports) {
+      expect(report.place).not.toBe('');
+      expect(report.districtName).not.toBe('');
+      expect(report.reporter).not.toBe('');
+      expect(Date.parse(report.submittedAt)).not.toBeNaN();
+      expect(Date.parse(report.verifiedAt)).toBeGreaterThanOrEqual(
+        Date.parse(report.submittedAt),
+      );
+      expect(report.verifiedBy).not.toBe('');
+    }
+  });
+
+  it('leaves the verification details empty on a report awaiting verification', async () => {
+    await expect(
+      lookup.findById('665f1b2c9d3e4a00000000a4'),
+    ).resolves.toMatchObject({ verifiedAt: null, verifiedBy: null });
+  });
 });

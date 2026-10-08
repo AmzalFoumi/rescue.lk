@@ -56,6 +56,7 @@ type ServiceMock = Mocked<
     WarningsService,
     | 'listVerifiedReports'
     | 'listTargetAreas'
+    | 'estimateReach'
     | 'list'
     | 'saveDraft'
     | 'publish'
@@ -73,6 +74,7 @@ describe('Warnings HTTP API', () => {
   const service: ServiceMock = {
     listVerifiedReports: vi.fn(),
     listTargetAreas: vi.fn(),
+    estimateReach: vi.fn(),
     list: vi.fn(),
     saveDraft: vi.fn(),
     publish: vi.fn(),
@@ -128,6 +130,29 @@ describe('Warnings HTTP API', () => {
       service.listTargetAreas.mockReturnValue([]);
 
       await http().get(`${BASE}/target-areas`).expect(HttpStatus.OK);
+    });
+
+    it('GET /reach accepts one area id as a list', async () => {
+      service.estimateReach.mockReturnValue({ districts: [], channels: [] });
+
+      await http().get(`${BASE}/reach?areaIds=B-KALU`).expect(HttpStatus.OK);
+
+      expect(service.estimateReach).toHaveBeenCalledWith(['B-KALU']);
+    });
+
+    it('GET /reach accepts several area ids, and none', async () => {
+      service.estimateReach.mockReturnValue({ districts: [], channels: [] });
+
+      await http()
+        .get(`${BASE}/reach?areaIds=B-KALU&areaIds=D-COLOMBO`)
+        .expect(HttpStatus.OK);
+      await http().get(`${BASE}/reach`).expect(HttpStatus.OK);
+
+      expect(service.estimateReach).toHaveBeenNthCalledWith(1, [
+        'B-KALU',
+        'D-COLOMBO',
+      ]);
+      expect(service.estimateReach).toHaveBeenNthCalledWith(2, []);
     });
 
     it('GET /?status=ACTIVE -> 200 with the filter passed through', async () => {

@@ -18,5 +18,7 @@ export type ChannelSendResult =
 // Sequence diagram: SMS/PUSH/SIREN AlertChannel lifelines, send() inside par.
 export interface AlertChannel {
   readonly type: AlertChannelType;
+  // Expected reach for these districts, shown before a warning is sent.
+  estimateRecipients(districts: readonly string[]): number;
   send(message: ChannelMessage): Promise<ChannelSendResult>;
 }

@@ -16,8 +16,14 @@ export const VERIFIED_REPORT: VerifiedHazardReportDto = {
   id: '665f1b2c9d3e4a00000000a1',
   hazardType: 'FLOOD',
   district: '665f1b2c9d3e4a00000000d1',
+  districtName: 'Ratnapura',
+  place: 'Ratnapura town',
+  reporter: 'Nimal Perera',
   status: 'verified',
   description: 'Kalu Ganga overflowing near Ratnapura',
+  submittedAt: '2026-10-08T08:10:00.000Z',
+  verifiedAt: '2026-10-08T08:40:00.000Z',
+  verifiedBy: 'K. Jayawardena',
 };
 
 export const buildWarningForm = (
