@@ -22,15 +22,16 @@ A report can leave "Pending Verification" only once. A second verify or reject r
 
 Base path: `/api/hazard-reports`. Try them in Swagger at `/api/docs`.
 
-| Method | Path          | What it does                                                       | Errors        |
-| ------ | ------------- | ------------------------------------------------------------------ | ------------- |
-| POST   | `/`           | Submit a report. Stored as Pending Verification. Flags duplicates. | 400           |
-| POST   | `/offline`    | No network: put the report in the offline queue.                   | 400           |
-| POST   | `/sync`       | Back online: store every queued report. Failed ones stay queued.   |               |
-| GET    | `/`           | List reports that are Pending Verification.                        |               |
-| GET    | `/:id`        | One report: details, photo, location, duplicates, status.          | 404           |
-| PATCH  | `/:id/verify` | Operator verifies. Body: `operatorId`.                             | 400, 404, 409 |
-| PATCH  | `/:id/reject` | Operator rejects. Body: `operatorId`, `reason` (required).         | 400, 404, 409 |
+| Method | Path            | What it does                                                              | Errors        |
+| ------ | --------------- | ------------------------------------------------------------------------- | ------------- |
+| POST   | `/`             | Submit a report. Stored as Pending Verification. Flags duplicates.        | 400           |
+| POST   | `/offline`      | No network: put the report in the offline queue.                          | 400           |
+| POST   | `/sync`         | Back online: store every queued report. Failed ones stay queued.          |               |
+| GET    | `/`             | List reports that are Pending Verification (the operator's list).         |               |
+| GET    | `/?reporterId=` | List one reporter's own reports, all statuses, newest first (My Reports). | 400           |
+| GET    | `/:id`          | One report: details, photo, location, duplicates, status.                 | 404           |
+| PATCH  | `/:id/verify`   | Operator verifies. Body: `operatorId`.                                    | 400, 404, 409 |
+| PATCH  | `/:id/reject`   | Operator rejects. Body: `operatorId`, `reason` (required).                | 400, 404, 409 |
 
 400 means a field is missing or invalid (the response names the field). 404 also covers an
 id that is not a valid report id.
@@ -38,7 +39,12 @@ id that is not a valid report id.
 A report has `id`, `hazardType`, `description`, `photoUrl`, `location` (`latitude`,
 `longitude`), `district`, `capturedAt`, `submittedAt`, `status`, `possibleDuplicateOf`,
 `reporterId`, `reporterRole`, and after a decision `verifiedBy`, `verifiedAt` and
-`rejectionReason`.
+`rejectionReason`. Optional fields filled in by the web form: `placeName` (the landmark
+typed for a manual location), `reporterName` and `otherHazard` (the text for type "other").
+
+The web form also reads `GET /api/districts` (name, province and the centre of each district;
+a manual location uses the district centre as its coordinates). Run `npm run db:seed
+--workspace=apps/api` once to fill the 15 districts.
 
 ## Diagram message → code
 
@@ -54,6 +60,7 @@ The Submit diagram is one service and the Verify diagram is the other.
 | `syncWhenOnline()`                                       | `HazardReportSubmissionService.syncQueued` → `OfflineReportQueue.syncWhenOnline` |
 | `getPendingReports()`                                    | `HazardReportVerificationService.listPending`                                    |
 | `selectReport(reportId)`                                 | `HazardReportVerificationService.getById`                                        |
+| `trackReportStatus()` (Reporter in the class diagram)    | `HazardReportTrackingService.listByReporter`                                     |
 | `verifyReport(reportId)` / `setStatus(Verified)`         | `HazardReportVerificationService.verify`                                         |
 | `rejectReport(reportId, reason)` / `setStatus(Rejected)` | `HazardReportVerificationService.reject`                                         |
 
