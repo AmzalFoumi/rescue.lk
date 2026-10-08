@@ -1,5 +1,6 @@
 import type {
   AlertChannelType,
+  HazardType,
   WarningSeverity,
   WarningStatus,
 } from '@rescue-lk/shared';
@@ -9,26 +10,45 @@ export const WARNINGS_REPOSITORY = Symbol('WARNINGS_REPOSITORY');
 // Persistence-agnostic view of a stored warning, so services never see Mongoose types.
 export interface WarningRecord {
   id: string;
-  hazardReportId: string;
-  title: string;
-  message: string;
+  sourceReportId: string;
+  hazard: HazardType;
+  otherHazard: string;
   severity: WarningSeverity;
-  districts: string[];
+  areaIds: string[];
+  message: string;
+  instructions: string;
   channels: AlertChannelType[];
   status: WarningStatus;
-  issuedAt: Date;
-  expiresAt: Date;
+  version: number;
+  createdBy: string;
+  createdAt: Date;
+  publishedAt: Date | null;
+  updatedAt: Date | null;
+  cancelledAt: Date | null;
+  cancelReason: string;
 }
 
-// New warnings always start in the default status, so it is not part of the input.
-export type CreateWarningInput = Omit<WarningRecord, 'id' | 'status'>;
+export type CreateWarningInput = Omit<WarningRecord, 'id'>;
+
+export type WarningChanges = Partial<Omit<WarningRecord, 'id' | 'createdAt'>>;
+
+// Optimistic guard: the update only applies while the warning is still in
+// expectedStatus, so two concurrent publishes or cancels cannot both win.
+export interface GuardedWarningUpdate {
+  id: string;
+  expectedStatus: WarningStatus;
+  changes: WarningChanges;
+}
+
+export interface WarningListFilter {
+  status?: WarningStatus;
+}
 
 export interface WarningsRepository {
   create(input: CreateWarningInput): Promise<WarningRecord>;
   findById(id: string): Promise<WarningRecord | null>;
-  findAll(): Promise<WarningRecord[]>;
-  updateStatus(
-    id: string,
-    status: WarningStatus,
-  ): Promise<WarningRecord | null>;
+  // Newest first (publishedAt, then createdAt).
+  findAll(filter?: WarningListFilter): Promise<WarningRecord[]>;
+  // Returns null when the warning is missing or no longer in expectedStatus.
+  update(update: GuardedWarningUpdate): Promise<WarningRecord | null>;
 }

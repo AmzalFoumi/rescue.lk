@@ -1,62 +1,26 @@
 import { Logger } from '@nestjs/common';
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
+import type { WarningFormErrors } from '@rescue-lk/shared';
 import { WarningValidator } from './warning.validator.js';
-import type { IssueWarningCommand } from '../domain/issue-warning.command.js';
-import type { HazardReportSummary } from '../hazard-report-lookup/hazard-report-lookup.interface.js';
+import type { ValidationMode } from './warning.rules.js';
+import type { WarningForm } from '../domain/warning-form.js';
+import { InMemoryTargetAreaCatalog } from '../target-areas/in-memory-target-area-catalog.js';
 import { InvalidWarningException } from '../exceptions/invalid-warning.exception.js';
 import { ReportNotVerifiedException } from '../exceptions/report-not-verified.exception.js';
+import { WARNING_MESSAGE_MIN_LENGTH } from '../warnings.constants.js';
 import {
-  MAX_WARNING_DURATION_HOURS,
-  MILLISECONDS_PER_HOUR,
-} from '../warnings.constants.js';
+  VERIFIED_REPORT,
+  buildWarningForm,
+} from '../testing/warning.fixtures.js';
 
-const NOW = new Date('2026-10-08T12:00:00.000Z');
-const ONE_MILLISECOND = 1;
-const REPORT_DISTRICT = '665f1b2c9d3e4a00000000d1';
-const OTHER_DISTRICT = '665f1b2c9d3e4a00000000d2';
-
-const hoursFromNow = (hours: number): Date =>
-  new Date(NOW.getTime() + hours * MILLISECONDS_PER_HOUR);
-
-const verifiedReport: HazardReportSummary = {
-  id: '665f1b2c9d3e4a00000000a1',
-  hazardType: 'flood',
-  district: REPORT_DISTRICT,
-  status: 'verified',
-  description: 'Kelani River overflowing',
-};
-
-const buildCommand = (
-  overrides: Partial<IssueWarningCommand> = {},
-): IssueWarningCommand => ({
-  hazardReportId: verifiedReport.id,
-  title: 'Flood warning',
-  message: 'Move to higher ground immediately.',
-  severity: 'severe',
-  districts: [REPORT_DISTRICT],
-  channels: ['push', 'sms'],
-  expiresAt: hoursFromNow(1),
-  ...overrides,
-});
-
-const captureInvalidWarning = (action: () => void): InvalidWarningException => {
-  try {
-    action();
-  } catch (error) {
-    if (error instanceof InvalidWarningException) {
-      return error;
-    }
-    throw error;
-  }
-  throw new Error('Expected InvalidWarningException to be thrown');
-};
+const MODES: readonly ValidationMode[] = ['DRAFT', 'PUBLISH'];
 
 describe('WarningValidator (step 8.2 validateWarning)', () => {
   let validator: WarningValidator;
   let warnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    validator = new WarningValidator();
+    validator = new WarningValidator(new InMemoryTargetAreaCatalog());
     warnSpy = vi
       .spyOn(Logger.prototype, 'warn')
       .mockImplementation(() => undefined);
@@ -66,138 +30,143 @@ describe('WarningValidator (step 8.2 validateWarning)', () => {
     vi.restoreAllMocks();
   });
 
-  it('accepts a valid warning for a verified report', () => {
-    expect(() =>
-      validator.validate({
-        command: buildCommand(),
-        report: verifiedReport,
-        now: NOW,
-      }),
-    ).not.toThrow();
+  const validate = (form: WarningForm, mode: ValidationMode) =>
+    validator.validate({ form, report: VERIFIED_REPORT, mode });
+
+  const errorsFor = (
+    form: WarningForm,
+    mode: ValidationMode,
+  ): WarningFormErrors => {
+    try {
+      validate(form, mode);
+    } catch (error) {
+      if (error instanceof InvalidWarningException) {
+        return error.errors;
+      }
+      throw error;
+    }
+    return {};
+  };
+
+  it.each(MODES)('accepts a complete form in %s mode', (mode) => {
+    expect(() => validate(buildWarningForm(), mode)).not.toThrow();
   });
 
-  it.each(['pending', 'rejected'] as const)(
-    'rejects a %s report with ReportNotVerifiedException',
-    (status) => {
+  it.each(MODES)(
+    'rejects an unverified report in %s mode with ReportNotVerifiedException',
+    (mode) => {
       expect(() =>
         validator.validate({
-          command: buildCommand(),
-          report: { ...verifiedReport, status },
-          now: NOW,
+          form: buildWarningForm(),
+          report: { ...VERIFIED_REPORT, status: 'pending' },
+          mode,
         }),
       ).toThrow(ReportNotVerifiedException);
     },
   );
 
-  it('checks verification before any other rule', () => {
+  it('checks verification before any field rule', () => {
     expect(() =>
       validator.validate({
-        command: buildCommand({ expiresAt: hoursFromNow(-1) }),
-        report: { ...verifiedReport, status: 'pending' },
-        now: NOW,
+        form: buildWarningForm({ message: '' }),
+        report: { ...VERIFIED_REPORT, status: 'rejected' },
+        mode: 'PUBLISH',
       }),
     ).toThrow(ReportNotVerifiedException);
   });
 
-  it.each([
-    ['in the past', hoursFromNow(-1)],
-    ['exactly now', NOW],
-  ])('rejects an expiry %s', (_label, expiresAt) => {
-    const exception = captureInvalidWarning(() =>
-      validator.validate({
-        command: buildCommand({ expiresAt }),
-        report: verifiedReport,
-        now: NOW,
-      }),
+  describe.each(MODES)('rules that apply in %s mode', (mode) => {
+    it('requires a name when the hazard is OTHER', () => {
+      expect(
+        errorsFor(
+          buildWarningForm({ hazard: 'OTHER', otherHazard: ' ' }),
+          mode,
+        ),
+      ).toEqual({ otherHazard: expect.any(String) });
+    });
+
+    it('accepts OTHER with a hazard name', () => {
+      expect(
+        errorsFor(
+          buildWarningForm({ hazard: 'OTHER', otherHazard: 'Dam breach' }),
+          mode,
+        ),
+      ).toEqual({});
+    });
+
+    it('requires at least one area', () => {
+      expect(errorsFor(buildWarningForm({ areaIds: [] }), mode)).toEqual({
+        areaIds: expect.stringContaining('at least one'),
+      });
+    });
+
+    it('names unknown areas', () => {
+      expect(
+        errorsFor(
+          buildWarningForm({ areaIds: ['B-KALU', 'D-ATLANTIS'] }),
+          mode,
+        ),
+      ).toEqual({ areaIds: expect.stringContaining('D-ATLANTIS') });
+    });
+
+    it(`requires a message of at least ${WARNING_MESSAGE_MIN_LENGTH} characters, ignoring spaces`, () => {
+      const tooShort = `${'x'.repeat(WARNING_MESSAGE_MIN_LENGTH - 1)}   `;
+
+      expect(errorsFor(buildWarningForm({ message: tooShort }), mode)).toEqual({
+        message: expect.stringContaining(`${WARNING_MESSAGE_MIN_LENGTH}`),
+      });
+    });
+
+    it('rejects a hazard or severity outside the vocabulary', () => {
+      const form = {
+        ...buildWarningForm(),
+        hazard: 'TSUNAMI',
+        severity: 'EXTREME',
+      } as unknown as WarningForm;
+
+      expect(errorsFor(form, mode)).toEqual({
+        hazard: expect.any(String),
+        severity: expect.any(String),
+      });
+    });
+  });
+
+  it('lets a draft be saved without instructions or channels', () => {
+    expect(
+      errorsFor(buildWarningForm({ instructions: '', channels: [] }), 'DRAFT'),
+    ).toEqual({});
+  });
+
+  it('requires instructions and at least one channel to publish', () => {
+    expect(
+      errorsFor(
+        buildWarningForm({ instructions: '  ', channels: [] }),
+        'PUBLISH',
+      ),
+    ).toEqual({
+      instructions: expect.any(String),
+      channels: expect.any(String),
+    });
+  });
+
+  it('collects every invalid field into one InvalidWarningException', () => {
+    const errors = errorsFor(
+      buildWarningForm({ areaIds: [], message: 'short', channels: [] }),
+      'PUBLISH',
     );
 
-    expect(exception.reasons).toEqual([
-      expect.stringContaining('in the future'),
+    expect(Object.keys(errors).sort()).toEqual([
+      'areaIds',
+      'channels',
+      'message',
     ]);
   });
 
-  it('accepts an expiry exactly at the maximum duration', () => {
-    expect(() =>
-      validator.validate({
-        command: buildCommand({
-          expiresAt: hoursFromNow(MAX_WARNING_DURATION_HOURS),
-        }),
-        report: verifiedReport,
-        now: NOW,
-      }),
-    ).not.toThrow();
-  });
-
-  it('rejects an expiry beyond the maximum duration', () => {
-    const tooLate = new Date(
-      hoursFromNow(MAX_WARNING_DURATION_HOURS).getTime() + ONE_MILLISECOND,
-    );
-
-    const exception = captureInvalidWarning(() =>
-      validator.validate({
-        command: buildCommand({ expiresAt: tooLate }),
-        report: verifiedReport,
-        now: NOW,
-      }),
-    );
-
-    expect(exception.reasons).toEqual([
-      expect.stringContaining(`${MAX_WARNING_DURATION_HOURS} hours`),
-    ]);
-  });
-
-  it('rejects target districts that leave out the report district', () => {
-    const exception = captureInvalidWarning(() =>
-      validator.validate({
-        command: buildCommand({ districts: [OTHER_DISTRICT] }),
-        report: verifiedReport,
-        now: NOW,
-      }),
-    );
-
-    expect(exception.reasons).toEqual([
-      expect.stringContaining(REPORT_DISTRICT),
-    ]);
-  });
-
-  it('accepts extra target districts alongside the report district', () => {
-    expect(() =>
-      validator.validate({
-        command: buildCommand({
-          districts: [REPORT_DISTRICT, OTHER_DISTRICT],
-        }),
-        report: verifiedReport,
-        now: NOW,
-      }),
-    ).not.toThrow();
-  });
-
-  it('collects every violation into one InvalidWarningException', () => {
-    const exception = captureInvalidWarning(() =>
-      validator.validate({
-        command: buildCommand({
-          expiresAt: hoursFromNow(-1),
-          districts: [OTHER_DISTRICT],
-        }),
-        report: verifiedReport,
-        now: NOW,
-      }),
-    );
-
-    expect(exception.reasons).toHaveLength(2);
-  });
-
-  it('logs a rejected warning at warn level with the report id', () => {
-    captureInvalidWarning(() =>
-      validator.validate({
-        command: buildCommand({ expiresAt: hoursFromNow(-1) }),
-        report: verifiedReport,
-        now: NOW,
-      }),
-    );
+  it('logs a rejected form at warn level with the report id and fields', () => {
+    errorsFor(buildWarningForm({ message: 'short' }), 'DRAFT');
 
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining(verifiedReport.id),
+      expect.stringMatching(new RegExp(`${VERIFIED_REPORT.id}.*message`)),
     );
   });
 });

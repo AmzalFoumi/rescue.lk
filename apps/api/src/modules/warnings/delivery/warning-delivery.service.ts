@@ -6,19 +6,30 @@ import { ChannelRegistry } from '../channels/channel.registry.js';
 import type { AlertChannel } from '../channels/alert-channel.interface.js';
 import { DELIVERY_RECORDS_REPOSITORY } from '../delivery-records.repository.interface.js';
 import type {
-  DeliveryRecordChanges,
   DeliveryRecordEntry,
   DeliveryRecordsRepository,
 } from '../delivery-records.repository.interface.js';
-import type { WarningRecord } from '../warnings.repository.interface.js';
+import { WARNINGS_REPOSITORY } from '../warnings.repository.interface.js';
+import type {
+  WarningRecord,
+  WarningsRepository,
+} from '../warnings.repository.interface.js';
+import { TARGET_AREA_CATALOG } from '../target-areas/target-area-catalog.interface.js';
+import type { TargetAreaCatalog } from '../target-areas/target-area-catalog.interface.js';
+import { DeliveryRecordNotFoundException } from '../exceptions/delivery-record-not-found.exception.js';
+import { DeliveryNotRetryableException } from '../exceptions/delivery-not-retryable.exception.js';
+import { WarningNotFoundException } from '../exceptions/warning-not-found.exception.js';
+import { MANUAL_RETRY_ATTEMPTS } from '../warnings.constants.js';
 import { RetryPolicy } from './retry.policy.js';
-import type { RetryOutcome } from './retry.policy.js';
+import { DeliveryAttemptRecorder } from './delivery-attempt.recorder.js';
 
-// Parameter object for delivering one warning on one channel.
-interface ChannelDelivery {
+// Parameter object for sending one warning on one channel.
+interface ChannelRun {
   warning: WarningRecord;
   channel: AlertChannel;
   record: DeliveryRecordEntry;
+  // Omitted for a normal delivery (MAX_SEND_ATTEMPTS applies).
+  maxAttempts?: number;
 }
 
 interface RecordingFailure {
@@ -31,7 +42,8 @@ const isFulfilled = <T>(
 ): outcome is PromiseFulfilledResult<T> => outcome.status === 'fulfilled';
 
 // Sequence diagram step 10 deliver(): par fragment over the selected channels,
-// each send wrapped in loop(0,3) [send failed], then recordDelivery per channel.
+// each send wrapped in loop(0,3) [send failed], with every status change
+// recorded (QUEUED -> RETRYING -> SENT | FAILED).
 @Injectable()
 export class WarningDeliveryService {
   private readonly logger = new Logger(WarningDeliveryService.name);
@@ -39,8 +51,11 @@ export class WarningDeliveryService {
   constructor(
     @Inject(DELIVERY_RECORDS_REPOSITORY)
     private readonly deliveryRecords: DeliveryRecordsRepository,
+    @Inject(WARNINGS_REPOSITORY)
+    private readonly warnings: WarningsRepository,
     private readonly channelRegistry: ChannelRegistry,
     private readonly retryPolicy: RetryPolicy,
+    @Inject(TARGET_AREA_CATALOG) private readonly areas: TargetAreaCatalog,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
@@ -50,6 +65,7 @@ export class WarningDeliveryService {
       channels.map((channel) =>
         this.deliveryRecords.create({
           warningId: warning.id,
+          warningVersion: warning.version,
           channel: channel.type,
         }),
       ),
@@ -58,57 +74,106 @@ export class WarningDeliveryService {
     // allSettled: one channel failing never stops the others.
     const outcomes = await Promise.allSettled(
       channels.map((channel, index) =>
-        this.deliverOnChannel({ warning, channel, record: records[index] }),
+        this.runChannel({ warning, channel, record: records[index] }),
       ),
     );
     return this.collectRecords(warning.id, channels, outcomes);
   }
 
-  private async deliverOnChannel(
-    delivery: ChannelDelivery,
-  ): Promise<DeliveryRecordEntry> {
-    const { warning, channel, record } = delivery;
-    const outcome = await this.retryPolicy.execute(
-      () => channel.send(warning),
-      `${channel.type} for warning ${warning.id}`,
+  // Manual retry from the delivery status screen: one extra attempt.
+  async retry(recordId: string): Promise<DeliveryRecordEntry> {
+    const record = await this.findRecordOrThrow(recordId);
+    const warning = await this.findWarningOrThrow(record.warningId);
+    this.assertRetryable(record, warning);
+
+    const [channel] = this.channelRegistry.resolve([record.channel]);
+    this.logger.log(
+      `Manual retry of ${record.channel} delivery ${record.id} for warning ${warning.id} v${warning.version}`,
     );
-    this.logOutcome(delivery, outcome);
-    const { result, attempts } = outcome;
-    return this.recordDelivery(record.id, {
-      status: result.success ? 'sent' : 'failed',
-      attempts,
-      lastAttemptAt: this.clock.now(),
-      ...(result.success ? {} : { failureReason: result.failureReason }),
+    return this.runChannel({
+      warning,
+      channel,
+      record,
+      maxAttempts: MANUAL_RETRY_ATTEMPTS,
     });
   }
 
-  // Sequence diagram: DeliveryRecord.recordDelivery().
-  private async recordDelivery(
-    recordId: string,
-    changes: DeliveryRecordChanges,
-  ): Promise<DeliveryRecordEntry> {
-    const updated = await this.deliveryRecords.update(recordId, changes);
-    if (!updated) {
-      throw new Error(
-        `Delivery record ${recordId} no longer exists and could not be updated`,
+  private async runChannel({
+    warning,
+    channel,
+    record,
+    maxAttempts,
+  }: ChannelRun): Promise<DeliveryRecordEntry> {
+    const recorder = new DeliveryAttemptRecorder({
+      record,
+      repository: this.deliveryRecords,
+      clock: this.clock,
+    });
+    const districts = this.areas.resolveDistricts(warning.areaIds);
+    const context = `${channel.type} for warning ${warning.id} v${warning.version}`;
+
+    const { result } = await this.retryPolicy.execute({
+      operation: () => channel.send({ warning, districts }),
+      context,
+      listener: recorder,
+      maxAttempts,
+    });
+
+    if (!result.success) {
+      this.logger.error(
+        `Could not send ${context} after ${recorder.current.attempts} attempt(s): ${result.error}`,
       );
+      return recorder.current;
     }
-    return updated;
+    this.logger.log(
+      `Sent ${context} to ${result.recipients} recipient(s) after ${recorder.current.attempts} attempt(s)`,
+    );
+    return recorder.recordSuccess(result.recipients);
   }
 
-  private logOutcome(
-    { warning, channel }: ChannelDelivery,
-    { result, attempts }: RetryOutcome,
+  private assertRetryable(
+    record: DeliveryRecordEntry,
+    warning: WarningRecord,
   ): void {
-    if (result.success) {
-      this.logger.log(
-        `Warning ${warning.id} sent via ${channel.type} after ${attempts} attempt(s)`,
-      );
-      return;
+    const reason = this.notRetryableReason(record, warning);
+    if (reason) {
+      this.logger.warn(`Retry of delivery ${record.id} refused: ${reason}`);
+      throw new DeliveryNotRetryableException({ recordId: record.id, reason });
     }
-    this.logger.error(
-      `Warning ${warning.id} could not be sent via ${channel.type} after ${attempts} attempt(s): ${result.failureReason}`,
-    );
+  }
+
+  private notRetryableReason(
+    record: DeliveryRecordEntry,
+    warning: WarningRecord,
+  ): string | null {
+    if (record.status !== 'FAILED') {
+      return `it is ${record.status}; only FAILED deliveries can be retried`;
+    }
+    if (warning.status !== 'ACTIVE') {
+      return `warning ${warning.id} is ${warning.status}`;
+    }
+    if (record.warningVersion !== warning.version) {
+      return `it belongs to version ${record.warningVersion}, but the warning is now version ${warning.version}`;
+    }
+    return null;
+  }
+
+  private async findRecordOrThrow(
+    recordId: string,
+  ): Promise<DeliveryRecordEntry> {
+    const record = await this.deliveryRecords.findById(recordId);
+    if (!record) {
+      throw new DeliveryRecordNotFoundException(recordId);
+    }
+    return record;
+  }
+
+  private async findWarningOrThrow(warningId: string): Promise<WarningRecord> {
+    const warning = await this.warnings.findById(warningId);
+    if (!warning) {
+      throw new WarningNotFoundException(warningId);
+    }
+    return warning;
   }
 
   // Returns every record, or logs and rethrows if any could not be recorded.

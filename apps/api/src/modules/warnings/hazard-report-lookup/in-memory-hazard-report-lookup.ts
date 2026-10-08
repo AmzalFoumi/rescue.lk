@@ -11,32 +11,32 @@ import type {
 const STUB_REPORTS: readonly HazardReportSummary[] = [
   {
     id: '665f1b2c9d3e4a00000000a1',
-    hazardType: 'flood',
+    hazardType: 'FLOOD',
     district: '665f1b2c9d3e4a00000000d1',
     status: 'verified',
     description: 'Kelani River overflowing near Kaduwela',
   },
   {
     id: '665f1b2c9d3e4a00000000a2',
-    hazardType: 'landslide',
+    hazardType: 'LANDSLIDE',
     district: '665f1b2c9d3e4a00000000d2',
     status: 'verified',
     description: 'Cracks and soil movement on slopes above Haldummulla',
   },
   {
     id: '665f1b2c9d3e4a00000000a3',
-    hazardType: 'cyclone',
+    hazardType: 'ROAD_BLOCKAGE',
     district: '665f1b2c9d3e4a00000000d3',
     status: 'verified',
-    description: 'Cyclone approaching the Trincomalee coast',
+    description: 'Fallen trees blocking the A9 road near Vavuniya',
   },
   {
     id: '665f1b2c9d3e4a00000000a4',
-    hazardType: 'drought',
+    hazardType: 'FIRE',
     district: '665f1b2c9d3e4a00000000d4',
     status: 'pending',
     description:
-      'Water shortage reported in Anuradhapura (awaiting verification)',
+      'Grass fire reported near Anuradhapura (awaiting verification)',
   },
 ];
 

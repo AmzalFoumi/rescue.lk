@@ -1,8 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
+import type { WarningFormErrors } from '@rescue-lk/shared';
 
-// Sequence diagram alt [invalid] -> validationError: every failed rule from step 8.2.
+// Sequence diagram alt [invalid] -> validationError: one message per invalid
+// field, so the UI can show each error next to its input.
 export class InvalidWarningException extends BadRequestException {
-  constructor(readonly reasons: readonly string[]) {
-    super({ message: 'Warning failed validation', reasons });
+  constructor(readonly errors: WarningFormErrors) {
+    super({ message: 'Warning failed validation', errors });
   }
 }

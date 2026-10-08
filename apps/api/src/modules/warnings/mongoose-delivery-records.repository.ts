@@ -10,7 +10,9 @@ import type {
   DeliveryRecordChanges,
   DeliveryRecordEntry,
   DeliveryRecordsRepository,
+  WarningVersionRef,
 } from './delivery-records.repository.interface.js';
+import { INITIAL_DELIVERY_STATUS } from './warnings.constants.js';
 
 type LeanDeliveryRecord = DeliveryRecord & { _id: Types.ObjectId };
 
@@ -25,18 +27,30 @@ export class MongooseDeliveryRecordsRepository implements DeliveryRecordsReposit
 
   async create(input: CreateDeliveryRecordInput): Promise<DeliveryRecordEntry> {
     const created = await this.model.create({
+      ...input,
       warningId: new Types.ObjectId(input.warningId),
-      channel: input.channel,
+      status: INITIAL_DELIVERY_STATUS,
     });
     this.logger.debug(
-      `Created ${input.channel} delivery record ${created.id} for warning ${input.warningId}`,
+      `Queued ${input.channel} delivery ${created.id} for warning ${input.warningId} v${input.warningVersion}`,
     );
     return this.toEntry(created.toObject());
   }
 
-  async findByWarningId(warningId: string): Promise<DeliveryRecordEntry[]> {
+  async findById(id: string): Promise<DeliveryRecordEntry | null> {
     const found = await this.model
-      .find({ warningId: new Types.ObjectId(warningId) })
+      .findById(id)
+      .lean<LeanDeliveryRecord>()
+      .exec();
+    return found ? this.toEntry(found) : null;
+  }
+
+  async findByWarningVersion({
+    warningId,
+    warningVersion,
+  }: WarningVersionRef): Promise<DeliveryRecordEntry[]> {
+    const found = await this.model
+      .find({ warningId: new Types.ObjectId(warningId), warningVersion })
       .lean<LeanDeliveryRecord[]>()
       .exec();
     return found.map((record) => this.toEntry(record));
@@ -60,11 +74,13 @@ export class MongooseDeliveryRecordsRepository implements DeliveryRecordsReposit
     return {
       id: record._id.toString(),
       warningId: record.warningId.toString(),
+      warningVersion: record.warningVersion,
       channel: record.channel,
       status: record.status,
       attempts: record.attempts,
-      failureReason: record.failureReason,
+      recipients: record.recipients,
       lastAttemptAt: record.lastAttemptAt,
+      error: record.error,
     };
   }
 }

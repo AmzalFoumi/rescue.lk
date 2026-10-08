@@ -18,14 +18,16 @@ import { ALERT_CHANNELS } from './channels/alert-channel.interface.js';
 import type { AlertChannel } from './channels/alert-channel.interface.js';
 import { PushChannel } from './channels/push.channel.js';
 import { SmsChannel } from './channels/sms.channel.js';
-import { AudibleChannel } from './channels/audible.channel.js';
+import { SirenChannel } from './channels/siren.channel.js';
 import { ChannelRegistry } from './channels/channel.registry.js';
 import { RetryPolicy } from './delivery/retry.policy.js';
 import { WarningDeliveryService } from './delivery/warning-delivery.service.js';
 import { CLOCK, SystemClock } from './domain/clock.js';
+import { TARGET_AREA_CATALOG } from './target-areas/target-area-catalog.interface.js';
+import { InMemoryTargetAreaCatalog } from './target-areas/in-memory-target-area-catalog.js';
 
 // Adding a channel (e.g. email) means one new class here; nothing else changes.
-const CHANNEL_IMPLEMENTATIONS = [PushChannel, SmsChannel, AudibleChannel];
+const CHANNEL_IMPLEMENTATIONS = [SmsChannel, PushChannel, SirenChannel];
 
 @Module({
   imports: [
@@ -44,6 +46,7 @@ const CHANNEL_IMPLEMENTATIONS = [PushChannel, SmsChannel, AudibleChannel];
     },
     // Replace with the UC2 adapter once hazard-reports exposes verified reports.
     { provide: HAZARD_REPORT_LOOKUP, useClass: InMemoryHazardReportLookup },
+    { provide: TARGET_AREA_CATALOG, useClass: InMemoryTargetAreaCatalog },
     WarningValidator,
     ...CHANNEL_IMPLEMENTATIONS,
     {

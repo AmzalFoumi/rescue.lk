@@ -3,26 +3,16 @@ import { describe, afterEach, it, expect, vi } from 'vitest';
 import type { AlertChannel } from './alert-channel.interface.js';
 import { PushChannel } from './push.channel.js';
 import { SmsChannel } from './sms.channel.js';
-import { AudibleChannel } from './audible.channel.js';
-import type { WarningRecord } from '../warnings.repository.interface.js';
+import { SirenChannel } from './siren.channel.js';
+import { buildWarningRecord } from '../testing/warning.fixtures.js';
 
-const warning: WarningRecord = {
-  id: '665f1b2c9d3e4a0012345670',
-  hazardReportId: '665f1b2c9d3e4a00000000a1',
-  title: 'Flood warning',
-  message: 'Move to higher ground immediately.',
-  severity: 'severe',
-  districts: ['665f1b2c9d3e4a00000000d1'],
-  channels: ['push', 'sms', 'audible'],
-  status: 'active',
-  issuedAt: new Date('2026-10-08T12:00:00.000Z'),
-  expiresAt: new Date('2026-10-08T18:00:00.000Z'),
-};
+const warning = buildWarningRecord({ channels: ['SMS', 'PUSH', 'SIREN'] });
+const TWO_DISTRICTS = ['Ratnapura', 'Kalutara'];
 
 describe.each<[AlertChannel['type'], () => AlertChannel]>([
-  ['push', () => new PushChannel()],
-  ['sms', () => new SmsChannel()],
-  ['audible', () => new AudibleChannel()],
+  ['SMS', () => new SmsChannel()],
+  ['PUSH', () => new PushChannel()],
+  ['SIREN', () => new SirenChannel()],
 ])('%s alert channel (mock gateway)', (type, createChannel) => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -37,9 +27,27 @@ describe.each<[AlertChannel['type'], () => AlertChannel]>([
       .spyOn(Logger.prototype, 'log')
       .mockImplementation(() => undefined);
 
-    await expect(createChannel().send(warning)).resolves.toEqual({
-      success: true,
+    const result = await createChannel().send({
+      warning,
+      districts: TWO_DISTRICTS,
     });
+
+    expect(result.success).toBe(true);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(warning.id));
+  });
+
+  it('reaches more recipients when more districts are targeted', async () => {
+    vi.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    const channel = createChannel();
+
+    const one = await channel.send({ warning, districts: ['Ratnapura'] });
+    const two = await channel.send({ warning, districts: TWO_DISTRICTS });
+
+    expect(one).toMatchObject({ success: true });
+    expect(two).toMatchObject({ success: true });
+    if (one.success && two.success) {
+      expect(one.recipients).toBeGreaterThan(0);
+      expect(two.recipients).toBe(one.recipients * TWO_DISTRICTS.length);
+    }
   });
 });

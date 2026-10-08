@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import type {
   AlertChannelType,
   DeliveryRecordDto,
@@ -16,21 +16,24 @@ export class DeliveryRecordResponseDto implements DeliveryRecordDto {
   @ApiProperty({ example: '665f1b2c9d3e4a0012345670' })
   warningId!: string;
 
-  @ApiProperty({ enum: ALERT_CHANNEL_TYPES, example: 'sms' })
+  @ApiProperty({ example: 1 })
+  warningVersion!: number;
+
+  @ApiProperty({ enum: ALERT_CHANNEL_TYPES, example: 'SMS' })
   channel!: AlertChannelType;
 
-  @ApiProperty({ enum: DELIVERY_STATUSES, example: 'sent' })
+  @ApiProperty({ enum: DELIVERY_STATUSES, example: 'SENT' })
   status!: DeliveryStatus;
 
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ example: 2 })
   attempts!: number;
 
-  @ApiPropertyOptional({ example: 'SMS gateway timeout' })
-  failureReason?: string;
+  @ApiProperty({ example: 240000 })
+  recipients!: number;
 
-  @ApiPropertyOptional({
-    format: 'date-time',
-    example: '2026-10-08T12:00:05.000Z',
-  })
-  lastAttemptAt?: string;
+  @ApiProperty({ format: 'date-time', nullable: true, type: String })
+  lastAttemptAt!: string | null;
+
+  @ApiProperty({ description: 'Last error, empty when none', example: '' })
+  error!: string;
 }

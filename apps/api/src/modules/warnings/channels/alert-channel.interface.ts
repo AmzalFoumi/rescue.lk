@@ -5,13 +5,18 @@ import type { WarningRecord } from '../warnings.repository.interface.js';
 // are injected together as a list under this token.
 export const ALERT_CHANNELS = Symbol('ALERT_CHANNELS');
 
-export interface ChannelSendResult {
-  success: boolean;
-  failureReason?: string;
+// Parameter object: what a channel needs to send one warning.
+export interface ChannelMessage {
+  warning: WarningRecord;
+  // District names the warning's areas resolve to.
+  districts: string[];
 }
 
-// Sequence diagram: push/sms/audible:AlertChannel lifelines, send() inside par.
+export type ChannelSendResult =
+  { success: true; recipients: number } | { success: false; error: string };
+
+// Sequence diagram: SMS/PUSH/SIREN AlertChannel lifelines, send() inside par.
 export interface AlertChannel {
   readonly type: AlertChannelType;
-  send(warning: WarningRecord): Promise<ChannelSendResult>;
+  send(message: ChannelMessage): Promise<ChannelSendResult>;
 }

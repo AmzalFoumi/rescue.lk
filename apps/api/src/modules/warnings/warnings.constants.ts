@@ -1,6 +1,7 @@
 import type {
   AlertChannelType,
   DeliveryStatus,
+  HazardType,
   WarningSeverity,
   WarningStatus,
 } from '@rescue-lk/shared';
@@ -8,39 +9,54 @@ import type {
 // Runtime mirrors of the shared union types (packages/shared ships types only),
 // used for schema enums and DTO validation.
 export const ALERT_CHANNEL_TYPES: readonly AlertChannelType[] = [
-  'push',
-  'sms',
-  'audible',
+  'SMS',
+  'PUSH',
+  'SIREN',
 ];
 
 export const WARNING_SEVERITIES: readonly WarningSeverity[] = [
-  'low',
-  'moderate',
-  'severe',
-  'extreme',
+  'CRITICAL',
+  'HIGH',
+  'MEDIUM',
+  'LOW',
 ];
 
 export const WARNING_STATUSES: readonly WarningStatus[] = [
-  'active',
-  'cancelled',
-  'expired',
+  'DRAFT',
+  'ACTIVE',
+  'CANCELLED',
 ];
 
 export const DELIVERY_STATUSES: readonly DeliveryStatus[] = [
-  'pending',
-  'sent',
-  'failed',
+  'QUEUED',
+  'SENT',
+  'RETRYING',
+  'FAILED',
 ];
 
-export const DEFAULT_WARNING_STATUS: WarningStatus = 'active';
-export const DEFAULT_DELIVERY_STATUS: DeliveryStatus = 'pending';
+export const HAZARD_TYPES: readonly HazardType[] = [
+  'FLOOD',
+  'LANDSLIDE',
+  'ROAD_BLOCKAGE',
+  'FIRE',
+  'OTHER',
+];
+
+// The hazard type that needs a free-text name (otherHazard).
+export const OTHER_HAZARD: HazardType = 'OTHER';
+
+export const INITIAL_DELIVERY_STATUS: DeliveryStatus = 'QUEUED';
+export const INITIAL_WARNING_VERSION = 1;
 export const INITIAL_DELIVERY_ATTEMPTS = 0;
+export const NO_RECIPIENTS = 0;
+export const NO_ERROR = '';
 
-export const WARNING_TITLE_MIN_LENGTH = 5;
-export const WARNING_TITLE_MAX_LENGTH = 120;
-export const WARNING_MESSAGE_MIN_LENGTH = 10;
+// A manual retry after FAILED makes exactly one more attempt.
+export const MANUAL_RETRY_ATTEMPTS = 1;
+
+export const WARNING_MESSAGE_MIN_LENGTH = 20;
 export const WARNING_MESSAGE_MAX_LENGTH = 1000;
-
-// Step 8.2 validateWarning: a warning may stay active for at most this long.
-export const MAX_WARNING_DURATION_HOURS = 72;
-export const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
+export const WARNING_INSTRUCTIONS_MAX_LENGTH = 2000;
+export const OTHER_HAZARD_MAX_LENGTH = 80;
+export const CANCEL_REASON_MAX_LENGTH = 500;
+export const CREATED_BY_MAX_LENGTH = 120;

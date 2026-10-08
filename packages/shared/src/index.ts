@@ -1,13 +1,17 @@
 // Shared DTO interfaces and enums used by both apps/api and apps/web.
 // Types only, no runtime code — each use-case owner extends these as their module takes shape.
 
-export type WarningSeverity = 'low' | 'moderate' | 'severe' | 'extreme';
+// UC1 vocabulary (matches the UC1 warning management design).
+export type WarningSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
-export type AlertChannelType = 'push' | 'sms' | 'audible';
+export type AlertChannelType = 'SMS' | 'PUSH' | 'SIREN';
 
-export type WarningStatus = 'active' | 'cancelled' | 'expired';
+export type WarningStatus = 'DRAFT' | 'ACTIVE' | 'CANCELLED';
 
-export type DeliveryStatus = 'pending' | 'sent' | 'failed';
+export type DeliveryStatus = 'QUEUED' | 'SENT' | 'RETRYING' | 'FAILED';
+
+export type HazardType =
+  'FLOOD' | 'LANDSLIDE' | 'ROAD_BLOCKAGE' | 'FIRE' | 'OTHER';
 
 export type HazardReportStatus = 'pending' | 'verified' | 'rejected';
 
@@ -19,38 +23,82 @@ export interface DistrictDto {
   province: string;
 }
 
+// A district or a river basin a warning can target (ids such as 'D-COLOMBO', 'B-KELANI').
+export type TargetAreaKind = 'DISTRICT' | 'RIVER_BASIN';
+
+export interface TargetAreaDto {
+  id: string;
+  kind: TargetAreaKind;
+  name: string;
+  districts: string[];
+}
+
 // Dates are ISO 8601 strings, as they travel over JSON.
 export interface WarningDto {
   id: string;
-  hazardReportId: HazardReportDto['id'];
-  title: string;
-  message: string;
+  sourceReportId: HazardReportDto['id'];
+  hazard: HazardType;
+  otherHazard: string;
   severity: WarningSeverity;
-  districts: DistrictDto['id'][];
+  areaIds: TargetAreaDto['id'][];
+  message: string;
+  instructions: string;
   channels: AlertChannelType[];
   status: WarningStatus;
-  issuedAt: string;
-  expiresAt: string;
+  version: number;
+  createdBy: string;
+  createdAt: string;
+  publishedAt: string | null;
+  updatedAt: string | null;
+  cancelledAt: string | null;
+  cancelReason: string;
 }
 
-export interface IssueWarningRequestDto {
-  hazardReportId: HazardReportDto['id'];
-  title: string;
-  message: string;
+// The warning form as the officer fills it in; drafts may leave some fields empty.
+export interface WarningFormRequestDto {
+  sourceReportId: HazardReportDto['id'];
+  hazard: HazardType;
+  otherHazard?: string;
   severity: WarningSeverity;
-  districts: DistrictDto['id'][];
-  channels: AlertChannelType[];
-  expiresAt: string;
+  areaIds: TargetAreaDto['id'][];
+  message: string;
+  instructions?: string;
+  channels?: AlertChannelType[];
 }
+
+// Saving a draft or publishing also records who did it (no login yet).
+export interface SubmitWarningRequestDto extends WarningFormRequestDto {
+  createdBy: string;
+}
+
+export interface CancelWarningRequestDto {
+  reason: string;
+}
+
+export type WarningFormField =
+  | 'sourceReportId'
+  | 'hazard'
+  | 'otherHazard'
+  | 'severity'
+  | 'areaIds'
+  | 'message'
+  | 'instructions'
+  | 'channels'
+  | 'cancelReason';
+
+// One message per invalid field, so the UI can show each next to its input.
+export type WarningFormErrors = Partial<Record<WarningFormField, string>>;
 
 export interface DeliveryRecordDto {
   id: string;
   warningId: WarningDto['id'];
+  warningVersion: WarningDto['version'];
   channel: AlertChannelType;
   status: DeliveryStatus;
   attempts: number;
-  failureReason?: string;
-  lastAttemptAt?: string;
+  recipients: number;
+  lastAttemptAt: string | null;
+  error: string;
 }
 
 export interface WarningDeliveryResultDto {
@@ -61,7 +109,7 @@ export interface WarningDeliveryResultDto {
 // UC1's read view of a UC2 hazard report that has passed verification.
 export interface VerifiedHazardReportDto {
   id: HazardReportDto['id'];
-  hazardType: string;
+  hazardType: HazardType;
   district: DistrictDto['id'];
   status: Extract<HazardReportStatus, 'verified'>;
   description: string;

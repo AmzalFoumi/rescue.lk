@@ -2,67 +2,72 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import type {
   AlertChannelType,
+  HazardType,
   WarningSeverity,
   WarningStatus,
 } from '@rescue-lk/shared';
 import {
   ALERT_CHANNEL_TYPES,
-  DEFAULT_WARNING_STATUS,
-  WARNING_MESSAGE_MAX_LENGTH,
-  WARNING_MESSAGE_MIN_LENGTH,
+  HAZARD_TYPES,
+  INITIAL_WARNING_VERSION,
   WARNING_SEVERITIES,
   WARNING_STATUSES,
-  WARNING_TITLE_MAX_LENGTH,
-  WARNING_TITLE_MIN_LENGTH,
 } from '../warnings.constants.js';
 
 export type WarningDocument = HydratedDocument<Warning>;
 
-@Schema({ timestamps: true, collection: 'warnings' })
+// Timestamps are set by WarningsService from the injected Clock (createdAt,
+// publishedAt, updatedAt, cancelledAt), so Mongoose timestamps are off.
+// Business rules (lengths, required-for-publish) live in WarningValidator.
+@Schema({ timestamps: false, collection: 'warnings' })
 export class Warning {
   @Prop({ type: Types.ObjectId, ref: 'HazardReport', required: true })
-  hazardReportId!: Types.ObjectId;
+  sourceReportId!: Types.ObjectId;
 
-  @Prop({
-    type: String,
-    required: true,
-    trim: true,
-    minlength: WARNING_TITLE_MIN_LENGTH,
-    maxlength: WARNING_TITLE_MAX_LENGTH,
-  })
-  title!: string;
+  @Prop({ type: String, enum: HAZARD_TYPES, required: true })
+  hazard!: HazardType;
 
-  @Prop({
-    type: String,
-    required: true,
-    trim: true,
-    minlength: WARNING_MESSAGE_MIN_LENGTH,
-    maxlength: WARNING_MESSAGE_MAX_LENGTH,
-  })
-  message!: string;
+  @Prop({ type: String, default: '' })
+  otherHazard!: string;
 
   @Prop({ type: String, enum: WARNING_SEVERITIES, required: true })
   severity!: WarningSeverity;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'District' }], required: true })
-  districts!: Types.ObjectId[];
+  @Prop({ type: [String], required: true })
+  areaIds!: string[];
 
-  @Prop({ type: [{ type: String, enum: ALERT_CHANNEL_TYPES }], required: true })
+  @Prop({ type: String, required: true })
+  message!: string;
+
+  @Prop({ type: String, default: '' })
+  instructions!: string;
+
+  @Prop({ type: [{ type: String, enum: ALERT_CHANNEL_TYPES }], default: [] })
   channels!: AlertChannelType[];
 
-  @Prop({
-    type: String,
-    enum: WARNING_STATUSES,
-    default: DEFAULT_WARNING_STATUS,
-    index: true,
-  })
+  @Prop({ type: String, enum: WARNING_STATUSES, required: true, index: true })
   status!: WarningStatus;
 
-  @Prop({ type: Date, required: true })
-  issuedAt!: Date;
+  @Prop({ type: Number, required: true, min: INITIAL_WARNING_VERSION })
+  version!: number;
+
+  @Prop({ type: String, required: true })
+  createdBy!: string;
 
   @Prop({ type: Date, required: true })
-  expiresAt!: Date;
+  createdAt!: Date;
+
+  @Prop({ type: Date, default: null })
+  publishedAt!: Date | null;
+
+  @Prop({ type: Date, default: null })
+  updatedAt!: Date | null;
+
+  @Prop({ type: Date, default: null })
+  cancelledAt!: Date | null;
+
+  @Prop({ type: String, default: '' })
+  cancelReason!: string;
 }
 
 export const WarningSchema = SchemaFactory.createForClass(Warning);
