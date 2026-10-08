@@ -169,4 +169,28 @@ describe('WarningValidator (step 8.2 validateWarning)', () => {
       expect.stringMatching(new RegExp(`${VERIFIED_REPORT.id}.*message`)),
     );
   });
+
+  describe('requireCancelReason', () => {
+    it('returns the trimmed reason', () => {
+      expect(validator.requireCancelReason('  River level has fallen.  ')).toBe(
+        'River level has fallen.',
+      );
+    });
+
+    it('rejects a blank reason with a cancelReason field error', () => {
+      const errors = (() => {
+        try {
+          validator.requireCancelReason('   ');
+        } catch (error) {
+          if (error instanceof InvalidWarningException) {
+            return error.errors;
+          }
+          throw error;
+        }
+        return {};
+      })();
+
+      expect(errors).toEqual({ cancelReason: 'Give a reason for cancelling.' });
+    });
+  });
 });

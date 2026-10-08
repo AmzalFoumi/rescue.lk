@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { describe, beforeEach, it, expect, vi, type Mocked } from 'vitest';
 import { WarningsController } from './warnings.controller.js';
 import { WarningsService } from './warnings.service.js';
+import { WarningQueryService } from './warning-query.service.js';
 import type { SubmitWarningDto } from './dto/submit-warning.dto.js';
 import type { UpdateWarningDto } from './dto/update-warning.dto.js';
 import {
@@ -31,21 +32,20 @@ const submitBody: SubmitWarningDto = {
 
 const { sourceReportId: _source, ...updateBody } = submitBody;
 
+// One mock stands in for both services: commands and read-only queries.
 type WarningsServiceMock = Mocked<
   Pick<
     WarningsService,
-    | 'health'
-    | 'listVerifiedReports'
-    | 'listTargetAreas'
-    | 'estimateReach'
-    | 'list'
-    | 'saveDraft'
-    | 'publish'
-    | 'update'
-    | 'cancel'
-    | 'latestDeliveries'
-    | 'retryDelivery'
-  >
+    'health' | 'saveDraft' | 'publish' | 'update' | 'cancel' | 'retryDelivery'
+  > &
+    Pick<
+      WarningQueryService,
+      | 'listVerifiedReports'
+      | 'listTargetAreas'
+      | 'estimateReach'
+      | 'list'
+      | 'latestDeliveries'
+    >
 >;
 
 describe('WarningsController', () => {
@@ -70,7 +70,10 @@ describe('WarningsController', () => {
     };
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WarningsController],
-      providers: [{ provide: WarningsService, useValue: service }],
+      providers: [
+        { provide: WarningsService, useValue: service },
+        { provide: WarningQueryService, useValue: service },
+      ],
     }).compile();
 
     controller = module.get(WarningsController);

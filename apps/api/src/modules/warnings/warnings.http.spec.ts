@@ -19,6 +19,7 @@ import {
 import { AllExceptionsFilter } from '../../common/filters/all-exceptions.filter.js';
 import { WarningsController } from './warnings.controller.js';
 import { WarningsService } from './warnings.service.js';
+import { WarningQueryService } from './warning-query.service.js';
 import { toWarningDto } from './warnings.mapper.js';
 import { InvalidWarningException } from './exceptions/invalid-warning.exception.js';
 import { ReportNotVerifiedException } from './exceptions/report-not-verified.exception.js';
@@ -51,20 +52,20 @@ const publishBody = {
 };
 const { sourceReportId: _source, createdBy: _by, ...updateBody } = publishBody;
 
+// One mock stands in for both services: commands and read-only queries.
 type ServiceMock = Mocked<
   Pick<
     WarningsService,
-    | 'listVerifiedReports'
-    | 'listTargetAreas'
-    | 'estimateReach'
-    | 'list'
-    | 'saveDraft'
-    | 'publish'
-    | 'update'
-    | 'cancel'
-    | 'latestDeliveries'
-    | 'retryDelivery'
-  >
+    'saveDraft' | 'publish' | 'update' | 'cancel' | 'retryDelivery'
+  > &
+    Pick<
+      WarningQueryService,
+      | 'listVerifiedReports'
+      | 'listTargetAreas'
+      | 'estimateReach'
+      | 'list'
+      | 'latestDeliveries'
+    >
 >;
 
 // HTTP contract of the warnings API: routing, request validation and the
@@ -88,7 +89,10 @@ describe('Warnings HTTP API', () => {
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       controllers: [WarningsController],
-      providers: [{ provide: WarningsService, useValue: service }],
+      providers: [
+        { provide: WarningsService, useValue: service },
+        { provide: WarningQueryService, useValue: service },
+      ],
     }).compile();
 
     app = module.createNestApplication({ logger: false });

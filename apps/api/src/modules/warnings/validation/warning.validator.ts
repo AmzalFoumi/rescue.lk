@@ -11,15 +11,20 @@ import { InvalidWarningException } from '../exceptions/invalid-warning.exception
 import { ReportNotVerifiedException } from '../exceptions/report-not-verified.exception.js';
 import { WARNING_RULES, type ValidationMode } from './warning.rules.js';
 
-// Parameter object for one validation run.
+// Parameter Object for one validation run.
 export interface WarningValidationRequest {
   form: WarningForm;
   report: HazardReportSummary;
   mode: ValidationMode;
 }
 
-// Sequence diagram step 8.2 validateWarning: business rules only. Field types
-// and maximum lengths are already enforced by the request DTOs.
+// WarningValidator decides whether a warning may be saved (DRAFT) or published
+// (PUBLISH), and that a cancel has a reason (sequence diagram step 8.2).
+// SRP: it only validates. Field types and maximum lengths are already checked by the
+// request DTOs; the business rules themselves are entries in WARNING_RULES.
+// OCP: it loops over the rule list, so a new rule never changes this class.
+// DIP: it depends on the TargetAreaCatalog interface to check area ids.
+// It reports every invalid field at once (InvalidWarningException), not just the first.
 @Injectable()
 export class WarningValidator {
   private readonly logger = new Logger(WarningValidator.name);
@@ -40,6 +45,20 @@ export class WarningValidator {
     }
   }
 
+  // Cancelling an ACTIVE warning needs a reason; returns it trimmed.
+  requireCancelReason(reason: string): string {
+    const cancelReason = reason.trim();
+    if (!cancelReason) {
+      this.logger.warn('Cancel refused: no reason given');
+      throw new InvalidWarningException({
+        cancelReason: 'Give a reason for cancelling.',
+      });
+    }
+    return cancelReason;
+  }
+
+  // OCP: loops over WARNING_RULES, so a new rule needs no change here. Every failing
+  // field is collected, not just the first, so the officer sees all errors at once.
   private collectErrors(
     form: WarningForm,
     mode: ValidationMode,

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WarningsController } from './warnings.controller.js';
 import { WarningsService } from './warnings.service.js';
+import { WarningQueryService } from './warning-query.service.js';
 import { MongooseWarningsRepository } from './mongoose-warnings.repository.js';
 import { WARNINGS_REPOSITORY } from './warnings.repository.interface.js';
 import { MongooseDeliveryRecordsRepository } from './mongoose-delivery-records.repository.js';
@@ -31,9 +32,16 @@ import { CLOCK, SystemClock } from './domain/clock.js';
 import { TARGET_AREA_CATALOG } from './target-areas/target-area-catalog.interface.js';
 import { InMemoryTargetAreaCatalog } from './target-areas/in-memory-target-area-catalog.js';
 
-// Adding a channel (e.g. email) means one new class here; nothing else changes.
+// OCP: adding a channel (e.g. email) means one new class in this list; nothing else
+// changes.
 const CHANNEL_IMPLEMENTATIONS = [SmsChannel, PushChannel, SirenChannel];
 
+// WarningsModule wires UC1 together.
+// Composition root (DIP): it is the only place that binds each interface token to a
+// real class (repositories, the hazard report stub, the area catalog, the clock and
+// the channel list). Everything else depends on the interfaces.
+// So swapping the UC2 stub for a real adapter, or adding a channel, changes only this
+// file (OCP).
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -44,6 +52,7 @@ const CHANNEL_IMPLEMENTATIONS = [SmsChannel, PushChannel, SirenChannel];
   controllers: [WarningsController],
   providers: [
     WarningsService,
+    WarningQueryService,
     { provide: WARNINGS_REPOSITORY, useClass: MongooseWarningsRepository },
     {
       provide: DELIVERY_RECORDS_REPOSITORY,
@@ -56,8 +65,8 @@ const CHANNEL_IMPLEMENTATIONS = [SmsChannel, PushChannel, SirenChannel];
     ...CHANNEL_IMPLEMENTATIONS,
     {
       provide: ALERT_CHANNELS,
-      // MOCK_FAIL_FIRST_ATTEMPT_CHANNELS (demo only) wraps the named channels
-      // so their first attempt fails; empty by default, leaving them as is.
+      // Factory provider: builds the channel list at startup. MOCK_FAIL_FIRST_ATTEMPT_CHANNELS
+      // (demo only) wraps the named channels in the Decorator; empty leaves them as is.
       useFactory: (config: ConfigService, ...channels: AlertChannel[]) =>
         withDemoFailures(
           channels,

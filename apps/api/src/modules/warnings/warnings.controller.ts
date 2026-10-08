@@ -24,6 +24,7 @@ import type {
   WarningDto,
 } from '@rescue-lk/shared';
 import { WarningsService } from './warnings.service.js';
+import { WarningQueryService } from './warning-query.service.js';
 import { toSubmitWarningCommand, toWarningContent } from './warnings.mapper.js';
 import { ApiErrorResponses } from './warnings.swagger.js';
 import { HealthResponseDto } from './dto/health-response.dto.js';
@@ -43,12 +44,20 @@ import { TargetAreaResponseDto } from './dto/target-area-response.dto.js';
 import { ReachQueryDto } from './dto/reach-query.dto.js';
 import { ReachEstimateResponseDto } from './dto/reach-estimate-response.dto.js';
 
-// Thin HTTP adapter: maps requests to WarningsService calls, nothing else.
-// Static routes are declared before the :id routes.
+// WarningsController is the HTTP entry point of UC1 (/api/warnings).
+// Thin adapter (SRP): each route validates its input through a DTO, maps it with
+// warnings.mapper and makes one service call, with no business logic here.
+// Commands go to WarningsService and reads to WarningQueryService, so neither grows
+// too large. No try/catch: domain exceptions become HTTP statuses in the global
+// AllExceptionsFilter (one place for exception mapping).
+// Static routes are declared before the :id routes so Nest matches them first.
 @ApiTags('warnings')
 @Controller('warnings')
 export class WarningsController {
-  constructor(private readonly warningsService: WarningsService) {}
+  constructor(
+    private readonly warningsService: WarningsService,
+    private readonly warningQueries: WarningQueryService,
+  ) {}
 
   @Get('health')
   @ApiOkResponse({ type: HealthResponseDto })
@@ -60,14 +69,14 @@ export class WarningsController {
   @ApiOperation({ summary: 'List verified hazard reports a warning can use' })
   @ApiOkResponse({ type: [VerifiedHazardReportResponseDto] })
   listVerifiedReports(): Promise<VerifiedHazardReportDto[]> {
-    return this.warningsService.listVerifiedReports();
+    return this.warningQueries.listVerifiedReports();
   }
 
   @Get('target-areas')
   @ApiOperation({ summary: 'List the districts and river basins to target' })
   @ApiOkResponse({ type: [TargetAreaResponseDto] })
   listTargetAreas(): TargetAreaDto[] {
-    return this.warningsService.listTargetAreas();
+    return this.warningQueries.listTargetAreas();
   }
 
   @Get('reach')
@@ -77,7 +86,7 @@ export class WarningsController {
   @ApiOkResponse({ type: ReachEstimateResponseDto })
   @ApiErrorResponses(HttpStatus.BAD_REQUEST)
   estimateReach(@Query() { areaIds }: ReachQueryDto): ReachEstimateDto {
-    return this.warningsService.estimateReach(areaIds);
+    return this.warningQueries.estimateReach(areaIds);
   }
 
   @Get()
@@ -85,7 +94,7 @@ export class WarningsController {
   @ApiOkResponse({ type: [WarningResponseDto] })
   @ApiErrorResponses(HttpStatus.BAD_REQUEST)
   list(@Query() { status }: ListWarningsQueryDto): Promise<WarningDto[]> {
-    return this.warningsService.list(status);
+    return this.warningQueries.list(status);
   }
 
   @Post('drafts')
@@ -180,6 +189,6 @@ export class WarningsController {
   latestDeliveries(
     @Param() { id }: WarningIdParamDto,
   ): Promise<DeliveryRecordDto[]> {
-    return this.warningsService.latestDeliveries(id);
+    return this.warningQueries.latestDeliveries(id);
   }
 }

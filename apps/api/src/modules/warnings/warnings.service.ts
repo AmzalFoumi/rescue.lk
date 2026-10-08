@@ -1,9 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type {
   DeliveryRecordDto,
-  ReachEstimateDto,
-  TargetAreaDto,
-  VerifiedHazardReportDto,
   WarningDeliveryResultDto,
   WarningDto,
   WarningStatus,
@@ -15,15 +12,11 @@ import type {
   WarningRecord,
   WarningsRepository,
 } from './warnings.repository.interface.js';
-import { DELIVERY_RECORDS_REPOSITORY } from './delivery-records.repository.interface.js';
-import type { DeliveryRecordsRepository } from './delivery-records.repository.interface.js';
 import { HAZARD_REPORT_LOOKUP } from './hazard-report-lookup/hazard-report-lookup.interface.js';
 import type {
   HazardReportLookup,
   HazardReportSummary,
 } from './hazard-report-lookup/hazard-report-lookup.interface.js';
-import { TARGET_AREA_CATALOG } from './target-areas/target-area-catalog.interface.js';
-import type { TargetAreaCatalog } from './target-areas/target-area-catalog.interface.js';
 import { CLOCK } from './domain/clock.js';
 import type { Clock } from './domain/clock.js';
 import type { WarningForm } from './domain/warning-form.js';
@@ -37,20 +30,19 @@ import type { ValidationMode } from './validation/warning.rules.js';
 import { ChannelRegistry } from './channels/channel.registry.js';
 import { WarningDeliveryService } from './delivery/warning-delivery.service.js';
 import { HazardReportNotFoundException } from './exceptions/hazard-report-not-found.exception.js';
-import { InvalidWarningException } from './exceptions/invalid-warning.exception.js';
-import { WarningNotFoundException } from './exceptions/warning-not-found.exception.js';
 import {
   WarningStatusConflictException,
   type WarningAction,
 } from './exceptions/warning-status-conflict.exception.js';
 import { INITIAL_WARNING_VERSION } from './warnings.constants.js';
+import { requireWarning } from './require-warning.js';
 import {
   toDeliveryRecordDto,
   toWarningDeliveryResultDto,
   toWarningDto,
 } from './warnings.mapper.js';
 
-// Parameter object for a guarded status-dependent change.
+// Parameter Object for a guarded status-dependent change.
 interface WarningTransition {
   warningId: string;
   action: WarningAction;
@@ -58,13 +50,13 @@ interface WarningTransition {
   changes: WarningChanges;
 }
 
-// Parameter object for checking a form before anything is saved.
+// Parameter Object for checking a form before anything is saved.
 interface FormCheck {
   form: WarningForm;
   mode: ValidationMode;
 }
 
-// Parameter object for a brand-new DRAFT or ACTIVE warning.
+// Parameter Object for a brand-new DRAFT or ACTIVE warning.
 interface NewWarning {
   form: WarningForm;
   createdBy: string;
@@ -72,8 +64,13 @@ interface NewWarning {
   now: Date;
 }
 
-// Coordinates UC1 (Facade over the use case): each step delegates to a
-// single-purpose collaborator. Lifecycle: DRAFT -> ACTIVE -> CANCELLED.
+// WarningsService runs the UC1 lifecycle commands: save a draft, publish, update,
+// cancel and retry a delivery (DRAFT -> ACTIVE -> CANCELLED).
+// SRP: it only coordinates the commands. Validation is in WarningValidator, sending in
+// WarningDeliveryService, and every read the screen needs is in WarningQueryService.
+// DIP: every collaborator arrives through the constructor as an interface or DI token
+// (repository, hazard report port, clock), so tests swap each one for a fake.
+// Sequence diagram: this is the controller-facing service for steps 8 to 10.
 @Injectable()
 export class WarningsService {
   private readonly logger = new Logger(WarningsService.name);
@@ -81,14 +78,11 @@ export class WarningsService {
   constructor(
     @Inject(WARNINGS_REPOSITORY)
     private readonly warningsRepository: WarningsRepository,
-    @Inject(DELIVERY_RECORDS_REPOSITORY)
-    private readonly deliveryRecordsRepository: DeliveryRecordsRepository,
     @Inject(HAZARD_REPORT_LOOKUP)
     private readonly hazardReports: HazardReportLookup,
     private readonly validator: WarningValidator,
     private readonly channelRegistry: ChannelRegistry,
     private readonly deliveryService: WarningDeliveryService,
-    @Inject(TARGET_AREA_CATALOG) private readonly areas: TargetAreaCatalog,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
@@ -147,7 +141,7 @@ export class WarningsService {
     warningId,
     content,
   }: UpdateWarningCommand): Promise<WarningDeliveryResultDto> {
-    const existing = await this.findWarningOrThrow(warningId);
+    const existing = await requireWarning(this.warningsRepository, warningId);
     this.assertStatus(existing, 'ACTIVE', 'update');
     await this.checkForm({
       form: { ...content, sourceReportId: existing.sourceReportId },
@@ -172,14 +166,9 @@ export class WarningsService {
     warningId,
     reason,
   }: CancelWarningCommand): Promise<WarningDto> {
-    const existing = await this.findWarningOrThrow(warningId);
+    const existing = await requireWarning(this.warningsRepository, warningId);
     this.assertStatus(existing, 'ACTIVE', 'cancel');
-    const cancelReason = reason.trim();
-    if (!cancelReason) {
-      throw new InvalidWarningException({
-        cancelReason: 'Give a reason for cancelling.',
-      });
-    }
+    const cancelReason = this.validator.requireCancelReason(reason);
 
     const cancelled = await this.transition({
       warningId,
@@ -195,51 +184,12 @@ export class WarningsService {
     return toWarningDto(cancelled);
   }
 
-  async list(status?: WarningStatus): Promise<WarningDto[]> {
-    const warnings = await this.warningsRepository.findAll(
-      status ? { status } : {},
-    );
-    return warnings.map(toWarningDto);
-  }
-
-  // Feeds the report picker: only verified reports can be warned about.
-  listVerifiedReports(): Promise<VerifiedHazardReportDto[]> {
-    return this.hazardReports.findVerified();
-  }
-
-  // Feeds the "Affected area" step: every district and river basin.
-  listTargetAreas(): TargetAreaDto[] {
-    return this.areas.findAll();
-  }
-
-  // Expected reach of a warning on every channel before it is sent, for the
-  // "Target citizen summary" and the publish confirmation.
-  estimateReach(areaIds: readonly string[]): ReachEstimateDto {
-    const districts = this.areas.resolveDistricts(areaIds);
-    return {
-      districts,
-      channels: this.channelRegistry.all().map((channel) => ({
-        channel: channel.type,
-        recipients: channel.estimateRecipients(districts),
-      })),
-    };
-  }
-
-  // Sequence diagram step 11: delivery status of the current version only.
-  async latestDeliveries(warningId: string): Promise<DeliveryRecordDto[]> {
-    const warning = await this.findWarningOrThrow(warningId);
-    const records = await this.deliveryRecordsRepository.findByWarningVersion({
-      warningId,
-      warningVersion: warning.version,
-    });
-    return records.map(toDeliveryRecordDto);
-  }
-
   async retryDelivery(recordId: string): Promise<DeliveryRecordDto> {
     return toDeliveryRecordDto(await this.deliveryService.retry(recordId));
   }
 
-  // Everything that can reject the form runs before anything is saved or sent.
+  // Fail fast: everything that can reject the form runs before anything is saved or
+  // sent, so a rejected warning never leaves half-saved data.
   private async checkForm({ form, mode }: FormCheck): Promise<void> {
     const report = await this.findReportOrThrow(form.sourceReportId);
     this.validator.validate({ form, report, mode });
@@ -274,8 +224,9 @@ export class WarningsService {
     return toWarningDeliveryResultDto(warning, deliveries);
   }
 
-  // Applies changes only while the warning is still in requiredStatus; if the
-  // guard fails (missing, or changed by someone else), reports why.
+  // Status guard: the repository writes only while the warning is still in
+  // requiredStatus. If the guard fails (missing, or changed by someone else), it
+  // answers why: 404 if missing, otherwise a 409 status conflict.
   private async transition({
     warningId,
     action,
@@ -290,10 +241,12 @@ export class WarningsService {
     if (updated) {
       return updated;
     }
-    const current = await this.findWarningOrThrow(warningId);
+    const current = await requireWarning(this.warningsRepository, warningId);
     return this.throwStatusConflict(current, requiredStatus, action);
   }
 
+  // Status guard checked early, so an action on a warning in the wrong state fails
+  // fast with a 409 before any validation or saving.
   private assertStatus(
     warning: WarningRecord,
     requiredStatus: WarningStatus,
@@ -320,6 +273,8 @@ export class WarningsService {
     });
   }
 
+  // DIP: asks the HazardReportLookup port, so the UC2 stub can be swapped for the real
+  // adapter without touching this class.
   private async findReportOrThrow(
     hazardReportId: string,
   ): Promise<HazardReportSummary> {
@@ -329,13 +284,5 @@ export class WarningsService {
       throw new HazardReportNotFoundException(hazardReportId);
     }
     return report;
-  }
-
-  private async findWarningOrThrow(warningId: string): Promise<WarningRecord> {
-    const warning = await this.warningsRepository.findById(warningId);
-    if (!warning) {
-      throw new WarningNotFoundException(warningId);
-    }
-    return warning;
   }
 }
