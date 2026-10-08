@@ -10,7 +10,9 @@ interface LinkedWarningsProps {
   onOpen: (warning: WarningDto) => void;
 }
 
-// Every warning issued from this report, newest first.
+// LinkedWarnings lists every warning issued from this report, newest first, so the
+// officer continues an existing warning instead of issuing a duplicate.
+// Presentational.
 export function LinkedWarnings({
   warnings,
   areaNames,

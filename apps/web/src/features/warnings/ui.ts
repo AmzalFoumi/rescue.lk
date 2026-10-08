@@ -1,5 +1,7 @@
-// Shared Tailwind class sets for the warnings screen (colours and radii from
-// the UC1 design), so components stay consistent without repeating them.
+// ui.ts holds the shared Tailwind class sets for the warnings screen (colours and
+// radii from the UC1 design) and the icon sizes.
+// DRY: components reuse these names, so they stay consistent and a style change is
+// made once.
 
 export const cx = (...classes: (string | false | null | undefined)[]) =>
   classes.filter(Boolean).join(' ');

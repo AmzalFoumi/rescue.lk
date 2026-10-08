@@ -12,6 +12,9 @@ export interface Kpi {
 
 const KPI_ICON_SIZE = 22;
 
+// KpiCards shows a row of key figures with icons.
+// Presentational and reusable: each step decides its own figures (monitoring.ts and
+// delivery.ts), this only lays them out.
 export function KpiCards({ kpis }: { kpis: readonly Kpi[] }) {
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">

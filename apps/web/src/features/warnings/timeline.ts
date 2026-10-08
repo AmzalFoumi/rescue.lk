@@ -2,6 +2,11 @@ import type { VerifiedHazardReportDto, WarningDto } from '@rescue-lk/shared';
 import { areaSummary, shortId } from './format';
 import { SEVERITY_META } from './meta';
 
+// timeline.ts builds the incident timeline (step 2) and the warning events used by the
+// audit timeline (step 5) from plain data.
+// SRP: pure functions, tested without rendering; the Timeline component only displays
+// the events.
+
 // Events shown in the incident and audit timelines. The kind picks the icon.
 export type TimelineKind =
   | 'reported'

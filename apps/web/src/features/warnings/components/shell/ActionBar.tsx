@@ -39,7 +39,10 @@ interface ActionBarProps {
   right?: readonly ActionSpec[];
 }
 
-// The bar under each step: going back on the left, the next action on the right.
+// ActionBar is the bar under each step: going back on the left, the next action on
+// the right.
+// Parameter Object: each button is one ActionSpec (label, icon, onClick, variant), so
+// steps describe their buttons as data instead of repeating markup (DRY).
 export function ActionBar({ left = [], right = [] }: ActionBarProps) {
   if (left.length === 0 && right.length === 0) {
     return null;

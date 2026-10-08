@@ -27,8 +27,11 @@ interface PublishDialogProps {
 
 const TITLE_ID = 'publish-dialog-title';
 
-// The last check before a warning reaches citizens: every item in the
-// checklist must be ticked. Rendered only while open, so ticks start empty.
+// PublishDialog is the last check before a warning reaches citizens: a summary, and a
+// checklist where every item must be ticked before Publish is enabled.
+// Presentational: its text comes from publishReviewText (pure and tested) and actions
+// come in as props. DRY: built on the shared Dialog.
+// It is rendered only while open, so the ticks always start empty.
 export function PublishDialog({
   title,
   severity,

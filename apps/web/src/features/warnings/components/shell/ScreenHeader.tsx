@@ -8,7 +8,8 @@ interface ScreenHeaderProps {
   updatedAt: Date | null;
 }
 
-// Title of the current step, with when its data was last refreshed.
+// ScreenHeader shows the title of the current step and when its data was last
+// refreshed. Presentational; shared by every step (DRY).
 export function ScreenHeader({
   title,
   subtitle,

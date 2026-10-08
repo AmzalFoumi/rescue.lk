@@ -24,7 +24,10 @@ interface MonitorStepProps {
   onCreate: () => void;
 }
 
-// Step 1: verified reports, their warnings, and where warnings are active.
+// Step 1 "Hazard monitoring": verified reports, their warnings, and where warnings are
+// active.
+// Presentational: it only renders what it is given; the figures come from
+// useMonitorScreen and the pure rules in monitoring.ts, which are tested on their own.
 export function MonitorStep({
   screen,
   areaNames,

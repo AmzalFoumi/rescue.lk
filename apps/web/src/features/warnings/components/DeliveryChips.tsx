@@ -2,7 +2,9 @@ import type { DeliveryRecordDto } from '@rescue-lk/shared';
 import { CHANNEL_META, DELIVERY_STATUS_META, TONE_CLASSES } from '../meta';
 import { cx, ICON_SIZE } from '../ui';
 
-// One small chip per channel: channel icon and name, status icon and text.
+// DeliveryChips shows one small chip per channel with its delivery status.
+// Presentational. Accessibility: status is icon plus text, never colour alone.
+// DRY: the status part reuses StatusChip and the delivery meta from meta.ts.
 export function DeliveryChips({
   records,
 }: {

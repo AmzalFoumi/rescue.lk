@@ -22,8 +22,10 @@ interface CancelDialogProps {
 const TITLE_ID = 'cancel-warning-title';
 const REASON_ID = 'cancel-warning-reason';
 
-// Asks for the (required) reason before an ACTIVE warning is cancelled.
-// Rendered only while open, so the reason starts empty each time.
+// CancelDialog asks for the required reason before an ACTIVE warning is cancelled.
+// Presentational: it only reports the reason through onConfirm; the API checks it.
+// DRY: it is built on the shared Dialog (focus trap, Escape to close).
+// It is rendered only while open, so the reason always starts empty.
 export function CancelDialog({
   title,
   description,

@@ -29,7 +29,10 @@ const CHOSEN: Record<Tone, string> = {
   gray: 'has-[:checked]:border-[#46525F] has-[:checked]:bg-[#EEF1F4]',
 };
 
-// "Select warning level": one radio row per severity with its meaning.
+// SeverityPicker is "Select warning level": one radio per severity with its meaning.
+// Presentational: the choice lives in the form hook.
+// Colours come from meta.ts (no magic values), and the level is always written out,
+// so colour is never the only signal.
 export function SeverityPicker({
   value,
   onChange,

@@ -19,7 +19,10 @@ interface AssessmentPanelProps {
   onFieldChange: SetFormField;
 }
 
-// Source report, hazard type and warning level.
+// AssessmentPanel is the step 3 assessment: source report, hazard type and warning
+// level.
+// Presentational: it composes the three pickers and holds no state; every change goes
+// back to the form hook.
 export function AssessmentPanel({
   values,
   errors,

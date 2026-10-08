@@ -20,8 +20,10 @@ export interface HazardFactors {
   activeWarnings: { count: number; list: string };
 }
 
-// Step 3 "Hazard factors" that UC1 can work out itself about the report's
-// district. Factors owned by other use cases are shown as not connected.
+// hazardFactors works out the step 3 hazard factors UC1 can know itself about the
+// report's district (e.g. other reports nearby, warnings already active there).
+// SRP: a pure function, tested without rendering. Factors owned by other use cases are
+// not invented; they are shown as not connected.
 export const hazardFactors = (
   report: VerifiedHazardReportDto,
   { reports, warnings, areas }: FactorData,

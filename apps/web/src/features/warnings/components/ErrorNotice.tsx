@@ -9,7 +9,9 @@ interface ErrorNoticeProps {
   onRetry?: () => void;
 }
 
-// A failed request, announced to screen readers when it appears.
+// ErrorNotice shows a failed request (ApiError) with an optional retry button.
+// Presentational. Errors are always shown, never swallowed; role=alert makes screen
+// readers announce it as soon as it appears.
 export function ErrorNotice({ error, summary, onRetry }: ErrorNoticeProps) {
   if (!error) {
     return null;

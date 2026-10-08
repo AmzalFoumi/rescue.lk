@@ -72,7 +72,9 @@ const rowsFor = (
   },
 ];
 
-// What is known about the report's district, to help choose the level.
+// HazardFactorsPanel shows the step 3 hazard factors: what UC1 can work out itself
+// about the report's district (factors.ts).
+// Presentational. Data owned by UC2 and UC3 is marked as not connected, never invented.
 export function HazardFactorsPanel({
   factors,
   smsReach,

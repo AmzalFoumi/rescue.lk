@@ -20,6 +20,10 @@ interface EvidencePanelProps {
 
 const EVIDENCE_ICON_SIZE = 17;
 
+// EvidencePanel is the step 2 evidence: UC1's own check for other reports from the
+// same district on the same day.
+// Presentational. Evidence from UC2 and UC3 is marked as not connected rather than
+// invented.
 export function EvidencePanel({ report, sameDay }: EvidencePanelProps) {
   const evidence: [LucideIcon, string, ReactNode][] = [
     [

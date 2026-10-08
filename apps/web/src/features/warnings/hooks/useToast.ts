@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { TOAST_DURATION_MS } from '../constants';
 
-// A short confirmation shown at the bottom of the screen, then hidden.
+// useToast shows a short confirmation and hides it after TOAST_DURATION_MS (no magic
+// number).
+// SRP: only the timing; the Toast component renders it.
 export function useToast() {
   const [message, setMessage] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -1,5 +1,10 @@
 import type { DeliveryStatus } from '@rescue-lk/shared';
 
+// constants.ts names every UC1 web limit, interval and default once.
+// No magic numbers: components and hooks import these names.
+// The length limits mirror the API's and are used only for hints and maxLength; the
+// API stays the source of truth.
+
 // How often the delivery table refreshes while a channel is still sending.
 export const DELIVERY_POLL_INTERVAL_MS = 2000;
 

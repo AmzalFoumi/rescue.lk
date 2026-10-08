@@ -20,8 +20,10 @@ const head =
   'px-4 py-[9px] text-left text-[12px] font-bold tracking-[0.04em] text-[#4F5B67] uppercase';
 const cell = 'border-t border-[#E6EAEE] px-4 py-3 align-middle text-[14px]';
 
-// Sequence diagram step 11: delivery status of each channel. Only a FAILED
-// delivery offers Retry.
+// DeliveryStatusTable shows the delivery status of each channel (sequence diagram
+// step 11): status, attempts, recipients and any error.
+// Presentational: Retry only reports which record to retry. Only a FAILED delivery
+// offers Retry; the API checks the same rule again (retryRefusal).
 export function DeliveryStatusTable({
   records,
   loading,

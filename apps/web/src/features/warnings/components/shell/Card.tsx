@@ -11,7 +11,9 @@ interface CardProps {
   children: ReactNode;
 }
 
-// A white panel with the design's grey title bar.
+// Card is a white panel with the design's grey title bar.
+// DRY: every panel on the screen uses it, so they all look the same and a style
+// change is made once.
 export function Card({
   title,
   titleId,

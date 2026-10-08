@@ -1,7 +1,8 @@
 import { UserRound } from 'lucide-react';
 import { ICON_SIZE } from '../../ui';
 
-// The use-case banner above the UC1 screen, as in the design.
+// UseCaseNote is the use-case banner above the UC1 screen, as in the design.
+// Presentational.
 export function UseCaseNote() {
   return (
     <div

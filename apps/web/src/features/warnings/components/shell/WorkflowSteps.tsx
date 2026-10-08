@@ -23,7 +23,10 @@ const NUMBER: Record<StepView['state'], string> = {
 const stepName = ({ number, label, state }: StepView) =>
   `Step ${number}: ${label}${state === 'done' ? ' (done)' : ''}`;
 
-// The step bar: finished steps with something to show can be reopened.
+// WorkflowSteps is the step bar at the top of the screen.
+// Presentational: finished steps with something to show can be reopened, but the
+// canReopen rule itself lives in useWorkflowNavigation (SRP).
+// Accessibility: each step has one clear name, e.g. "Step 1: Hazard monitoring (done)".
 export function WorkflowSteps({ steps, onOpen }: WorkflowStepsProps) {
   return (
     <ol

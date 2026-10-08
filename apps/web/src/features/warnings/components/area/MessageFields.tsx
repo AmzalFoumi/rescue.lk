@@ -26,7 +26,9 @@ const textarea = (invalid: boolean) =>
 const describedBy = (...ids: (string | false)[]) =>
   ids.filter(Boolean).join(' ') || undefined;
 
-// "3. Warning message": what citizens read, and what they should do.
+// MessageFields is "3. Warning message": the message and the safety instructions.
+// Presentational. Accessibility: each field is linked to its hint and its error with
+// aria-describedby, so screen readers read them together.
 export function MessageFields({
   message,
   instructions,

@@ -17,7 +17,10 @@ interface ReviewData {
   areaNames: Record<string, string>;
 }
 
-// Everything step 2 shows about one report; null until the report is loaded.
+// buildReviewView gathers everything step 2 shows about one report: its current and
+// linked warnings, same-day reports and the incident timeline.
+// SRP: a pure function, tested without rendering. It returns null until the report
+// is loaded, so the step shows a loading state instead of crashing.
 export const buildReviewView = (
   reportId: string | null,
   { reports, warnings, areaNames }: ReviewData,

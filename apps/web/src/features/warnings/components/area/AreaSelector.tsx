@@ -75,7 +75,9 @@ function AreaGroup({
   );
 }
 
-// "1. Affected area": districts and river basins, with a search box.
+// AreaSelector is "1. Affected area": districts and river basins with a search box.
+// Presentational: the selection lives in the form hook; only the search text is local
+// view state, because nothing else needs it.
 export function AreaSelector({
   areas,
   value,

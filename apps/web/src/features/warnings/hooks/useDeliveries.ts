@@ -7,8 +7,11 @@ import {
 } from '../constants';
 import { useAsyncResource } from './useAsyncResource';
 
-// Per-channel delivery status of a warning's current version. Keeps polling
-// while any channel is still QUEUED or RETRYING, then stops.
+// useDeliveries loads the per-channel delivery status of a warning's current version.
+// It keeps polling while any channel is QUEUED or RETRYING, then stops by itself, so
+// step 5 updates live without wasting requests.
+// DRY: built on useAsyncResource; the interval and the in-progress statuses are
+// named constants (no magic numbers).
 export function useDeliveries(warningId: string | null) {
   const load = useMemo(
     () => (warningId ? () => api.warnings.deliveries(warningId) : null),
@@ -22,6 +25,8 @@ export function useDeliveries(warningId: string | null) {
       IN_PROGRESS_DELIVERY_STATUSES.includes(record.status),
     ) ?? false;
 
+  // Poll with a setTimeout after each answer, not setInterval, so requests never
+  // overlap; it stops by itself once no channel is in progress.
   useEffect(() => {
     if (!inProgress || loading) {
       return;

@@ -23,7 +23,10 @@ interface MonitorData {
 
 const DEFAULT_TAB: WarningStatus = 'ACTIVE';
 
-// State and derived figures of the "Hazard monitoring" step.
+// useMonitorScreen holds the state and derived figures of step 1: filters, the
+// selected tab, KPIs, districts under warning and the chips of each warning.
+// SRP: the rules themselves are pure functions in monitoring.ts, tested without
+// rendering; this hook only keeps state and memoises the results.
 export function useMonitorScreen({ reports, warnings, areas }: MonitorData) {
   const [filters, setFilters] = useState<MonitorFilters>(EMPTY_FILTERS);
   const [tab, setTab] = useState<WarningStatus>(DEFAULT_TAB);

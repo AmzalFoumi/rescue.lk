@@ -11,9 +11,11 @@ import type {
 } from '@rescue-lk/shared';
 import { OTHER_HAZARD } from './constants';
 
-// The form as edited in the browser. Hazard and severity start unselected;
-// the API reports missing or invalid values per field, so the rules are not
-// duplicated here.
+// WarningFormValues is the form as edited in the browser; this file also turns it
+// into API requests.
+// Hazard and severity start unselected. The API reports anything missing per field,
+// so the business rules are not duplicated here (DRY, one source of truth).
+// Step 3 only checks that its own fields are filled in before moving on.
 export interface WarningFormValues {
   sourceReportId: string;
   hazard: HazardType | '';

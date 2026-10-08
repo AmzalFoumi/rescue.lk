@@ -10,7 +10,8 @@ export interface SummaryCell {
   title?: string;
 }
 
-// The row of key facts under a step's title.
+// SummaryStrip is the row of key facts under a step's title.
+// DRY: shared by steps 2 to 5; each step only supplies its cells.
 export function SummaryStrip({ cells }: { cells: readonly SummaryCell[] }) {
   return (
     <dl className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] overflow-hidden rounded-[10px] border border-[#D9DFE5] bg-white">

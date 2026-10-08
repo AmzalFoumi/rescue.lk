@@ -8,8 +8,9 @@ interface StepLoadingProps {
   onBack: () => void;
 }
 
-// Shown while a step's report or warning is still loading (e.g. right after
-// publishing, before the warning list has refreshed).
+// StepLoading is shown while a step's report or warning is still loading, e.g. right
+// after publishing, before the warning list has refreshed.
+// Presentational; it always offers a way back so the officer is never stuck.
 export function StepLoading({ title, onBack }: StepLoadingProps) {
   return (
     <>

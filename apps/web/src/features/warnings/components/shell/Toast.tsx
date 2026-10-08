@@ -6,8 +6,10 @@ interface ToastProps {
   onDismiss: () => void;
 }
 
-// A confirmation at the bottom of the screen, read out by screen readers.
-// The live region is always present so the announcement is not missed.
+// Toast shows a short confirmation, e.g. "Warning published".
+// Presentational. SRP: useToast owns the timing; this only renders.
+// Accessibility: the live region is always present, so screen readers never miss the
+// announcement.
 export function Toast({ message, onDismiss }: ToastProps) {
   return (
     <div role="status" aria-live="polite">

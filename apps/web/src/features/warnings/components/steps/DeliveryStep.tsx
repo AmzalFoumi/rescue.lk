@@ -75,7 +75,10 @@ const kpisFor = ({
   },
 ];
 
-// Step 5: what was sent, to whom, and how each channel did.
+// Step 5 "Delivery status": what was sent, to whom, and how each channel did
+// (sequence diagram step 11).
+// Presentational: the view is built in delivery.ts (pure and tested) and the retry and
+// cancel actions are passed in from useDeliveryScreen.
 export function DeliveryStep({
   view,
   loading,

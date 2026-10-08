@@ -16,6 +16,8 @@ interface HazardPickerProps {
 const HAZARD_ID = 'warning-hazard';
 const OTHER_ID = 'warning-other-hazard';
 
+// HazardPicker chooses the hazard type, plus a name field when OTHER is chosen.
+// Presentational: props in, changes out; the hazard list comes from meta.ts.
 export function HazardPicker({
   hazard,
   otherHazard,

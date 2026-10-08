@@ -28,8 +28,11 @@ import type {
   WarningStatus,
 } from '@rescue-lk/shared';
 
-// Display data for the shared vocabulary: a readable label, an icon and a
-// colour tone. Status is always shown as icon + text, never by colour alone.
+// meta.ts holds the display data of the shared vocabulary: a readable label, an icon
+// and a colour tone for each severity, status, hazard and channel.
+// DRY: one table per type, so components never hard-code labels or colours (no magic
+// values), and a new value is one entry.
+// Accessibility: status is always shown as icon + text, never by colour alone.
 
 export type Tone = 'red' | 'orange' | 'amber' | 'blue' | 'green' | 'gray';
 

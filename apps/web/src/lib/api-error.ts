@@ -39,15 +39,12 @@ const stringEntries = (value: unknown): WarningFormErrors =>
       )
     : {};
 
-// An API failure the UI can show: the HTTP status, a readable message, and for
-// warning form errors one message per field.
-//
-// The API's AllExceptionsFilter answers { statusCode, timestamp, path, message }
-// where message is one of:
-//   'text'                               (unexpected 500)
-//   { message: 'text', error }           (404, 409, 422)
-//   { message: ['text', ...], error }    (ValidationPipe 400)
-//   { message: 'text', errors: {...} }   (InvalidWarningException 400)
+// ApiError is an API failure the UI can show: the HTTP status, a readable message, and
+// for warning form errors one message per field.
+// Every failed request becomes this one type (see api.ts request()), so the UI handles
+// errors one way, whatever the server sent.
+// A network failure gets status 0 (NETWORK_ERROR_STATUS) and keeps the original as
+// the cause, so nothing is lost.
 export class ApiError extends Error {
   // fetch itself failed: the server could not be reached.
   static readonly NETWORK_ERROR_STATUS = 0;
@@ -70,6 +67,9 @@ export class ApiError extends Error {
     this.details = details;
   }
 
+  // Factory method: reads every AllExceptionsFilter body (text for a 500, { message,
+  // error } for 404/409/422, a message list from ValidationPipe, or { message, errors }
+  // from InvalidWarningException) and always returns an ApiError.
   static fromResponse(status: number, body: unknown): ApiError {
     const fallback = `Request failed with status ${status}`;
     if (typeof body === 'string' && body.trim()) {

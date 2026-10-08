@@ -5,7 +5,8 @@ import { HAZARD_META } from '../../meta';
 import { NotConnected, SOURCES } from '../NotConnected';
 import { Card } from '../shell/Card';
 
-// The verified report's key facts, as the reviewing officer reads them.
+// HazardOverview shows the verified report's key facts, as the reviewing officer
+// reads them. Presentational: the view is built in review.ts.
 export function HazardOverview({
   report,
 }: {

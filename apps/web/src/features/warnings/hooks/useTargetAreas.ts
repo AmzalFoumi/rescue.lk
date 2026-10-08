@@ -4,7 +4,8 @@ import { useAsyncResource } from './useAsyncResource';
 
 const loadTargetAreas = () => api.warnings.targetAreas();
 
-// Districts and river basins a warning can target.
+// useTargetAreas loads the districts and river basins a warning can target.
+// DRY: built on useAsyncResource.
 export function useTargetAreas() {
   return useAsyncResource<TargetAreaDto[]>(loadTargetAreas);
 }

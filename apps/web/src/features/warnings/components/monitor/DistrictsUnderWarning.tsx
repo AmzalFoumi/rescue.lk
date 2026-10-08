@@ -3,7 +3,9 @@ import type { DistrictUnderWarning } from '../../monitoring';
 import { Card } from '../shell/Card';
 import { SeverityBadge } from '../StatusChip';
 
-// Each district covered by an active warning, most severe first.
+// DistrictsUnderWarning lists each district covered by an active warning, most severe
+// first.
+// Presentational: the list is worked out in monitoring.ts (pure and tested).
 export function DistrictsUnderWarning({
   entries,
 }: {

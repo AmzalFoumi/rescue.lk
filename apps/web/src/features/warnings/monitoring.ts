@@ -7,7 +7,9 @@ import type {
 } from '@rescue-lk/shared';
 import { SEVERITIES } from './meta';
 
-// Pure rules behind the "Hazard monitoring" step, kept out of components.
+// monitoring.ts: the pure rules behind step 1 "Hazard monitoring": filtering reports,
+// each report's current warning, KPIs and districts under warning.
+// SRP: kept out of components and hooks, so they are unit tested without rendering.
 
 export type WarningStatusFilter = 'ALL' | 'NONE' | 'DRAFT' | 'ACTIVE';
 

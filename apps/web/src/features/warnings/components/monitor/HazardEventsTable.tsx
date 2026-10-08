@@ -22,7 +22,9 @@ const HEADERS = [
 ];
 const cell = 'px-4 py-3 align-middle text-[13.5px] text-[#2E3A46]';
 
-// Verified reports and the warning each currently has.
+// HazardEventsTable lists the verified reports and the warning each currently has.
+// Presentational: filtering happens in monitoring.ts; the table only renders rows and
+// reports which report or warning to open.
 export function HazardEventsTable({
   rows,
   total,

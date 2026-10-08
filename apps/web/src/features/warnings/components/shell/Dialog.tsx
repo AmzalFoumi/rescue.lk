@@ -11,8 +11,10 @@ interface DialogProps {
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
 
-// A modal dialog: focus moves inside and stays there, Escape closes it, and
-// focus returns to where it was when the dialog closes.
+// Dialog is the modal base that the publish and cancel dialogs are built on (DRY).
+// Accessibility: focus moves inside and stays there, Escape closes it, and focus
+// returns to where it was when the dialog closes.
+// The dialogs only supply their content, so this behaviour is written and tested once.
 export function Dialog({ titleId, onClose, children }: DialogProps) {
   const panel = useRef<HTMLDivElement>(null);
 

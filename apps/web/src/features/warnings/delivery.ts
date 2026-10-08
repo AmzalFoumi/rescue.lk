@@ -12,7 +12,11 @@ import { CHANNEL_META, DELIVERY_STATUS_META } from './meta';
 import { reachFor } from './publishing';
 import { newestFirst, warningEvents, type TimelineEvent } from './timeline';
 
-// Rules behind step 5 "Delivery status".
+// delivery.ts: the pure rules behind step 5 "Delivery status": KPIs, labels, the audit
+// timeline and the whole step view.
+// SRP: kept out of components, so they are unit tested without rendering and the
+// components only display the result.
+// Sirens reach towers, not people, so they are left out of people counts.
 
 // Sirens reach towers, not people, so they are left out of people counts.
 const reachesPeople = (channel: AlertChannelType) => channel !== 'SIREN';

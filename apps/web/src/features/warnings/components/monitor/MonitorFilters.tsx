@@ -25,6 +25,10 @@ const STATUS_OPTIONS: { value: WarningStatusFilter; label: string }[] = [
 const field = 'flex min-w-[150px] flex-[1_1_150px] flex-col gap-1.5';
 const select = cx(ui.input, ui.inputBorder, 'h-10 py-0');
 
+// MonitorFilters are the step 1 filters: search, hazard, district, severity and
+// warning status.
+// Presentational: the filter values live in useMonitorScreen and the filtering rule in
+// monitoring.ts.
 export function MonitorFilters({
   filters,
   districts,

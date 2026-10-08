@@ -11,7 +11,10 @@ interface DeliveryActionDeps {
   notify: (message: string) => void;
 }
 
-// Step 5 actions: retry failed channels, and cancel an ACTIVE warning.
+// useDeliveryActions holds the step 5 actions: retry failed channels and cancel an
+// ACTIVE warning.
+// SRP: actions only; the data comes from useDeliveries.
+// Failures are kept as ApiErrors for the UI to show, never swallowed.
 export function useDeliveryActions({
   afterRetry,
   afterCancel,

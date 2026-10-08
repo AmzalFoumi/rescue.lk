@@ -45,7 +45,9 @@ const nextAction = (
   };
 };
 
-// Step 2: check the verified report and its evidence before warning.
+// Step 2 "Review hazard": check the verified report and its evidence before warning.
+// Presentational: the view is built in review.ts (pure and tested); this component
+// only renders it and reports button clicks.
 export function ReviewStep({
   view,
   areaNames,

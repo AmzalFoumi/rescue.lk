@@ -49,7 +49,10 @@ const canReopen = (step: WorkflowStep, state: WorkflowState) =>
     (step === 'review' && state.reportId !== null) ||
     (step === 'level' && state.editor !== null));
 
-// Which step of the UC1 workflow is shown and what it is about.
+// useWorkflowNavigation knows which step is shown and what it is about (the report or
+// warning being worked on).
+// SRP: it holds no warning data, only navigation.
+// The canReopen rule decides which finished steps can be opened again.
 export function useWorkflowNavigation() {
   const [state, setState] = useState<WorkflowState>(INITIAL);
 

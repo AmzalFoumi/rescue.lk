@@ -15,8 +15,10 @@ interface FormState {
 
 const CLEAN: FormState = { values: EMPTY_FORM, errors: {} };
 
-// State of the warning form. Editing a field clears that field's error;
-// loading, replacing or resetting the form clears them all.
+// useWarningForm holds the values and field errors of the warning form.
+// SRP: form state only. Editing a field clears that field's error; loading, replacing
+// or resetting the form clears them all.
+// The rules stay in the API, so they are not duplicated here (DRY).
 export function useWarningForm() {
   const [state, setState] = useState<FormState>(CLEAN);
 

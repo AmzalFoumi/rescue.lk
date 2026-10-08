@@ -6,7 +6,10 @@ interface FieldErrorProps {
   message?: string;
 }
 
-// Error text under one input; the input points to it with aria-describedby.
+// FieldError shows the error text under one input.
+// Accessibility: the input links to it with aria-describedby, so screen readers read
+// the error with the field.
+// DRY: errorProps builds that link the same way for every field.
 export function FieldError({ id, message }: FieldErrorProps) {
   if (!message) {
     return null;

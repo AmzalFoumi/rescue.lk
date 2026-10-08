@@ -10,7 +10,8 @@ const instructionLines = (instructions: string) =>
     .map((line) => line.trim())
     .filter(Boolean);
 
-// What citizens were sent, and why it was cancelled if it was.
+// WarningMessagePanel shows what citizens were sent, and the reason if the warning
+// was cancelled. Presentational.
 export function WarningMessagePanel({ warning }: { warning: WarningDto }) {
   const instructions = instructionLines(warning.instructions);
   return (

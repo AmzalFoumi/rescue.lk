@@ -2,7 +2,9 @@ import { CircleAlert } from 'lucide-react';
 import type { ErrorBanner } from '../../publishing';
 import { ICON_SIZE } from '../../ui';
 
-// "2 fields need attention", naming fields that are on the warning level step.
+// FormErrorBanner says "2 fields need attention" at the top of step 4.
+// It also names any invalid field that is on the warning level step, so the officer
+// knows to go back. Presentational: the banner is worked out in publishing.ts.
 export function FormErrorBanner({ banner }: { banner: ErrorBanner | null }) {
   if (!banner) {
     return null;

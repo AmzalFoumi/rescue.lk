@@ -18,6 +18,9 @@ const ID = 'warning-source-report';
 export const reportLabel = (report: VerifiedHazardReportDto) =>
   `${shortId('R', report.id)} · ${HAZARD_META[report.hazardType].label} · ${report.place}, ${report.districtName}`;
 
+// ReportPicker chooses the source hazard report (verified reports only).
+// Presentational: props in, changes out. It is locked when updating an ACTIVE
+// warning, because the API does not allow the source report to change.
 export function ReportPicker({
   reports,
   value,

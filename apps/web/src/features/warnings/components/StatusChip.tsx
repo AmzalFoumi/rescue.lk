@@ -12,7 +12,10 @@ import {
 } from '../meta';
 import { cx, ICON_SIZE } from '../ui';
 
-// A status pill: icon + text + colour, so colour is never the only signal.
+// StatusChip is a status pill: icon + text + colour, so colour is never the only
+// signal.
+// DRY: the severity, warning status and delivery chips below all reuse it, so every
+// status on the screen looks and reads the same.
 export function StatusChip({ label, icon: Icon, tone }: TonedMeta) {
   return (
     <span

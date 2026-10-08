@@ -9,9 +9,11 @@ export interface ActionFailure {
   error: ApiError;
 }
 
-// Runs one API action at a time, tracking which is pending and the last
-// failure. A failure is kept (as an ApiError) for the UI to show, passed to
-// onFailure, and run() resolves to null so the caller knows not to continue.
+// useWarningActions runs one API action at a time and remembers which is pending.
+// Errors are never swallowed: the last failure is kept as an ApiError for the UI,
+// onFailure lets the caller react (e.g. show field errors), and run() resolves to null
+// so the caller knows to stop.
+// SRP + DRY: every save, publish, retry and cancel goes through it.
 export function useWarningActions() {
   const [pending, setPending] = useState<WarningAction | null>(null);
   const [failure, setFailure] = useState<ActionFailure | null>(null);

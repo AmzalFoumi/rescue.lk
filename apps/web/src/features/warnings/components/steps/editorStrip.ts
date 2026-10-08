@@ -7,6 +7,9 @@ import type { SummaryCell } from '../shell/SummaryStrip';
 // Summary strip of the warning editor (steps 3 and 4).
 const NOT_SELECTED = 'Not selected';
 
+// editorStrip builds the summary strip of the warning editor (source report, hazard,
+// district, warning level, status).
+// DRY: steps 3 and 4 share it, so both always show the same facts in the same way.
 export const editorStrip = (
   values: WarningFormValues,
   report: VerifiedHazardReportDto | undefined,

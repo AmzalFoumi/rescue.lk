@@ -21,7 +21,10 @@ interface TabsProps<T extends string> {
 export const tabPanelId = (idPrefix: string) => `${idPrefix}-panel`;
 export const tabId = (idPrefix: string, id: string) => `${idPrefix}-tab-${id}`;
 
-// ARIA tabs: arrow keys, Home and End move between tabs.
+// Tabs is a reusable ARIA tab list (DRY).
+// Accessibility: arrow keys, Home and End move between tabs, and only the selected
+// tab takes Tab focus, as the ARIA tabs pattern requires.
+// Generic over the tab id type, so any set of tabs can use it.
 export function Tabs<T extends string>({
   label,
   idPrefix,

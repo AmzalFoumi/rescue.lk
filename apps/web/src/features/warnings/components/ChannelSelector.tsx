@@ -12,7 +12,10 @@ interface ChannelSelectorProps {
 
 const ERROR_ID = 'warning-channels-error';
 
-// "4. Channels": how the warning reaches people.
+// "4. Channels": how the warning reaches people (SMS, push, siren).
+// Presentational: the selection lives in the form hook; this only shows the options
+// and reports changes. The channel list comes from meta.ts, so a new channel needs no
+// change here.
 export function ChannelSelector({
   value,
   onChange,

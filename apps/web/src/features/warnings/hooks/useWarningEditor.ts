@@ -32,7 +32,10 @@ export const editorLabel = (editor: Editor | null): string => {
   return 'New warning';
 };
 
-// Opening, filling in and moving through the warning editor (steps 3 and 4).
+// useWarningEditor moves through the warning editor: create, open a draft or an active
+// warning, choose a source report, continue, go back, update.
+// SRP: it changes navigation and form state only and never calls the API; saving is
+// useWarningSubmit's job.
 export function useWarningEditor({ nav, form, reports, areas }: EditorDeps) {
   const { openEditor, openDelivery, openReview, toMonitor, goTo, state } = nav;
   const { load, update, setErrors, values } = form;

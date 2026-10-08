@@ -19,9 +19,12 @@ interface Settled<T> {
   attempt: number;
 }
 
-// Loads a resource whenever the loader changes or reload() is called. Data from
-// the previous load stays visible while reloading, so polling does not flicker.
-// Callers pass a memoised loader (or null to load nothing).
+// useAsyncResource is the one way UC1 loads data: it returns data, error, loading,
+// updatedAt and reload().
+// SRP + DRY: every data hook is built on it, so loading, error handling and reloading
+// are written and tested once.
+// Old data stays visible while reloading, so polling does not flicker.
+// Callers pass a memoised loader, or null to load nothing (e.g. no warning chosen).
 export function useAsyncResource<T>(
   load: (() => Promise<T>) | null,
 ): AsyncResource<T> {
@@ -38,6 +41,8 @@ export function useAsyncResource<T>(
     if (!load) {
       return;
     }
+    // Ignore a late answer from an old loader (the officer moved on, or the screen
+    // closed), so stale data never overwrites newer data.
     let active = true;
     load().then(
       (data) => {

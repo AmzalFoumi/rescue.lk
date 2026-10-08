@@ -35,6 +35,9 @@ const timeLabel = (warning: WarningDto) => {
   return `Published ${formatDateTime(warning.publishedAt)}${updated}`;
 };
 
+// WarningsPanel shows warnings by status in tabs, each row with its delivery chips.
+// Presentational: props in, open events out.
+// DRY: it reuses the shared Card, Tabs, SeverityBadge and DeliveryChips.
 export function WarningsPanel({
   tab,
   counts,

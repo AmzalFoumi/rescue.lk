@@ -28,8 +28,11 @@ interface SubmitDeps {
 const channelCount = (count: number) =>
   `${count} channel${count === 1 ? '' : 's'}`;
 
-// Saving a draft and publishing or updating a warning (sequence diagram
-// steps 8-10). API field errors go back into the form, next to their inputs.
+// useWarningSubmit saves a draft, and publishes or updates a warning (sequence
+// diagram steps 8-10).
+// ISP: it takes only the functions it needs (SubmitDeps), so it is tested on its own.
+// API field errors go back into the form and appear next to their inputs; on success
+// it opens the delivery status step.
 export function useWarningSubmit({
   editor,
   values,

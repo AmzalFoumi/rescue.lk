@@ -24,7 +24,10 @@ const UNKNOWN = '—';
 const count = (value: number | null) =>
   value === null ? UNKNOWN : formatCount(value);
 
-// "2. Target citizen summary": who the selected areas reach on each channel.
+// ReachSummary is "2. Target citizen summary": the expected reach of each channel for
+// the selected areas, from the API.
+// Presentational. Shelter places belong to UC3, so they are marked as not connected
+// rather than invented.
 export function ReachSummary({ reach, hasAreas }: ReachSummaryProps) {
   const items: [LucideIcon, string, ReactNode][] = [
     [MessageSquareText, 'SMS recipients', count(reachFor(reach, 'SMS'))],

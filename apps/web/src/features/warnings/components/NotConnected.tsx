@@ -7,7 +7,9 @@ export const SOURCES = {
   response: 'Response Coordination (UC3)',
 } as const;
 
-// Marks information another use case will provide, instead of inventing it.
+// NotConnected marks information another use case (UC2 or UC3) will provide.
+// DRY: every screen marks missing data the same way, instead of inventing numbers.
+// Presentational; SOURCES names who will supply each piece of data.
 export function NotConnected({ source }: { source: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-[13px] text-[#4F5B67] italic">

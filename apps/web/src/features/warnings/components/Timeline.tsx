@@ -24,7 +24,9 @@ const ICONS: Record<TimelineKind, LucideIcon> = {
   failed: CircleX,
 };
 
-// A dated list of events, newest first (incident and audit timelines).
+// Timeline shows a dated list of events, newest first.
+// DRY: reused by the incident timeline (step 2) and the audit timeline (step 5); the
+// events themselves are built in timeline.ts and delivery.ts.
 export function Timeline({ events }: { events: readonly TimelineEvent[] }) {
   if (events.length === 0) {
     return <p className="px-4 py-5 text-[14px] text-[#4F5B67]">Nothing yet.</p>;

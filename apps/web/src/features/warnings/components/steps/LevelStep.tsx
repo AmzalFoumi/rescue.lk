@@ -31,7 +31,9 @@ interface LevelStepProps {
   onContinue: () => void;
 }
 
-// Step 3: confirm the source report and hazard, then choose the level.
+// Step 3 "Warning level": confirm the source report and hazard, then choose the level.
+// Presentational: its data comes from useLevelScreen and the form hook; it holds no
+// state of its own.
 export function LevelStep({
   values,
   errors,
