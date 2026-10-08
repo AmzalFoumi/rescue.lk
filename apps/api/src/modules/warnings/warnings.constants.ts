@@ -2,6 +2,7 @@ import type {
   AlertChannelType,
   DeliveryStatus,
   HazardType,
+  TargetAreaKind,
   WarningSeverity,
   WarningStatus,
 } from '@rescue-lk/shared';
@@ -40,6 +41,11 @@ export const HAZARD_TYPES: readonly HazardType[] = [
   'ROAD_BLOCKAGE',
   'FIRE',
   'OTHER',
+];
+
+export const TARGET_AREA_KINDS: readonly TargetAreaKind[] = [
+  'DISTRICT',
+  'RIVER_BASIN',
 ];
 
 // The hazard type that needs a free-text name (otherHazard).

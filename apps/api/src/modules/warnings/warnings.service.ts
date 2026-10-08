@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type {
   DeliveryRecordDto,
+  TargetAreaDto,
   VerifiedHazardReportDto,
   WarningDeliveryResultDto,
   WarningDto,
@@ -20,6 +21,8 @@ import type {
   HazardReportLookup,
   HazardReportSummary,
 } from './hazard-report-lookup/hazard-report-lookup.interface.js';
+import { TARGET_AREA_CATALOG } from './target-areas/target-area-catalog.interface.js';
+import type { TargetAreaCatalog } from './target-areas/target-area-catalog.interface.js';
 import { CLOCK } from './domain/clock.js';
 import type { Clock } from './domain/clock.js';
 import type { WarningForm } from './domain/warning-form.js';
@@ -84,6 +87,7 @@ export class WarningsService {
     private readonly validator: WarningValidator,
     private readonly channelRegistry: ChannelRegistry,
     private readonly deliveryService: WarningDeliveryService,
+    @Inject(TARGET_AREA_CATALOG) private readonly areas: TargetAreaCatalog,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
@@ -200,6 +204,11 @@ export class WarningsService {
   // Feeds the report picker: only verified reports can be warned about.
   listVerifiedReports(): Promise<VerifiedHazardReportDto[]> {
     return this.hazardReports.findVerified();
+  }
+
+  // Feeds the "Affected area" step: every district and river basin.
+  listTargetAreas(): TargetAreaDto[] {
+    return this.areas.findAll();
   }
 
   // Sequence diagram step 11: delivery status of the current version only.

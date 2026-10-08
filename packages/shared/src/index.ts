@@ -67,9 +67,17 @@ export interface WarningFormRequestDto {
 }
 
 // Saving a draft or publishing also records who did it (no login yet).
+// draftId edits or publishes an existing draft instead of creating a new warning.
 export interface SubmitWarningRequestDto extends WarningFormRequestDto {
   createdBy: string;
+  draftId?: string;
 }
+
+// Updating an ACTIVE warning cannot change its source report.
+export type UpdateWarningRequestDto = Omit<
+  WarningFormRequestDto,
+  'sourceReportId'
+>;
 
 export interface CancelWarningRequestDto {
   reason: string;

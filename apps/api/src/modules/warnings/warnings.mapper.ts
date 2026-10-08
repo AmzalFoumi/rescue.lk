@@ -2,9 +2,12 @@ import type {
   DeliveryRecordDto,
   WarningDeliveryResultDto,
   WarningDto,
+  SubmitWarningRequestDto,
+  UpdateWarningRequestDto,
   WarningFormRequestDto,
 } from '@rescue-lk/shared';
-import type { WarningForm } from './domain/warning-form.js';
+import type { WarningContent, WarningForm } from './domain/warning-form.js';
+import type { SubmitWarningCommand } from './domain/warning-commands.js';
 import { OTHER_HAZARD } from './warnings.constants.js';
 import type { WarningRecord } from './warnings.repository.interface.js';
 import type { DeliveryRecordEntry } from './delivery-records.repository.interface.js';
@@ -14,8 +17,9 @@ import type { DeliveryRecordEntry } from './delivery-records.repository.interfac
 
 // Request -> domain: trims text, defaults optional fields, and keeps otherHazard
 // only when the hazard is OTHER.
-export const toWarningForm = (request: WarningFormRequestDto): WarningForm => ({
-  sourceReportId: request.sourceReportId,
+export const toWarningContent = (
+  request: UpdateWarningRequestDto,
+): WarningContent => ({
   hazard: request.hazard,
   otherHazard:
     request.hazard === OTHER_HAZARD ? (request.otherHazard ?? '').trim() : '',
@@ -24,6 +28,19 @@ export const toWarningForm = (request: WarningFormRequestDto): WarningForm => ({
   message: request.message.trim(),
   instructions: (request.instructions ?? '').trim(),
   channels: [...(request.channels ?? [])],
+});
+
+export const toWarningForm = (request: WarningFormRequestDto): WarningForm => ({
+  sourceReportId: request.sourceReportId,
+  ...toWarningContent(request),
+});
+
+export const toSubmitWarningCommand = (
+  request: SubmitWarningRequestDto,
+): SubmitWarningCommand => ({
+  form: toWarningForm(request),
+  createdBy: request.createdBy.trim(),
+  ...(request.draftId ? { draftId: request.draftId } : {}),
 });
 
 const toIsoOrNull = (date: Date | null): string | null =>

@@ -1,5 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsMongoId,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import type { SubmitWarningRequestDto } from '@rescue-lk/shared';
 import { CREATED_BY_MAX_LENGTH } from '../warnings.constants.js';
 import { WarningFormDto } from './warning-form.dto.js';
@@ -18,4 +24,13 @@ export class SubmitWarningDto
   @IsNotEmpty()
   @MaxLength(CREATED_BY_MAX_LENGTH)
   createdBy!: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Existing DRAFT to edit or publish; omit to create a new warning',
+    example: '665f1b2c9d3e4a0012345670',
+  })
+  @IsOptional()
+  @IsMongoId()
+  draftId?: string;
 }

@@ -496,6 +496,15 @@ describe('WarningsService', () => {
     });
   });
 
+  it('listTargetAreas returns every district and river basin', () => {
+    expect(service.listTargetAreas()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'B-KALU', kind: 'RIVER_BASIN' }),
+        expect.objectContaining({ id: 'D-COLOMBO', kind: 'DISTRICT' }),
+      ]),
+    );
+  });
+
   it('listVerifiedReports returns the verified reports from the lookup', async () => {
     hazardReports.findVerified.mockResolvedValue([VERIFIED_REPORT]);
 

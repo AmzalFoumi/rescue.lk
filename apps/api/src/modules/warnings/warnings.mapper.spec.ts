@@ -4,6 +4,8 @@ import {
   toDeliveryRecordDto,
   toWarningDeliveryResultDto,
   toWarningDto,
+  toSubmitWarningCommand,
+  toWarningContent,
   toWarningForm,
 } from './warnings.mapper.js';
 import {
@@ -66,6 +68,40 @@ describe('warnings mapper', () => {
         instructions: 'Move to higher ground.',
         channels: ['SMS'],
       });
+    });
+  });
+
+  describe('toWarningContent (update body -> domain)', () => {
+    it('normalises the content without a source report', () => {
+      const { sourceReportId: _source, ...update } = request;
+
+      expect(toWarningContent(update)).toEqual({
+        hazard: 'FLOOD',
+        otherHazard: '',
+        severity: 'HIGH',
+        areaIds: ['B-KALU'],
+        message: 'The Kalu Ganga is rising quickly.',
+        instructions: '',
+        channels: [],
+      });
+    });
+  });
+
+  describe('toSubmitWarningCommand', () => {
+    it('builds the command with the trimmed officer name', () => {
+      expect(
+        toSubmitWarningCommand({ ...request, createdBy: ' Officer A ' }),
+      ).toEqual({ form: toWarningForm(request), createdBy: 'Officer A' });
+    });
+
+    it('carries the draft id when one is given', () => {
+      expect(
+        toSubmitWarningCommand({
+          ...request,
+          createdBy: 'Officer A',
+          draftId: 'draft-1',
+        }).draftId,
+      ).toBe('draft-1');
     });
   });
 
