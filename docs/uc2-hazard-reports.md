@@ -92,7 +92,7 @@ The Submit diagram is one service and the Verify diagram is the other.
 
 ## Design choices
 
-- **Duplicate check.** Same hazard type, within 500 m, captured within 24 h. The two limits
+- **Duplicate check.** Same hazard type, within 1 km, captured within 24 h. The two limits
   are constants in `duplicate-checker.ts`. A duplicate is flagged in `possibleDuplicateOf`,
   never rejected.
 - **Offline queue is a mock.** It lives in memory (lost on restart). The real queue would
