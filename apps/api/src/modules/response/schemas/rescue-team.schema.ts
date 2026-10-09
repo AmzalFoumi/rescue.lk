@@ -8,10 +8,10 @@ export type RescueTeamDocument = HydratedDocument<RescueTeam>;
 // The position is stored as a sub-document without its own _id.
 @Schema({ _id: false })
 export class TeamLocationData {
-  @Prop({ required: true })
+  @Prop({ type: Number, required: true })
   latitude!: number;
 
-  @Prop({ required: true })
+  @Prop({ type: Number, required: true })
   longitude!: number;
 }
 const TeamLocationDataSchema = SchemaFactory.createForClass(TeamLocationData);
@@ -19,13 +19,13 @@ const TeamLocationDataSchema = SchemaFactory.createForClass(TeamLocationData);
 /** The report a dispatched team is working on. Absent while the team is free. */
 @Schema({ _id: false })
 export class ActiveDispatchData {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   reportId!: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   dispatchedBy!: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   dispatchedAt!: Date;
 }
 const ActiveDispatchDataSchema =
@@ -33,7 +33,7 @@ const ActiveDispatchDataSchema =
 
 @Schema({ timestamps: true, collection: 'rescue_teams' })
 export class RescueTeam {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   name!: string;
 
   @Prop({ type: OwnerDataSchema, required: true })

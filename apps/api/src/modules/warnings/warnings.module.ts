@@ -8,13 +8,21 @@ import { MongooseWarningsRepository } from './mongoose-warnings.repository.js';
 import { WARNINGS_REPOSITORY } from './warnings.repository.interface.js';
 import { MongooseDeliveryRecordsRepository } from './mongoose-delivery-records.repository.js';
 import { DELIVERY_RECORDS_REPOSITORY } from './delivery-records.repository.interface.js';
+import {
+  District,
+  DistrictSchema,
+} from '../../database/schemas/district.schema.js';
+import {
+  HazardReport,
+  HazardReportSchema,
+} from '../hazard-reports/schemas/hazard-report.schema.js';
 import { Warning, WarningSchema } from './schemas/warning.schema.js';
 import {
   DeliveryRecord,
   DeliveryRecordSchema,
 } from './schemas/delivery-record.schema.js';
 import { HAZARD_REPORT_LOOKUP } from './hazard-report-lookup/hazard-report-lookup.interface.js';
-import { InMemoryHazardReportLookup } from './hazard-report-lookup/in-memory-hazard-report-lookup.js';
+import { MongooseHazardReportLookup } from './hazard-report-lookup/mongoose-hazard-report-lookup.repository.js';
 import { WarningValidator } from './validation/warning.validator.js';
 import { ALERT_CHANNELS } from './channels/alert-channel.interface.js';
 import type { AlertChannel } from './channels/alert-channel.interface.js';
@@ -38,15 +46,18 @@ const CHANNEL_IMPLEMENTATIONS = [SmsChannel, PushChannel, SirenChannel];
 
 // WarningsModule wires UC1 together.
 // Composition root (DIP): it is the only place that binds each interface token to a
-// real class (repositories, the hazard report stub, the area catalog, the clock and
+// real class (repositories, the hazard report lookup, the area catalog, the clock and
 // the channel list). Everything else depends on the interfaces.
-// So swapping the UC2 stub for a real adapter, or adding a channel, changes only this
+// So swapping an adapter, or adding a channel, changes only this
 // file (OCP).
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Warning.name, schema: WarningSchema },
       { name: DeliveryRecord.name, schema: DeliveryRecordSchema },
+      // Read only: UC1 looks up verified reports and district names.
+      { name: HazardReport.name, schema: HazardReportSchema },
+      { name: District.name, schema: DistrictSchema },
     ]),
   ],
   controllers: [WarningsController],
@@ -58,8 +69,7 @@ const CHANNEL_IMPLEMENTATIONS = [SmsChannel, PushChannel, SirenChannel];
       provide: DELIVERY_RECORDS_REPOSITORY,
       useClass: MongooseDeliveryRecordsRepository,
     },
-    // Replace with the UC2 adapter once hazard-reports exposes verified reports.
-    { provide: HAZARD_REPORT_LOOKUP, useClass: InMemoryHazardReportLookup },
+    { provide: HAZARD_REPORT_LOOKUP, useClass: MongooseHazardReportLookup },
     { provide: TARGET_AREA_CATALOG, useClass: InMemoryTargetAreaCatalog },
     WarningValidator,
     ...CHANNEL_IMPLEMENTATIONS,

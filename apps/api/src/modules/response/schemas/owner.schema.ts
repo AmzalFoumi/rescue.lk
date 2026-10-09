@@ -12,7 +12,7 @@ export class OwnerData {
   @Prop({ type: Types.ObjectId, ref: 'Organisation', required: true })
   organisationId!: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   name!: string;
 
   @Prop({ type: String, enum: Object.values(OrganisationKind), required: true })

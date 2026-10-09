@@ -19,7 +19,7 @@ Deadline: 9 Oct 2026, 11:59 PM. Marks: implementation accuracy 30, code quality 
 | Assessment Officer                    | user of the web UI (no login: excluded by the brief)                                                                          |
 | :WarningManagementUI                  | `apps/web/src/features/warnings/*` + `app/warnings/page.tsx`                                                                  |
 | :WarningController                    | `warnings.controller.ts` (REST + DTO validation)                                                                              |
-| :HazardReport (getStatus, ref Verify) | `HazardReportLookup` port (interface) in warnings; adapter reads UC2 data. Stub until UC2 lands                               |
+| :HazardReport (getStatus, ref Verify) | `HazardReportLookup` port (interface) in warnings; `MongooseHazardReportLookup` reads UC2's verified reports                  |
 | validateWarning (8.2)                 | `WarningValidator` (business rules) + class-validator DTO                                                                     |
 | :Warning «create»                     | `Warning` schema/entity + `WarningsService.issueWarning()`                                                                    |
 | deliver() + par                       | `WarningDeliveryService.deliver()` using `Promise.allSettled` over selected channels                                          |
@@ -77,7 +77,7 @@ Per phase examples:
 
 ## 6. Open items
 
-- UC2 owner (Amzal) must expose verified reports. Until then UC1 uses the `HazardReportLookup` stub; agree on the shape (`id`, `status`, `district`, `hazardType`).
+- UC1 reads UC2's reports through `MongooseHazardReportLookup`, which reads the hazard report and district schemas only (no UC2 services). Hazard types use the one shared lowercase `HazardType`.
 - Report section 5.5 needs screenshots, test count and coverage percent. Collect after phase 6.
 - Appendix A of the report needs every AI prompt listed: keep a log as you go.
 - Working tree shows every file as modified because of line endings (CRLF). Stage only your own files; never `git add .`.

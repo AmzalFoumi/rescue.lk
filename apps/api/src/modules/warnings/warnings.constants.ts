@@ -68,6 +68,12 @@ export const NO_ERROR = '';
 export const MANUAL_RETRY_ATTEMPTS = 1;
 
 export const WARNING_MESSAGE_MIN_LENGTH = 20;
+// The report picker shows the newest verified reports only, so the list stays small.
+export const MAX_VERIFIED_REPORTS = 100;
+
+// Shown when a report's district cannot be found.
+export const UNKNOWN_DISTRICT_NAME = 'Unknown district';
+
 export const WARNING_MESSAGE_MAX_LENGTH = 1000;
 export const WARNING_INSTRUCTIONS_MAX_LENGTH = 2000;
 export const OTHER_HAZARD_MAX_LENGTH = 80;

@@ -20,8 +20,8 @@ export type HazardReportSummary = Omit<
 // HazardReportLookup is how UC1 reads hazard reports, which belong to UC2.
 // Port (ports and adapters) + DIP: UC1 depends only on this interface, never on UC2
 // code, so the two use cases can be built and tested separately.
-// Today an in-memory stub implements it. When UC2 exposes verified reports, a UC2
-// adapter replaces the stub and only the binding in warnings.module.ts changes.
+// MongooseHazardReportLookup implements it by reading UC2's reports; a fake can
+// replace it in tests, and only the binding in warnings.module.ts changes.
 // Sequence diagram: the HazardReport lifeline.
 export interface HazardReportLookup {
   // Sequence diagram: HazardReport.getStatus() for the selected report.
