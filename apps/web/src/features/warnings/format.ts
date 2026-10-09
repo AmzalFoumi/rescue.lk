@@ -1,5 +1,5 @@
 import type { WarningDto } from '@rescue-lk/shared';
-import { DISPLAY_TIME_ZONE } from './constants';
+import { DISPLAY_TIME_ZONE, OTHER_HAZARD } from './constants';
 import { HAZARD_META } from './meta';
 
 // format.ts turns data into the text officers read: dates in Sri Lanka time, counts,
@@ -37,11 +37,11 @@ export const formatCount = (value: number): string => count.format(value);
 // "17:30" in Sri Lanka time.
 export const formatTime = (date: Date): string => clock.format(date);
 
-// The hazard as officers read it: the typed name for OTHER, else the label.
+// The hazard as officers read it: the typed name for the other hazard, else the label.
 export const hazardName = (
   warning: Pick<WarningDto, 'hazard' | 'otherHazard'>,
 ): string =>
-  warning.hazard === 'OTHER' && warning.otherHazard
+  warning.hazard === OTHER_HAZARD && warning.otherHazard
     ? warning.otherHazard
     : HAZARD_META[warning.hazard].label;
 

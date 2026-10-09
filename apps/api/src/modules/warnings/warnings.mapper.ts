@@ -20,7 +20,7 @@ import type { DeliveryRecordEntry } from './delivery-records.repository.interfac
 // optional fields get defaults before validation.
 
 // Request -> domain: trims text, defaults optional fields, and keeps otherHazard
-// only when the hazard is OTHER.
+// only when the hazard is 'other'.
 export const toWarningContent = (
   request: UpdateWarningRequestDto,
 ): WarningContent => ({

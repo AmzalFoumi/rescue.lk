@@ -31,7 +31,10 @@ describe('warning domain exceptions', () => {
   });
 
   it('ReportNotVerifiedException is a 422 naming the report and its status', () => {
-    const exception = new ReportNotVerifiedException(REPORT_ID, 'pending');
+    const exception = new ReportNotVerifiedException(
+      REPORT_ID,
+      'pending_verification',
+    );
 
     expect(exception).toBeInstanceOf(HttpException);
     expect(exception.getStatus()).toBe(HttpStatus.UNPROCESSABLE_ENTITY);

@@ -76,19 +76,19 @@ describe('WarningValidator (step 8.2 validateWarning)', () => {
   });
 
   describe.each(MODES)('rules that apply in %s mode', (mode) => {
-    it('requires a name when the hazard is OTHER', () => {
+    it('requires a name when the hazard is other', () => {
       expect(
         errorsFor(
-          buildWarningForm({ hazard: 'OTHER', otherHazard: ' ' }),
+          buildWarningForm({ hazard: 'other', otherHazard: ' ' }),
           mode,
         ),
       ).toEqual({ otherHazard: expect.any(String) });
     });
 
-    it('accepts OTHER with a hazard name', () => {
+    it('accepts the other hazard with a hazard name', () => {
       expect(
         errorsFor(
-          buildWarningForm({ hazard: 'OTHER', otherHazard: 'Dam breach' }),
+          buildWarningForm({ hazard: 'other', otherHazard: 'Dam breach' }),
           mode,
         ),
       ).toEqual({});

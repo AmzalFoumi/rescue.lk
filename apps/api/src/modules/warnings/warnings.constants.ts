@@ -1,7 +1,7 @@
 import type {
   AlertChannelType,
   DeliveryStatus,
-  WarningHazardType,
+  HazardType,
   TargetAreaKind,
   WarningSeverity,
   WarningStatus,
@@ -38,13 +38,17 @@ export const DELIVERY_STATUSES: readonly DeliveryStatus[] = [
   'FAILED',
 ];
 
-export const HAZARD_TYPES: readonly WarningHazardType[] = [
-  'FLOOD',
-  'LANDSLIDE',
-  'ROAD_BLOCKAGE',
-  'FIRE',
-  'OTHER',
-];
+// Keyed by HazardType, so adding a hazard to the shared type is a compile error here
+// until it is listed (open for extension, impossible to forget).
+const HAZARD_TYPE_KEYS: Record<HazardType, true> = {
+  flood: true,
+  landslide: true,
+  road_blockage: true,
+  fire: true,
+  other: true,
+};
+
+export const HAZARD_TYPES = Object.keys(HAZARD_TYPE_KEYS) as HazardType[];
 
 export const TARGET_AREA_KINDS: readonly TargetAreaKind[] = [
   'DISTRICT',
@@ -52,7 +56,7 @@ export const TARGET_AREA_KINDS: readonly TargetAreaKind[] = [
 ];
 
 // The hazard type that needs a free-text name (otherHazard).
-export const OTHER_HAZARD: WarningHazardType = 'OTHER';
+export const OTHER_HAZARD: HazardType = 'other';
 
 export const INITIAL_DELIVERY_STATUS: DeliveryStatus = 'QUEUED';
 export const INITIAL_WARNING_VERSION = 1;

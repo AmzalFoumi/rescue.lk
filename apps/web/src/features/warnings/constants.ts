@@ -15,7 +15,7 @@ export const IN_PROGRESS_DELIVERY_STATUSES: readonly DeliveryStatus[] = [
 ];
 
 // The hazard type that needs a typed name.
-export const OTHER_HAZARD = 'OTHER';
+export const OTHER_HAZARD = 'other';
 
 // Who is recorded as creating a warning until login exists.
 export const CREATED_BY = 'Assessment Officer';

@@ -10,13 +10,10 @@ export type WarningStatus = 'DRAFT' | 'ACTIVE' | 'CANCELLED';
 
 export type DeliveryStatus = 'QUEUED' | 'SENT' | 'RETRYING' | 'FAILED';
 
-// Hazard types as UC1 warnings name them. UC2 reports use the lowercase HazardType below.
-export type WarningHazardType =
-  'FLOOD' | 'LANDSLIDE' | 'ROAD_BLOCKAGE' | 'FIRE' | 'OTHER';
-
 export type HazardReportStatus =
   'pending_verification' | 'pending_synchronisation' | 'verified' | 'rejected';
 
+// One hazard type for every use case (warnings, hazard reports, response).
 export type HazardType =
   'flood' | 'landslide' | 'road_blockage' | 'fire' | 'other';
 
@@ -51,7 +48,7 @@ export interface TargetAreaDto {
 export interface WarningDto {
   id: string;
   sourceReportId: HazardReportDto['id'];
-  hazard: WarningHazardType;
+  hazard: HazardType;
   otherHazard: string;
   severity: WarningSeverity;
   areaIds: TargetAreaDto['id'][];
@@ -71,7 +68,7 @@ export interface WarningDto {
 // The warning form as the officer fills it in; drafts may leave some fields empty.
 export interface WarningFormRequestDto {
   sourceReportId: HazardReportDto['id'];
-  hazard: WarningHazardType;
+  hazard: HazardType;
   otherHazard?: string;
   severity: WarningSeverity;
   areaIds: TargetAreaDto['id'][];
@@ -132,7 +129,7 @@ export interface WarningDeliveryResultDto {
 // Dates are ISO 8601 strings.
 export interface VerifiedHazardReportDto {
   id: HazardReportDto['id'];
-  hazardType: WarningHazardType;
+  hazardType: HazardType;
   district: DistrictDto['id'];
   districtName: string;
   place: string;

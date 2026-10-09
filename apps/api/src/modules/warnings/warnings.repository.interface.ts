@@ -1,6 +1,6 @@
 import type {
   AlertChannelType,
-  WarningHazardType,
+  HazardType,
   WarningSeverity,
   WarningStatus,
 } from '@rescue-lk/shared';
@@ -11,7 +11,7 @@ export const WARNINGS_REPOSITORY = Symbol('WARNINGS_REPOSITORY');
 export interface WarningRecord {
   id: string;
   sourceReportId: string;
-  hazard: WarningHazardType;
+  hazard: HazardType;
   otherHazard: string;
   severity: WarningSeverity;
   areaIds: string[];

@@ -11,7 +11,7 @@ import type {
 const STUB_REPORTS: readonly HazardReportSummary[] = [
   {
     id: '665f1b2c9d3e4a00000000a1',
-    hazardType: 'FLOOD',
+    hazardType: 'flood',
     district: '665f1b2c9d3e4a00000000d1',
     districtName: 'Ratnapura',
     place: 'Ratnapura town',
@@ -25,7 +25,7 @@ const STUB_REPORTS: readonly HazardReportSummary[] = [
   },
   {
     id: '665f1b2c9d3e4a00000000a2',
-    hazardType: 'LANDSLIDE',
+    hazardType: 'landslide',
     district: '665f1b2c9d3e4a00000000d2',
     districtName: 'Badulla',
     place: 'Haldummulla',
@@ -39,7 +39,7 @@ const STUB_REPORTS: readonly HazardReportSummary[] = [
   },
   {
     id: '665f1b2c9d3e4a00000000a3',
-    hazardType: 'ROAD_BLOCKAGE',
+    hazardType: 'road_blockage',
     district: '665f1b2c9d3e4a00000000d3',
     districtName: 'Kegalle',
     place: 'Mawanella',
@@ -52,7 +52,7 @@ const STUB_REPORTS: readonly HazardReportSummary[] = [
   },
   {
     id: '665f1b2c9d3e4a00000000a4',
-    hazardType: 'FIRE',
+    hazardType: 'fire',
     district: '665f1b2c9d3e4a00000000d4',
     districtName: 'Anuradhapura',
     place: 'Mihintale',

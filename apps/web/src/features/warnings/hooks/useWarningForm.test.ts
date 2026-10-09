@@ -21,7 +21,7 @@ describe('useWarningForm', () => {
       result.current.setErrors({ hazard: 'Choose.', severity: 'Choose.' }),
     );
 
-    act(() => result.current.setField('hazard', 'FLOOD'));
+    act(() => result.current.setField('hazard', 'flood'));
 
     expect(result.current.errors).toEqual({ severity: 'Choose.' });
   });

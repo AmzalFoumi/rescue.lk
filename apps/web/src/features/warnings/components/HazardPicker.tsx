@@ -1,13 +1,13 @@
-import type { WarningHazardType } from '@rescue-lk/shared';
+import type { HazardType } from '@rescue-lk/shared';
 import { OTHER_HAZARD, OTHER_HAZARD_MAX_LENGTH } from '../constants';
 import { HAZARD_META, HAZARDS } from '../meta';
 import { cx, ui } from '../ui';
 import { FieldError, errorProps } from './FieldError';
 
 interface HazardPickerProps {
-  hazard: WarningHazardType | '';
+  hazard: HazardType | '';
   otherHazard: string;
-  onHazardChange: (hazard: WarningHazardType | '') => void;
+  onHazardChange: (hazard: HazardType | '') => void;
   onOtherHazardChange: (name: string) => void;
   hazardError?: string;
   otherHazardError?: string;
@@ -16,7 +16,7 @@ interface HazardPickerProps {
 const HAZARD_ID = 'warning-hazard';
 const OTHER_ID = 'warning-other-hazard';
 
-// HazardPicker chooses the hazard type, plus a name field when OTHER is chosen.
+// HazardPicker chooses the hazard type, plus a name field when other is chosen.
 // Presentational: props in, changes out; the hazard list comes from meta.ts.
 export function HazardPicker({
   hazard,
@@ -36,7 +36,7 @@ export function HazardPicker({
           id={HAZARD_ID}
           value={hazard}
           onChange={(event) =>
-            onHazardChange(event.target.value as WarningHazardType | '')
+            onHazardChange(event.target.value as HazardType | '')
           }
           className={cx(
             ui.input,

@@ -14,7 +14,7 @@ export const fixedClock: Clock = { now: () => new Date(FIXED_NOW) };
 
 export const VERIFIED_REPORT: VerifiedHazardReportDto = {
   id: '665f1b2c9d3e4a00000000a1',
-  hazardType: 'FLOOD',
+  hazardType: 'flood',
   district: '665f1b2c9d3e4a00000000d1',
   districtName: 'Ratnapura',
   place: 'Ratnapura town',
@@ -30,7 +30,7 @@ export const buildWarningForm = (
   overrides: Partial<WarningForm> = {},
 ): WarningForm => ({
   sourceReportId: VERIFIED_REPORT.id,
-  hazard: 'FLOOD',
+  hazard: 'flood',
   otherHazard: '',
   severity: 'HIGH',
   areaIds: ['B-KALU'],

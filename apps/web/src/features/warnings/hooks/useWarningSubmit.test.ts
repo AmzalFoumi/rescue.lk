@@ -21,7 +21,7 @@ const REPORT_ID = '665f1b2c9d3e4a00000000a1';
 const values: WarningFormValues = {
   ...EMPTY_FORM,
   sourceReportId: REPORT_ID,
-  hazard: 'FLOOD',
+  hazard: 'flood',
   severity: 'HIGH',
   areaIds: ['B-KALU'],
   message: 'The Kalu Ganga is rising quickly.',
