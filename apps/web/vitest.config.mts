@@ -28,22 +28,23 @@ export default defineConfig({
         '**/testing/**',
         '**/*.d.ts',
       ],
-      // Each use case is held to 80% on its own folder, so one member's
-      // coverage cannot hide another's. Owners add their entry when they
-      // build their UI.
+      // The assignment grades each member's use case on its own, so every
+      // use-case folder is held to 80% separately, plus an 80% floor for the
+      // whole app. Without this, one member's high coverage could hide
+      // another member's untested code in the total.
       thresholds: {
-        'src/features/hazard-reports/**': {
-          lines: 80,
-          functions: 80,
-          branches: 80,
-          statements: 80,
-        },
-        'src/features/response/**': {
-          lines: 80,
-          functions: 80,
-          branches: 80,
-          statements: 80,
-        },
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+        ...Object.fromEntries(
+          ['warnings', 'hazard-reports', 'response', 'analytics'].map(
+            (useCase) => [
+              `src/features/${useCase}/**`,
+              { lines: 80, functions: 80, branches: 80, statements: 80 },
+            ],
+          ),
+        ),
       },
     },
   },
