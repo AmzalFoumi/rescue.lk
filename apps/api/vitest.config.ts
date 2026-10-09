@@ -15,17 +15,10 @@ export default defineConfig({
       include: ['src/**/*.ts'],
       exclude: [
         'src/main.ts',
-        'src/app.controller.ts',
-        'src/app.service.ts',
+        'src/**/index.ts',
         'src/**/*.module.ts',
-        'src/**/dto/**',
-        'src/**/schemas/**',
         'src/**/*.spec.ts',
-        'src/**/*.repository.interface.ts',
-        'src/**/mongoose-*.repository.ts',
-        'src/common/filters/**',
-        'src/config/**',
-        'src/database/**',
+        'src/**/*.fixture.ts',
       ],
       // The assignment grades each member's use case on its own, so every
       // use-case folder is held to 80% separately. Without this, one member's

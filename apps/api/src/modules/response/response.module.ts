@@ -75,5 +75,6 @@ import { VERIFIED_REPORTS } from './verified-reports.port.js';
     },
     { provide: VERIFIED_REPORTS, useClass: MongooseVerifiedReportsRepository },
   ],
+  exports: [SHELTERS_REPOSITORY, RELIEF_DISTRIBUTIONS_REPOSITORY],
 })
 export class ResponseModule {}
