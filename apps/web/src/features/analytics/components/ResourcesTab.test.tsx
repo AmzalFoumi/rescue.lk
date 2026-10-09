@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { ResourcesTab } from './ResourcesTab';
 import { generateReport } from '@/lib/api';
+import type { TabularReportData } from '@rescue-lk/shared/analytics/report.types';
 import { useDemoRole } from '../context/DemoRoleContext';
 import type { AnalyticsFiltersState } from './AnalyticsFilterBar';
 

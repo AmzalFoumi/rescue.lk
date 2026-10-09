@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { AlertsReachTab } from './AlertsReachTab';
 import { generateReport } from '@/lib/api';
+import type { TabularReportData } from '@rescue-lk/shared/analytics/report.types';
 import { useDemoRole } from '../context/DemoRoleContext';
 import type { AnalyticsFiltersState } from './AnalyticsFilterBar';
 
@@ -87,7 +88,7 @@ describe('AlertsReachTab', () => {
           ],
         };
       }
-      return null as React.ReactNode;
+      return null as unknown as TabularReportData;
     });
 
     render(<AlertsReachTab filters={mockFilters} />);

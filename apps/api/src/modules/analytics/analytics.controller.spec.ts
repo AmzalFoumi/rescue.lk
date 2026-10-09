@@ -46,6 +46,7 @@ describe('AnalyticsController', () => {
     };
     const result = {
       type: 'ALERT_TIMELINE' as const,
+      title: 'Alert Timeline',
       description: '',
       columns: [],
       rows: [],

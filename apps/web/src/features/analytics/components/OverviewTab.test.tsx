@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { OverviewTab } from './OverviewTab';
 import { generateReport } from '@/lib/api';
+import type { TabularReportData } from '@rescue-lk/shared/analytics/report.types';
 import { useDemoRole } from '../context/DemoRoleContext';
 import type { AnalyticsFiltersState } from './AnalyticsFilterBar';
 
@@ -102,7 +103,7 @@ describe('OverviewTab', () => {
           rows: [{ district: 'Colombo', quantity: 200 }],
         };
       }
-      return null as React.ReactNode;
+      return null as unknown as TabularReportData;
     });
 
     render(<OverviewTab filters={mockFilters} />);

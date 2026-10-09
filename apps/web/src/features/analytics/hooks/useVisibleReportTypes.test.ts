@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useVisibleReportTypes } from './useVisibleReportTypes';
 import { getVisibleReportTypes } from '@/lib/api';
+import type { ReportType } from '@rescue-lk/shared/analytics/report.types';
 import { useDemoRole } from '../context/DemoRoleContext';
 
 vi.mock('@/lib/api', () => ({
@@ -76,8 +77,8 @@ describe('useVisibleReportTypes', () => {
   });
 
   it('ignores a stale response after unmount', async () => {
-    let resolvePromise: (v: unknown) => void;
-    const promise = new Promise<unknown>((resolve) => {
+    let resolvePromise: (v: ReportType[]) => void;
+    const promise = new Promise<ReportType[]>((resolve) => {
       resolvePromise = resolve;
     });
 
@@ -96,7 +97,7 @@ describe('useVisibleReportTypes', () => {
 
   it('ignores a rejection after unmount', async () => {
     let rejectPromise: (e: unknown) => void;
-    const promise = new Promise<unknown>((_, reject) => {
+    const promise = new Promise<ReportType[]>((_, reject) => {
       rejectPromise = reject;
     });
 
