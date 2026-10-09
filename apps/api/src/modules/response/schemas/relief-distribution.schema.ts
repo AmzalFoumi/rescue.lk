@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 import { ReliefItem } from '../relief-distribution.js';
 import { OwnerData, OwnerDataSchema } from './owner.schema.js';
 
@@ -14,7 +14,7 @@ export class ReliefDistribution {
   @Prop({ type: Number, required: true, min: 1 })
   quantity!: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'District', required: true })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'District', required: true })
   district!: Types.ObjectId;
 
   @Prop({ type: OwnerDataSchema, required: true })

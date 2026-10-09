@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 import { OwnerData, OwnerDataSchema } from './owner.schema.js';
 
 export type ShelterDocument = HydratedDocument<Shelter>;
@@ -17,7 +17,7 @@ export class Shelter {
   @Prop({ type: OwnerDataSchema, required: true })
   owner!: OwnerData;
 
-  @Prop({ type: Types.ObjectId, ref: 'District', required: true })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'District', required: true })
   district!: Types.ObjectId;
 
   @Prop({ type: Number, required: true, min: 1 })

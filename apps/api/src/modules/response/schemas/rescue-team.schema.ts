@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 import { TeamStatus } from '../team-status.js';
 import { OwnerData, OwnerDataSchema } from './owner.schema.js';
 
@@ -46,7 +46,7 @@ export class RescueTeam {
   })
   status!: TeamStatus;
 
-  @Prop({ type: Types.ObjectId, ref: 'District', required: true })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'District', required: true })
   district!: Types.ObjectId;
 
   @Prop({ type: TeamLocationDataSchema, required: true })

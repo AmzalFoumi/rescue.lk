@@ -31,3 +31,6 @@ Thumbs.db
 
 # Husky (local hook state, not the config)
 .husky/_
+
+# Playwright MCP session artefacts (snapshots, console logs)
+.playwright-mcp/
