@@ -176,3 +176,60 @@ export const api = {
       ),
   },
 };
+
+import type {
+  DemoRole,
+  ExportFormat,
+  ReportType,
+  TabularReportData,
+} from '@rescue-lk/shared';
+
+export interface ReportRequest {
+  type: ReportType;
+  from: string;
+  to: string;
+  hazardType?: string;
+  district?: string;
+}
+
+function headersFor(role: DemoRole): HeadersInit {
+  return { 'Content-Type': 'application/json', 'x-demo-role': role };
+}
+
+export async function getVisibleReportTypes(
+  role: DemoRole,
+): Promise<ReportType[]> {
+  const res = await request<ReportType[]>('/analytics/report-types', {
+    headers: headersFor(role),
+  });
+  return res;
+}
+
+export async function generateReport(
+  requestBody: ReportRequest,
+  role: DemoRole,
+): Promise<TabularReportData> {
+  const res = await request<TabularReportData>('/analytics/reports', {
+    method: 'POST',
+    headers: headersFor(role),
+    body: JSON.stringify(requestBody),
+  });
+  return res;
+}
+
+export async function exportReport(
+  requestBody: ReportRequest & { format: ExportFormat },
+  role: DemoRole,
+): Promise<Blob> {
+  const res = await fetch(`${API_URL}/analytics/reports/export`, {
+    method: 'POST',
+    headers: headersFor(role),
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to export report (${res.status})`);
+  }
+
+  return res.blob();
+}

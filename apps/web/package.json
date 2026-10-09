@@ -15,10 +15,11 @@
   },
   "dependencies": {
     "@rescue-lk/shared": "^0.0.0",
-    "lucide-react": "^1.53.0",
+    "lucide-react": "^1.54.0",
     "next": "16.3.6",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
