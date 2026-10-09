@@ -27,11 +27,22 @@ export default defineConfig({
         'src/config/**',
         'src/database/**',
       ],
+      // The assignment grades each member's use case on its own, so every
+      // use-case folder is held to 80% separately. Without this, one member's
+      // high coverage could hide another member's untested code in the total.
       thresholds: {
         lines: 80,
         branches: 80,
         functions: 80,
         statements: 80,
+        ...Object.fromEntries(
+          ['warnings', 'hazard-reports', 'response', 'analytics'].map(
+            (useCase) => [
+              `src/modules/${useCase}/**`,
+              { lines: 80, branches: 80, functions: 80, statements: 80 },
+            ],
+          ),
+        ),
       },
     },
   },
