@@ -109,18 +109,16 @@ describe('request', () => {
 });
 
 describe('api', () => {
-  it('lists warnings and incidents from their paths', async () => {
+  it('lists warnings from their path', async () => {
     const fetchMock = vi.fn(() => respond(200, []));
     vi.stubGlobal('fetch', fetchMock);
 
     await api.warnings.list();
-    await api.incidents.list();
 
     const urls = fetchMock.mock.calls.map(
       (call) => (call as unknown as [string])[0],
     );
     expect(urls[0]).toMatch(/\/warnings$/);
-    expect(urls[1]).toMatch(/\/response\/incidents$/);
   });
 });
 

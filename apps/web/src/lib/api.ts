@@ -1,4 +1,4 @@
-import type { WarningDto, IncidentDto } from '@rescue-lk/shared';
+import type { WarningDto } from '@rescue-lk/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
 
@@ -70,13 +70,11 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-// Other use cases still use these two. Hazard reports and districts live in
-// src/features/hazard-reports/api.
+// Warnings (UC1) still uses this. Hazard reports and districts live in
+// src/features/hazard-reports/api, response coordination in
+// src/features/response/api.
 export const api = {
   warnings: {
     list: () => request<WarningDto[]>('/warnings'),
-  },
-  incidents: {
-    list: () => request<IncidentDto[]>('/response/incidents'),
   },
 };

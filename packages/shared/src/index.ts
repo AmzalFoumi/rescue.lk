@@ -6,8 +6,6 @@ export type WarningSeverity = 'low' | 'moderate' | 'severe' | 'extreme';
 export type HazardReportStatus =
   'pending_verification' | 'pending_synchronisation' | 'verified' | 'rejected';
 
-export type ResourceStatus = 'available' | 'allocated' | 'depleted';
-
 export type HazardType =
   'flood' | 'landslide' | 'road_blockage' | 'fire' | 'other';
 
@@ -92,18 +90,122 @@ export interface SyncResultDto {
   stillQueued: number;
 }
 
-export interface IncidentDto {
+// ---------------------------------------------------------------------------
+// UC3 Coordinate Emergency Response & Resources
+// ---------------------------------------------------------------------------
+
+/** Who owns a rescue team, a shelter or relief supplies. */
+export type OrganisationKind =
+  'government' | 'armed_forces' | 'ngo' | 'private_donor';
+
+export type TeamStatus =
+  'available' | 'dispatched' | 'returning' | 'unavailable';
+
+export type ShelterStatus = 'available' | 'nearly_full' | 'full';
+
+export type ReliefItem = 'food' | 'water' | 'medicine' | 'other';
+
+/** The owning organisation, as it is shown beside every resource it owns. */
+export interface OwnerDto {
+  organisationId: string;
+  name: string;
+  kind: OrganisationKind;
+}
+
+/** The report a dispatched team is working on. */
+export interface ActiveDispatchDto {
+  reportId: string;
+  dispatchedBy: string;
+  dispatchedAt: string;
+}
+
+export interface RescueTeamDto {
   id: string;
+  name: string;
+  owner: OwnerDto;
+  status: TeamStatus;
   district: DistrictDto['id'];
+  location: LocationDto;
+  activeDispatch?: ActiveDispatchDto;
+}
+
+/** Answer of GET /response/teams (Check Resource Availability). */
+export interface TeamAvailabilityDto {
+  teams: RescueTeamDto[];
+  /** Zero means no team is available, so no dispatch can be made. */
+  availableCount: number;
+}
+
+/** A verified hazard report that needs a response. */
+export interface ResponseTargetDto {
+  id: string;
+  hazardType: HazardType;
+  description: string;
+  placeName?: string;
+  district: DistrictDto['id'];
+  location: LocationDto;
+  capturedAt: string;
+  dispatchedTeams: number;
+  needsResponse: boolean;
+}
+
+export interface DispatchDto {
+  id: string;
+  reportId: string;
+  teamId: string;
+  teamName: string;
+  owner: OwnerDto;
+  district: DistrictDto['id'];
+  dispatchedBy: string;
+  dispatchedAt: string;
+}
+
+/** Answer of POST /response/dispatches. */
+export interface DispatchConfirmationDto {
+  dispatch: DispatchDto;
+  team: RescueTeamDto;
+}
+
+/** Body of POST /response/dispatches. */
+export interface DispatchRescueTeamRequest {
+  reportId: string;
+  teamId: string;
+  officerId: string;
+}
+
+export interface UpdateTeamStatusRequest {
+  status: TeamStatus;
 }
 
 export interface ShelterDto {
   id: string;
+  name: string;
+  owner: OwnerDto;
   district: DistrictDto['id'];
+  capacity: number;
+  currentOccupancy: number;
+  status: ShelterStatus;
+  placesAvailable: number;
 }
 
-export interface ResourceDto {
+/** Body of PATCH /response/shelters/:id/occupancy. A negative number is people leaving. */
+export interface UpdateOccupancyRequest {
+  people: number;
+}
+
+export interface ReliefDistributionDto {
   id: string;
+  item: ReliefItem;
+  quantity: number;
   district: DistrictDto['id'];
-  status: ResourceStatus;
+  owner: OwnerDto;
+  distributedAt: string;
+}
+
+/** Body of POST /response/relief. */
+export interface LogReliefDistributionRequest {
+  item: ReliefItem;
+  quantity: number;
+  district: DistrictDto['id'];
+  owner: OwnerDto;
 }
