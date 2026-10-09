@@ -334,21 +334,19 @@ describe('NewReportScreen, offline and sync', () => {
 describe('MyReportsScreen', () => {
   it('lists the reports of the citizen with their status', async () => {
     const hazardReports = fakeHazardReportsApi({
-      listByReporter: vi
-        .fn()
-        .mockResolvedValue([
-          sampleReport({
-            id: 'aaaa0001',
-            status: 'verified',
-            verifiedBy: 'operator-kj',
-            verifiedAt: '2026-10-07T11:00:00.000Z',
-          }),
-          sampleReport({
-            id: 'aaaa0002',
-            status: 'rejected',
-            rejectionReason: 'Not a hazard',
-          }),
-        ]),
+      listByReporter: vi.fn().mockResolvedValue([
+        sampleReport({
+          id: 'aaaa0001',
+          status: 'verified',
+          verifiedBy: 'operator-kj',
+          verifiedAt: '2026-10-07T11:00:00.000Z',
+        }),
+        sampleReport({
+          id: 'aaaa0002',
+          status: 'rejected',
+          rejectionReason: 'Not a hazard',
+        }),
+      ]),
     });
     renderWithReporting(<MyReportsScreen />, { hazardReports });
 

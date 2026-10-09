@@ -1,4 +1,16 @@
-import type { WarningDto } from '@rescue-lk/shared';
+import type {
+  CancelWarningRequestDto,
+  DeliveryRecordDto,
+  ReachEstimateDto,
+  SubmitWarningRequestDto,
+  TargetAreaDto,
+  UpdateWarningRequestDto,
+  VerifiedHazardReportDto,
+  WarningDeliveryResultDto,
+  WarningDto,
+  WarningStatus,
+} from '@rescue-lk/shared';
+import { ApiError as WarningsApiError } from './api-error';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
 
@@ -70,11 +82,97 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-// Warnings (UC1) still uses this. Hazard reports and districts live in
-// src/features/hazard-reports/api, response coordination in
-// src/features/response/api.
+// Parses a JSON body; keeps the raw text when the body is not JSON (e.g. a
+// proxy error page) so it can still be shown, and null when there is no body.
+async function readBody(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text) {
+    return null;
+  }
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return text;
+  }
+}
+
+// UC1 warnings client. Exception mapping in one place (errors use ./api-error): a network failure or HTTP error always becomes an
+// ApiError, so hooks never read status codes or parse error bodies themselves.
+async function warningsRequest<T>(
+  path: string,
+  init?: RequestInit,
+): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers: { 'Content-Type': 'application/json', ...init?.headers },
+    });
+  } catch (error) {
+    throw WarningsApiError.from(error);
+  }
+
+  const body = await readBody(response);
+  if (!response.ok) {
+    throw WarningsApiError.fromResponse(response.status, body);
+  }
+  return body as T;
+}
+
+const send = (method: 'POST' | 'PATCH', body?: unknown): RequestInit => ({
+  method,
+  ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+});
+
+// Makes a value safe to place inside a URL path or query.
+const encodePath = (value: string) => encodeURIComponent(value);
+
+// api is the one typed client for every UC1 endpoint.
+// DRY: hooks call api.warnings.* instead of writing fetch calls, so URLs, headers and
+// error handling are written once.
+// Requests and responses use the shared DTO types, so the web app and the API agree
+// on every shape at compile time.
 export const api = {
   warnings: {
-    list: () => request<WarningDto[]>('/warnings'),
+    list: (status?: WarningStatus) =>
+      warningsRequest<WarningDto[]>(
+        status ? `/warnings?status=${encodePath(status)}` : '/warnings',
+      ),
+    verifiedReports: () =>
+      warningsRequest<VerifiedHazardReportDto[]>('/warnings/verified-reports'),
+    targetAreas: () =>
+      warningsRequest<TargetAreaDto[]>('/warnings/target-areas'),
+    reach: (areaIds: readonly string[]) =>
+      warningsRequest<ReachEstimateDto>(
+        areaIds.length
+          ? `/warnings/reach?${areaIds.map((areaId) => `areaIds=${encodePath(areaId)}`).join('&')}`
+          : '/warnings/reach',
+      ),
+    saveDraft: (body: SubmitWarningRequestDto) =>
+      warningsRequest<WarningDto>('/warnings/drafts', send('POST', body)),
+    publish: (body: SubmitWarningRequestDto) =>
+      warningsRequest<WarningDeliveryResultDto>(
+        '/warnings/publish',
+        send('POST', body),
+      ),
+    update: (warningId: string, body: UpdateWarningRequestDto) =>
+      warningsRequest<WarningDeliveryResultDto>(
+        `/warnings/${encodePath(warningId)}`,
+        send('PATCH', body),
+      ),
+    cancel: (warningId: string, body: CancelWarningRequestDto) =>
+      warningsRequest<WarningDto>(
+        `/warnings/${encodePath(warningId)}/cancel`,
+        send('POST', body),
+      ),
+    deliveries: (warningId: string) =>
+      warningsRequest<DeliveryRecordDto[]>(
+        `/warnings/${encodePath(warningId)}/deliveries`,
+      ),
+    retryDelivery: (recordId: string) =>
+      warningsRequest<DeliveryRecordDto>(
+        `/warnings/deliveries/${encodePath(recordId)}/retry`,
+        send('POST'),
+      ),
   },
 };
