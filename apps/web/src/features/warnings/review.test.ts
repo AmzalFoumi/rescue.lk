@@ -4,7 +4,7 @@ import { buildReviewView } from './review';
 
 const report = (id: string): VerifiedHazardReportDto => ({
   id,
-  hazardType: 'FLOOD',
+  hazardType: 'flood',
   district: 'd',
   districtName: 'Ratnapura',
   place: 'Ratnapura town',

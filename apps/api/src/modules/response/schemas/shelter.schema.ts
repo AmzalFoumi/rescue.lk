@@ -11,7 +11,7 @@ export type ShelterDocument = HydratedDocument<Shelter>;
  */
 @Schema({ timestamps: true, collection: 'shelters' })
 export class Shelter {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   name!: string;
 
   @Prop({ type: OwnerDataSchema, required: true })
@@ -20,10 +20,10 @@ export class Shelter {
   @Prop({ type: Types.ObjectId, ref: 'District', required: true })
   district!: Types.ObjectId;
 
-  @Prop({ required: true, min: 1 })
+  @Prop({ type: Number, required: true, min: 1 })
   capacity!: number;
 
-  @Prop({ required: true, min: 0, default: 0 })
+  @Prop({ type: Number, required: true, min: 0, default: 0 })
   currentOccupancy!: number;
 }
 

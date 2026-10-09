@@ -11,7 +11,7 @@ export class ReliefDistribution {
   @Prop({ type: String, enum: Object.values(ReliefItem), required: true })
   item!: ReliefItem;
 
-  @Prop({ required: true, min: 1 })
+  @Prop({ type: Number, required: true, min: 1 })
   quantity!: number;
 
   @Prop({ type: Types.ObjectId, ref: 'District', required: true })
@@ -20,7 +20,7 @@ export class ReliefDistribution {
   @Prop({ type: OwnerDataSchema, required: true })
   owner!: OwnerData;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   distributedAt!: Date;
 }
 

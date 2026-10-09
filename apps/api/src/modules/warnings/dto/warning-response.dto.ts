@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import type {
   AlertChannelType,
-  WarningHazardType,
+  HazardType,
   WarningDto,
   WarningSeverity,
   WarningStatus,
@@ -23,10 +23,10 @@ export class WarningResponseDto implements WarningDto {
   @ApiProperty({ example: '665f1b2c9d3e4a00000000a1' })
   sourceReportId!: string;
 
-  @ApiProperty({ enum: HAZARD_TYPES, example: 'FLOOD' })
-  hazard!: WarningHazardType;
+  @ApiProperty({ enum: HAZARD_TYPES, example: 'flood' })
+  hazard!: HazardType;
 
-  @ApiProperty({ description: 'Set only when hazard is OTHER', example: '' })
+  @ApiProperty({ description: 'Set only when hazard is other', example: '' })
   otherHazard!: string;
 
   @ApiProperty({ enum: WARNING_SEVERITIES, example: 'HIGH' })

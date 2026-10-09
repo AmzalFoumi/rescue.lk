@@ -165,7 +165,7 @@ describe('PublishDialog', () => {
     const props = {
       title: 'Publish this warning?',
       severity: 'HIGH' as const,
-      hazard: 'FLOOD' as const,
+      hazard: 'flood' as const,
       hazardLabel: 'Flood',
       summary: [{ label: 'Target area', value: 'Kalu Ganga basin' }],
       canSaveDraft: true,

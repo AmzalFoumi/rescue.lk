@@ -132,7 +132,7 @@ const RECORD_ID = '665f1b2c9d3e4a0012345671';
 
 const submit: SubmitWarningRequestDto = {
   sourceReportId: '665f1b2c9d3e4a00000000a1',
-  hazard: 'FLOOD',
+  hazard: 'flood',
   severity: 'HIGH',
   areaIds: ['B-KALU'],
   message: 'The Kalu Ganga is rising quickly near Ratnapura.',

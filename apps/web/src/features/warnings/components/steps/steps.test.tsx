@@ -12,7 +12,7 @@ const WARNING_ID = '665f1b2c9d3e4a0012345670';
 const warning = (overrides: Partial<WarningDto> = {}): WarningDto => ({
   id: WARNING_ID,
   sourceReportId: '665f1b2c9d3e4a00000000a1',
-  hazard: 'FLOOD',
+  hazard: 'flood',
   otherHazard: '',
   severity: 'HIGH',
   areaIds: ['B-KALU'],

@@ -9,7 +9,7 @@ const report = (
   overrides: Partial<VerifiedHazardReportDto> = {},
 ): VerifiedHazardReportDto => ({
   id,
-  hazardType: 'FLOOD',
+  hazardType: 'flood',
   district: 'd',
   districtName: 'Ratnapura',
   place: 'Ratnapura town',
@@ -25,7 +25,7 @@ const report = (
 const warning = (overrides: Partial<WarningDto> = {}): WarningDto => ({
   id: '665f1b2c9d3e4a0012345670',
   sourceReportId: 'r1',
-  hazard: 'FLOOD',
+  hazard: 'flood',
   otherHazard: '',
   severity: 'HIGH',
   areaIds: ['B-KALU'],

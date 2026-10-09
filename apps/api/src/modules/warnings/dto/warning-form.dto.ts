@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import type {
   AlertChannelType,
-  WarningHazardType,
+  HazardType,
   WarningFormRequestDto,
   WarningSeverity,
 } from '@rescue-lk/shared';
@@ -37,12 +37,12 @@ export class WarningFormDto implements WarningFormRequestDto {
   @IsMongoId()
   sourceReportId!: string;
 
-  @ApiProperty({ enum: HAZARD_TYPES, example: 'FLOOD' })
+  @ApiProperty({ enum: HAZARD_TYPES, example: 'flood' })
   @IsIn(HAZARD_TYPES)
-  hazard!: WarningHazardType;
+  hazard!: HazardType;
 
   @ApiPropertyOptional({
-    description: 'Name of the hazard when hazard is OTHER',
+    description: 'Name of the hazard when hazard is other',
     maxLength: OTHER_HAZARD_MAX_LENGTH,
   })
   @IsOptional()

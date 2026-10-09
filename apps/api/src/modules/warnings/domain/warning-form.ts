@@ -1,6 +1,6 @@
 import type {
   AlertChannelType,
-  WarningHazardType,
+  HazardType,
   WarningSeverity,
 } from '@rescue-lk/shared';
 
@@ -11,7 +11,7 @@ import type {
 // type, decides what each mode (DRAFT or PUBLISH) requires.
 export interface WarningForm {
   sourceReportId: string;
-  hazard: WarningHazardType;
+  hazard: HazardType;
   otherHazard: string;
   severity: WarningSeverity;
   areaIds: string[];

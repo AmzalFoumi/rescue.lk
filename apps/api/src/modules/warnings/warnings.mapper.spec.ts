@@ -17,7 +17,7 @@ import {
 
 const request: WarningFormRequestDto = {
   sourceReportId: '665f1b2c9d3e4a00000000a1',
-  hazard: 'FLOOD',
+  hazard: 'flood',
   severity: 'HIGH',
   areaIds: ['B-KALU'],
   message: '  The Kalu Ganga is rising quickly.  ',
@@ -28,7 +28,7 @@ describe('warnings mapper', () => {
     it('trims text and defaults the optional fields', () => {
       expect(toWarningForm(request)).toEqual({
         sourceReportId: request.sourceReportId,
-        hazard: 'FLOOD',
+        hazard: 'flood',
         otherHazard: '',
         severity: 'HIGH',
         areaIds: ['B-KALU'],
@@ -38,11 +38,11 @@ describe('warnings mapper', () => {
       });
     });
 
-    it('keeps the trimmed hazard name only when the hazard is OTHER', () => {
+    it('keeps the trimmed hazard name only when the hazard is other', () => {
       expect(
         toWarningForm({
           ...request,
-          hazard: 'OTHER',
+          hazard: 'other',
           otherHazard: ' Dam breach ',
         }).otherHazard,
       ).toBe('Dam breach');
@@ -51,8 +51,8 @@ describe('warnings mapper', () => {
       ).toBe('');
     });
 
-    it('uses an empty hazard name when OTHER is chosen without one', () => {
-      expect(toWarningForm({ ...request, hazard: 'OTHER' }).otherHazard).toBe(
+    it('uses an empty hazard name when other is chosen without one', () => {
+      expect(toWarningForm({ ...request, hazard: 'other' }).otherHazard).toBe(
         '',
       );
     });
@@ -76,7 +76,7 @@ describe('warnings mapper', () => {
       const { sourceReportId: _source, ...update } = request;
 
       expect(toWarningContent(update)).toEqual({
-        hazard: 'FLOOD',
+        hazard: 'flood',
         otherHazard: '',
         severity: 'HIGH',
         areaIds: ['B-KALU'],

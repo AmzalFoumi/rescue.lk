@@ -47,7 +47,7 @@ const report = (
   overrides: Partial<VerifiedHazardReportDto> = {},
 ): VerifiedHazardReportDto => ({
   id,
-  hazardType: 'FLOOD',
+  hazardType: 'flood',
   district: 'd',
   districtName: 'Ratnapura',
   place: 'Ratnapura town',
@@ -66,7 +66,7 @@ const warning = (
 ): WarningDto => ({
   id,
   sourceReportId: 'r1',
-  hazard: 'FLOOD',
+  hazard: 'flood',
   otherHazard: '',
   severity: 'HIGH',
   areaIds: ['D-RATNAPURA'],
@@ -125,12 +125,12 @@ describe('filterReports', () => {
   const reports = [
     report('r1', { place: 'Ratnapura town', districtName: 'Ratnapura' }),
     report('r2', {
-      hazardType: 'LANDSLIDE',
+      hazardType: 'landslide',
       place: 'Haldummulla',
       districtName: 'Badulla',
     }),
     report('r3', {
-      hazardType: 'FIRE',
+      hazardType: 'fire',
       place: 'Mihintale',
       districtName: 'Anuradhapura',
     }),
@@ -163,7 +163,7 @@ describe('filterReports', () => {
   });
 
   it('filters by hazard, district and severity', () => {
-    expect(ids({ hazard: 'LANDSLIDE' })).toEqual(['r2']);
+    expect(ids({ hazard: 'landslide' })).toEqual(['r2']);
     expect(ids({ district: 'Ratnapura' })).toEqual(['r1']);
     expect(ids({ severity: 'CRITICAL' })).toEqual(['r1']);
   });

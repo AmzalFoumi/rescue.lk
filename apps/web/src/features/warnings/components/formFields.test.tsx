@@ -9,7 +9,7 @@ import { ChannelSelector } from './ChannelSelector';
 
 const report = {
   id: '665f1b2c9d3e4a00000000a1',
-  hazardType: 'FLOOD',
+  hazardType: 'flood',
   place: 'Ratnapura town',
   districtName: 'Ratnapura',
 } as VerifiedHazardReportDto;
@@ -92,12 +92,12 @@ describe('warning form fields show the API field errors', () => {
       target: { value: report.id },
     });
     fireEvent.change(screen.getByLabelText('Hazard type'), {
-      target: { value: 'OTHER' },
+      target: { value: 'other' },
     });
     fireEvent.click(screen.getByRole('radio', { name: /Critical/ }));
 
     expect(onSourceChange).toHaveBeenCalledWith(report.id);
-    expect(onFieldChange).toHaveBeenCalledWith('hazard', 'OTHER');
+    expect(onFieldChange).toHaveBeenCalledWith('hazard', 'other');
     expect(onFieldChange).toHaveBeenCalledWith('severity', 'CRITICAL');
   });
 
@@ -116,10 +116,10 @@ describe('warning form fields show the API field errors', () => {
     expect(screen.getByLabelText('Source report')).toBeDisabled();
   });
 
-  it('AssessmentPanel: asks for a name when the hazard is OTHER', () => {
+  it('AssessmentPanel: asks for a name when the hazard is other', () => {
     render(
       <AssessmentPanel
-        values={{ ...EMPTY_FORM, hazard: 'OTHER' }}
+        values={{ ...EMPTY_FORM, hazard: 'other' }}
         errors={{ otherHazard: 'Name the hazard.' }}
         reports={[]}
         sourceLocked={false}

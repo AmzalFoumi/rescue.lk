@@ -16,7 +16,7 @@ export class Dispatch {
   @Prop({ type: Types.ObjectId, ref: 'RescueTeam', required: true })
   teamId!: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   teamName!: string;
 
   @Prop({ type: OwnerDataSchema, required: true })
@@ -25,10 +25,10 @@ export class Dispatch {
   @Prop({ type: Types.ObjectId, ref: 'District', required: true })
   district!: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   dispatchedBy!: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   dispatchedAt!: Date;
 }
 

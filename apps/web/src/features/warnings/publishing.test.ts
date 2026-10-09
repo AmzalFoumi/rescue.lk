@@ -118,7 +118,7 @@ describe('PUBLISH_CHECKS', () => {
 describe('publishReviewText', () => {
   const values = {
     ...EMPTY_FORM,
-    hazard: 'OTHER' as const,
+    hazard: 'other' as const,
     otherHazard: 'Dam breach',
     channels: ['SMS' as const],
   };

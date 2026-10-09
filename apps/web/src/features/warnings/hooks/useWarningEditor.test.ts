@@ -15,7 +15,7 @@ const WARNING_ID = '665f1b2c9d3e4a0012345670';
 const reports = [
   {
     id: REPORT_ID,
-    hazardType: 'LANDSLIDE',
+    hazardType: 'landslide',
     districtName: 'Badulla',
   } as VerifiedHazardReportDto,
 ];
@@ -33,7 +33,7 @@ const warning = (status: WarningDto['status']) =>
     id: WARNING_ID,
     sourceReportId: REPORT_ID,
     status,
-    hazard: 'FLOOD',
+    hazard: 'flood',
     otherHazard: '',
     severity: 'HIGH',
     areaIds: ['D-BADULLA'],
@@ -64,7 +64,7 @@ describe('useWarningEditor', () => {
     });
     expect(result.current.form.values).toMatchObject({
       sourceReportId: REPORT_ID,
-      hazard: 'LANDSLIDE',
+      hazard: 'landslide',
       areaIds: ['D-BADULLA'],
       channels: ['SMS', 'PUSH'],
     });

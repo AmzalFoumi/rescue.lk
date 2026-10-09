@@ -6,13 +6,15 @@ import { ReporterRole } from '../reporter-role.js';
 
 export type HazardReportDocument = HydratedDocument<HazardReport>;
 
+// Property types are written out because tsx (used by the seed script) does not emit
+// the decorator metadata Mongoose would otherwise use to infer them.
 // The position is stored as a sub-document without its own _id.
 @Schema({ _id: false })
 export class LocationData {
-  @Prop({ required: true })
+  @Prop({ type: Number, required: true })
   latitude!: number;
 
-  @Prop({ required: true })
+  @Prop({ type: Number, required: true })
   longitude!: number;
 }
 const LocationDataSchema = SchemaFactory.createForClass(LocationData);
@@ -22,19 +24,19 @@ export class HazardReport {
   @Prop({ type: String, enum: Object.values(HazardType), required: true })
   hazardType!: HazardType;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   description!: string;
 
-  @Prop()
+  @Prop({ type: String })
   photoUrl?: string;
 
-  @Prop()
+  @Prop({ type: String })
   placeName?: string;
 
-  @Prop()
+  @Prop({ type: String })
   reporterName?: string;
 
-  @Prop()
+  @Prop({ type: String })
   otherHazard?: string;
 
   @Prop({ type: LocationDataSchema, required: true })
@@ -43,7 +45,7 @@ export class HazardReport {
   @Prop({ type: Types.ObjectId, ref: 'District', required: true })
   district!: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   capturedAt!: Date;
 
   @Prop({
@@ -57,19 +59,19 @@ export class HazardReport {
   @Prop({ type: [String], default: [] })
   possibleDuplicateOf!: string[];
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   reporterId!: string;
 
   @Prop({ type: String, enum: Object.values(ReporterRole), required: true })
   reporterRole!: ReporterRole;
 
-  @Prop()
+  @Prop({ type: String })
   verifiedBy?: string;
 
-  @Prop()
+  @Prop({ type: Date })
   verifiedAt?: Date;
 
-  @Prop()
+  @Prop({ type: String })
   rejectionReason?: string;
 
   // Added by Mongoose because of `timestamps: true`.

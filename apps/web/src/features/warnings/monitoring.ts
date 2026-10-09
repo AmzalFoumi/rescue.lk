@@ -1,5 +1,5 @@
 import type {
-  WarningHazardType,
+  HazardType,
   TargetAreaDto,
   VerifiedHazardReportDto,
   WarningDto,
@@ -15,7 +15,7 @@ export type WarningStatusFilter = 'ALL' | 'NONE' | 'DRAFT' | 'ACTIVE';
 
 export interface MonitorFilters {
   query: string;
-  hazard: WarningHazardType | 'ALL';
+  hazard: HazardType | 'ALL';
   district: string;
   severity: WarningSeverity | 'ALL';
   warningStatus: WarningStatusFilter;

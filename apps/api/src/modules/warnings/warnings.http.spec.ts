@@ -39,7 +39,7 @@ const RECORD_ID = '665f1b2c9d3e4a0012345671';
 
 const draftBody = {
   sourceReportId: VERIFIED_REPORT.id,
-  hazard: 'FLOOD',
+  hazard: 'flood',
   severity: 'HIGH',
   areaIds: ['B-KALU'],
   message: 'The Kalu Ganga is rising quickly near Ratnapura.',
@@ -289,7 +289,10 @@ describe('Warnings HTTP API', () => {
 
     it('ReportNotVerifiedException -> 422', async () => {
       service.publish.mockRejectedValue(
-        new ReportNotVerifiedException(VERIFIED_REPORT.id, 'pending'),
+        new ReportNotVerifiedException(
+          VERIFIED_REPORT.id,
+          'pending_verification',
+        ),
       );
 
       await http()

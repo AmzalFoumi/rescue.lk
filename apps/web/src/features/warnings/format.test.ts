@@ -22,13 +22,13 @@ describe('format', () => {
 });
 
 describe('warning text', () => {
-  it('names the hazard, using the typed name for OTHER', async () => {
+  it('names the hazard, using the typed name for the other hazard', async () => {
     const { hazardName } = await import('./format');
-    expect(hazardName({ hazard: 'FLOOD', otherHazard: '' })).toBe('Flood');
-    expect(hazardName({ hazard: 'OTHER', otherHazard: 'Dam breach' })).toBe(
+    expect(hazardName({ hazard: 'flood', otherHazard: '' })).toBe('Flood');
+    expect(hazardName({ hazard: 'other', otherHazard: 'Dam breach' })).toBe(
       'Dam breach',
     );
-    expect(hazardName({ hazard: 'OTHER', otherHazard: '' })).toBe('Other');
+    expect(hazardName({ hazard: 'other', otherHazard: '' })).toBe('Other');
   });
 
   it('lists area names, falling back to the id', async () => {
@@ -46,7 +46,7 @@ describe('cancelDescription', () => {
 
     expect(
       cancelDescription(
-        { hazard: 'FLOOD', otherHazard: '', areaIds: ['B-KALU'] },
+        { hazard: 'flood', otherHazard: '', areaIds: ['B-KALU'] },
         { 'B-KALU': 'Kalu Ganga basin' },
         ['Ratnapura', 'Kalutara'],
       ),

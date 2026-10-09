@@ -10,7 +10,7 @@ import {
 
 const report = {
   id: 'r1',
-  hazardType: 'LANDSLIDE',
+  hazardType: 'landslide',
 } as VerifiedHazardReportDto;
 
 describe('warning form model', () => {
@@ -21,7 +21,7 @@ describe('warning form model', () => {
   it('pre-fills a new warning from its report', () => {
     expect(blankForm(report, 'D-BADULLA')).toMatchObject({
       sourceReportId: 'r1',
-      hazard: 'LANDSLIDE',
+      hazard: 'landslide',
       areaIds: ['D-BADULLA'],
     });
   });
@@ -29,7 +29,7 @@ describe('warning form model', () => {
   it('loads a saved warning into the form', () => {
     const warning = {
       sourceReportId: 'r1',
-      hazard: 'FLOOD',
+      hazard: 'flood',
       otherHazard: '',
       severity: 'HIGH',
       areaIds: ['B-KALU'],
@@ -40,7 +40,7 @@ describe('warning form model', () => {
 
     expect(formFromWarning(warning)).toEqual({
       sourceReportId: 'r1',
-      hazard: 'FLOOD',
+      hazard: 'flood',
       otherHazard: '',
       severity: 'HIGH',
       areaIds: ['B-KALU'],
@@ -78,12 +78,12 @@ describe('levelStepErrors (before "Continue to affected area")', () => {
     });
   });
 
-  it('asks for a name when the hazard is OTHER', async () => {
+  it('asks for a name when the hazard is other', async () => {
     const { levelStepErrors } = await import('./form');
     const values = {
       ...EMPTY_FORM,
       sourceReportId: 'r1',
-      hazard: 'OTHER' as const,
+      hazard: 'other' as const,
       otherHazard: '  ',
       severity: 'HIGH' as const,
     };
@@ -100,7 +100,7 @@ describe('levelStepErrors (before "Continue to affected area")', () => {
       levelStepErrors({
         ...EMPTY_FORM,
         sourceReportId: 'r1',
-        hazard: 'FLOOD',
+        hazard: 'flood',
         severity: 'HIGH',
       }),
     ).toEqual({});
@@ -113,7 +113,7 @@ describe('applySourceReport', () => {
 
     expect(applySourceReport(EMPTY_FORM, report, 'D-BADULLA')).toMatchObject({
       sourceReportId: 'r1',
-      hazard: 'LANDSLIDE',
+      hazard: 'landslide',
       areaIds: ['D-BADULLA'],
     });
   });
@@ -137,8 +137,8 @@ describe('applySourceReport', () => {
       applySourceReport({
         ...EMPTY_FORM,
         sourceReportId: 'r1',
-        hazard: 'FIRE',
+        hazard: 'fire',
       }),
-    ).toMatchObject({ sourceReportId: '', hazard: 'FIRE' });
+    ).toMatchObject({ sourceReportId: '', hazard: 'fire' });
   });
 });
