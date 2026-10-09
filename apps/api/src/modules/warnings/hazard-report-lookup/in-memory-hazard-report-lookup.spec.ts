@@ -43,7 +43,7 @@ describe('InMemoryHazardReportLookup', () => {
     expect(verifiedIds).not.toContain(pendingId);
     await expect(lookup.findById(pendingId)).resolves.toMatchObject({
       id: pendingId,
-      status: 'pending',
+      status: 'pending_verification',
     });
   });
 

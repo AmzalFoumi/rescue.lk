@@ -1,13 +1,13 @@
-import type { HazardType } from '@rescue-lk/shared';
+import type { WarningHazardType } from '@rescue-lk/shared';
 import { OTHER_HAZARD, OTHER_HAZARD_MAX_LENGTH } from '../constants';
 import { HAZARD_META, HAZARDS } from '../meta';
 import { cx, ui } from '../ui';
 import { FieldError, errorProps } from './FieldError';
 
 interface HazardPickerProps {
-  hazard: HazardType | '';
+  hazard: WarningHazardType | '';
   otherHazard: string;
-  onHazardChange: (hazard: HazardType | '') => void;
+  onHazardChange: (hazard: WarningHazardType | '') => void;
   onOtherHazardChange: (name: string) => void;
   hazardError?: string;
   otherHazardError?: string;
@@ -36,7 +36,7 @@ export function HazardPicker({
           id={HAZARD_ID}
           value={hazard}
           onChange={(event) =>
-            onHazardChange(event.target.value as HazardType | '')
+            onHazardChange(event.target.value as WarningHazardType | '')
           }
           className={cx(
             ui.input,

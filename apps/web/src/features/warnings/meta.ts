@@ -23,7 +23,7 @@ import {
 import type {
   AlertChannelType,
   DeliveryStatus,
-  HazardType,
+  WarningHazardType,
   WarningSeverity,
   WarningStatus,
 } from '@rescue-lk/shared';
@@ -101,7 +101,7 @@ export const VERIFIED_REPORT_META: TonedMeta = {
   tone: 'green',
 };
 
-export const HAZARD_META: Record<HazardType, DisplayMeta> = {
+export const HAZARD_META: Record<WarningHazardType, DisplayMeta> = {
   FLOOD: { label: 'Flood', icon: Waves },
   LANDSLIDE: { label: 'Landslide', icon: Mountain },
   ROAD_BLOCKAGE: { label: 'Road Blockage', icon: Construction },
@@ -134,7 +134,7 @@ export const CHANNEL_META: Record<
 };
 
 export const SEVERITIES = Object.keys(SEVERITY_META) as WarningSeverity[];
-export const HAZARDS = Object.keys(HAZARD_META) as HazardType[];
+export const HAZARDS = Object.keys(HAZARD_META) as WarningHazardType[];
 export const CHANNELS = Object.keys(CHANNEL_META) as AlertChannelType[];
 export const WARNING_STATUSES = Object.keys(
   WARNING_STATUS_META,

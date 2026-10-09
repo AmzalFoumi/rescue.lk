@@ -1,7 +1,7 @@
 import type {
   AlertChannelType,
   DeliveryStatus,
-  HazardType,
+  WarningHazardType,
   TargetAreaKind,
   WarningSeverity,
   WarningStatus,
@@ -38,7 +38,7 @@ export const DELIVERY_STATUSES: readonly DeliveryStatus[] = [
   'FAILED',
 ];
 
-export const HAZARD_TYPES: readonly HazardType[] = [
+export const HAZARD_TYPES: readonly WarningHazardType[] = [
   'FLOOD',
   'LANDSLIDE',
   'ROAD_BLOCKAGE',
@@ -52,7 +52,7 @@ export const TARGET_AREA_KINDS: readonly TargetAreaKind[] = [
 ];
 
 // The hazard type that needs a free-text name (otherHazard).
-export const OTHER_HAZARD: HazardType = 'OTHER';
+export const OTHER_HAZARD: WarningHazardType = 'OTHER';
 
 export const INITIAL_DELIVERY_STATUS: DeliveryStatus = 'QUEUED';
 export const INITIAL_WARNING_VERSION = 1;

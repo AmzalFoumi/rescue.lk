@@ -10,17 +10,31 @@ export type WarningStatus = 'DRAFT' | 'ACTIVE' | 'CANCELLED';
 
 export type DeliveryStatus = 'QUEUED' | 'SENT' | 'RETRYING' | 'FAILED';
 
-export type HazardType =
+// Hazard types as UC1 warnings name them. UC2 reports use the lowercase HazardType below.
+export type WarningHazardType =
   'FLOOD' | 'LANDSLIDE' | 'ROAD_BLOCKAGE' | 'FIRE' | 'OTHER';
 
-export type HazardReportStatus = 'pending' | 'verified' | 'rejected';
+export type HazardReportStatus =
+  'pending_verification' | 'pending_synchronisation' | 'verified' | 'rejected';
 
-export type ResourceStatus = 'available' | 'allocated' | 'depleted';
+export type HazardType =
+  'flood' | 'landslide' | 'road_blockage' | 'fire' | 'other';
+
+export type ReporterRole =
+  'citizen' | 'community_volunteer' | 'ground_level_officer';
+
+export interface LocationDto {
+  latitude: number;
+  longitude: number;
+}
 
 export interface DistrictDto {
   id: string;
   name: string;
   province: string;
+  /** Centre of the district. */
+  latitude: number;
+  longitude: number;
 }
 
 // A district or a river basin a warning can target (ids such as 'D-COLOMBO', 'B-KELANI').
@@ -37,7 +51,7 @@ export interface TargetAreaDto {
 export interface WarningDto {
   id: string;
   sourceReportId: HazardReportDto['id'];
-  hazard: HazardType;
+  hazard: WarningHazardType;
   otherHazard: string;
   severity: WarningSeverity;
   areaIds: TargetAreaDto['id'][];
@@ -57,7 +71,7 @@ export interface WarningDto {
 // The warning form as the officer fills it in; drafts may leave some fields empty.
 export interface WarningFormRequestDto {
   sourceReportId: HazardReportDto['id'];
-  hazard: HazardType;
+  hazard: WarningHazardType;
   otherHazard?: string;
   severity: WarningSeverity;
   areaIds: TargetAreaDto['id'][];
@@ -118,7 +132,7 @@ export interface WarningDeliveryResultDto {
 // Dates are ISO 8601 strings.
 export interface VerifiedHazardReportDto {
   id: HazardReportDto['id'];
-  hazardType: HazardType;
+  hazardType: WarningHazardType;
   district: DistrictDto['id'];
   districtName: string;
   place: string;
@@ -143,24 +157,180 @@ export interface ReachEstimateDto {
   channels: ChannelReachDto[];
 }
 
+/** A hazard report as the API returns it. Dates are ISO strings in JSON. */
 export interface HazardReportDto {
   id: string;
+  hazardType: HazardType;
+  description: string;
+  photoUrl?: string;
+  placeName?: string;
+  reporterName?: string;
+  otherHazard?: string;
+  location: LocationDto;
   district: DistrictDto['id'];
+  capturedAt: string;
+  submittedAt: string;
   status: HazardReportStatus;
+  /** Ids of earlier reports that look like the same event. */
+  possibleDuplicateOf: string[];
+  reporterId: string;
+  reporterRole: ReporterRole;
+  verifiedBy?: string;
+  verifiedAt?: string;
+  rejectionReason?: string;
 }
 
-export interface IncidentDto {
-  id: string;
+/** Body of POST /hazard-reports and POST /hazard-reports/offline. */
+export interface SubmitHazardReportRequest {
+  hazardType: HazardType;
+  description: string;
+  photoUrl?: string;
+  placeName?: string;
+  reporterName?: string;
+  otherHazard?: string;
+  location: LocationDto;
   district: DistrictDto['id'];
+  capturedAt: string;
+  reporterId: string;
+  reporterRole: ReporterRole;
+}
+
+export interface VerifyHazardReportRequest {
+  operatorId: string;
+}
+
+export interface RejectHazardReportRequest extends VerifyHazardReportRequest {
+  reason: string;
+}
+
+/** Answer of POST /hazard-reports/offline. */
+export interface QueuedReportDto {
+  status: HazardReportStatus;
+  pendingCount: number;
+}
+
+/** Answer of POST /hazard-reports/sync. */
+export interface SyncResultDto {
+  synced: number;
+  stillQueued: number;
+}
+
+// ---------------------------------------------------------------------------
+// UC3 Coordinate Emergency Response & Resources
+// ---------------------------------------------------------------------------
+
+/** Who owns a rescue team, a shelter or relief supplies. */
+export type OrganisationKind =
+  'government' | 'armed_forces' | 'ngo' | 'private_donor';
+
+export type TeamStatus =
+  'available' | 'dispatched' | 'returning' | 'unavailable';
+
+export type ShelterStatus = 'available' | 'nearly_full' | 'full';
+
+export type ReliefItem = 'food' | 'water' | 'medicine' | 'other';
+
+/** The owning organisation, as it is shown beside every resource it owns. */
+export interface OwnerDto {
+  organisationId: string;
+  name: string;
+  kind: OrganisationKind;
+}
+
+/** The report a dispatched team is working on. */
+export interface ActiveDispatchDto {
+  reportId: string;
+  dispatchedBy: string;
+  dispatchedAt: string;
+}
+
+export interface RescueTeamDto {
+  id: string;
+  name: string;
+  owner: OwnerDto;
+  status: TeamStatus;
+  district: DistrictDto['id'];
+  location: LocationDto;
+  activeDispatch?: ActiveDispatchDto;
+}
+
+/** Answer of GET /response/teams (Check Resource Availability). */
+export interface TeamAvailabilityDto {
+  teams: RescueTeamDto[];
+  /** Zero means no team is available, so no dispatch can be made. */
+  availableCount: number;
+}
+
+/** A verified hazard report that needs a response. */
+export interface ResponseTargetDto {
+  id: string;
+  hazardType: HazardType;
+  description: string;
+  placeName?: string;
+  district: DistrictDto['id'];
+  location: LocationDto;
+  capturedAt: string;
+  dispatchedTeams: number;
+  needsResponse: boolean;
+}
+
+export interface DispatchDto {
+  id: string;
+  reportId: string;
+  teamId: string;
+  teamName: string;
+  owner: OwnerDto;
+  district: DistrictDto['id'];
+  dispatchedBy: string;
+  dispatchedAt: string;
+}
+
+/** Answer of POST /response/dispatches. */
+export interface DispatchConfirmationDto {
+  dispatch: DispatchDto;
+  team: RescueTeamDto;
+}
+
+/** Body of POST /response/dispatches. */
+export interface DispatchRescueTeamRequest {
+  reportId: string;
+  teamId: string;
+  officerId: string;
+}
+
+export interface UpdateTeamStatusRequest {
+  status: TeamStatus;
 }
 
 export interface ShelterDto {
   id: string;
+  name: string;
+  owner: OwnerDto;
   district: DistrictDto['id'];
+  capacity: number;
+  currentOccupancy: number;
+  status: ShelterStatus;
+  placesAvailable: number;
 }
 
-export interface ResourceDto {
+/** Body of PATCH /response/shelters/:id/occupancy. A negative number is people leaving. */
+export interface UpdateOccupancyRequest {
+  people: number;
+}
+
+export interface ReliefDistributionDto {
   id: string;
+  item: ReliefItem;
+  quantity: number;
   district: DistrictDto['id'];
-  status: ResourceStatus;
+  owner: OwnerDto;
+  distributedAt: string;
+}
+
+/** Body of POST /response/relief. */
+export interface LogReliefDistributionRequest {
+  item: ReliefItem;
+  quantity: number;
+  district: DistrictDto['id'];
+  owner: OwnerDto;
 }

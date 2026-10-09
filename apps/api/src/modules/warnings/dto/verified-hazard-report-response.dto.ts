@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import type { HazardType, VerifiedHazardReportDto } from '@rescue-lk/shared';
+import type {
+  WarningHazardType,
+  VerifiedHazardReportDto,
+} from '@rescue-lk/shared';
 import { HAZARD_TYPES } from '../warnings.constants.js';
 
 // VerifiedHazardReportResponseDto is a hazard report a warning can be based on, as
@@ -11,7 +14,7 @@ export class VerifiedHazardReportResponseDto implements VerifiedHazardReportDto 
   id!: string;
 
   @ApiProperty({ enum: HAZARD_TYPES, example: 'FLOOD' })
-  hazardType!: HazardType;
+  hazardType!: WarningHazardType;
 
   @ApiProperty({ example: '665f1b2c9d3e4a00000000d1' })
   district!: string;

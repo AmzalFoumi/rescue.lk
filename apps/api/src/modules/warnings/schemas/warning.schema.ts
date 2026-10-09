@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import type {
   AlertChannelType,
-  HazardType,
+  WarningHazardType,
   WarningSeverity,
   WarningStatus,
 } from '@rescue-lk/shared';
@@ -29,7 +29,7 @@ export class Warning {
   sourceReportId!: Types.ObjectId;
 
   @Prop({ type: String, enum: HAZARD_TYPES, required: true })
-  hazard!: HazardType;
+  hazard!: WarningHazardType;
 
   @Prop({ type: String, default: '' })
   otherHazard!: string;

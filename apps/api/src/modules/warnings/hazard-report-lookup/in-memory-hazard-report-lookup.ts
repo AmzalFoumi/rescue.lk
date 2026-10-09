@@ -57,7 +57,7 @@ const STUB_REPORTS: readonly HazardReportSummary[] = [
     districtName: 'Anuradhapura',
     place: 'Mihintale',
     reporter: 'Fathima Rizvi',
-    status: 'pending',
+    status: 'pending_verification',
     description: 'Grass fire reported near the reservoir bund',
     submittedAt: '2026-10-08T05:10:00.000Z',
     verifiedAt: null,

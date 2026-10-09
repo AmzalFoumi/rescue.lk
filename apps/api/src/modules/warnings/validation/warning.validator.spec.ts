@@ -58,7 +58,7 @@ describe('WarningValidator (step 8.2 validateWarning)', () => {
       expect(() =>
         validator.validate({
           form: buildWarningForm(),
-          report: { ...VERIFIED_REPORT, status: 'pending' },
+          report: { ...VERIFIED_REPORT, status: 'pending_verification' },
           mode,
         }),
       ).toThrow(ReportNotVerifiedException);

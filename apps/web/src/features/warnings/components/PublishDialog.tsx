@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { RadioTower } from 'lucide-react';
-import type { HazardType, WarningSeverity } from '@rescue-lk/shared';
+import type { WarningHazardType, WarningSeverity } from '@rescue-lk/shared';
 import { PUBLISH_CHECKS, type SummaryRow } from '../publishing';
 import { HAZARD_META } from '../meta';
 import { cx, ICON_SIZE, ui } from '../ui';
@@ -13,7 +13,7 @@ interface PublishDialogProps {
   // "Publish this warning?" or "Send update to W-…?".
   title: string;
   severity: WarningSeverity;
-  hazard: HazardType;
+  hazard: WarningHazardType;
   hazardLabel: string;
   summary: readonly SummaryRow[];
   // Updates cannot be saved back as a draft.

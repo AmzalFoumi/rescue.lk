@@ -1,5 +1,5 @@
 import { RotateCcw, Search } from 'lucide-react';
-import type { HazardType, WarningSeverity } from '@rescue-lk/shared';
+import type { WarningHazardType, WarningSeverity } from '@rescue-lk/shared';
 import {
   ALL,
   type MonitorFilters as Filters,
@@ -68,7 +68,9 @@ export function MonitorFilters({
           id="wf-hz"
           value={filters.hazard}
           onChange={(event) =>
-            onChange({ hazard: event.target.value as HazardType | 'ALL' })
+            onChange({
+              hazard: event.target.value as WarningHazardType | 'ALL',
+            })
           }
           className={select}
         >

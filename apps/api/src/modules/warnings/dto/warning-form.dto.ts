@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import type {
   AlertChannelType,
-  HazardType,
+  WarningHazardType,
   WarningFormRequestDto,
   WarningSeverity,
 } from '@rescue-lk/shared';
@@ -39,7 +39,7 @@ export class WarningFormDto implements WarningFormRequestDto {
 
   @ApiProperty({ enum: HAZARD_TYPES, example: 'FLOOD' })
   @IsIn(HAZARD_TYPES)
-  hazard!: HazardType;
+  hazard!: WarningHazardType;
 
   @ApiPropertyOptional({
     description: 'Name of the hazard when hazard is OTHER',

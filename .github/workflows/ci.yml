@@ -6,6 +6,14 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the older, now out-of-date run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -29,6 +37,9 @@ jobs:
 
       - name: Generate Next.js types (web)
         run: npm run typegen --workspace=apps/web
+
+      - name: Typecheck (shared)
+        run: npm run typecheck --workspace=packages/shared
 
       - name: Typecheck (api)
         run: npm run typecheck --workspace=apps/api

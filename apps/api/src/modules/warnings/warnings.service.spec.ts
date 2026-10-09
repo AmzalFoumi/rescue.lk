@@ -177,7 +177,7 @@ describe('WarningsService', () => {
     it('rejects a draft for an unverified report and saves nothing', async () => {
       hazardReports.findById.mockResolvedValue({
         ...VERIFIED_REPORT,
-        status: 'pending',
+        status: 'pending_verification',
       });
 
       await expect(

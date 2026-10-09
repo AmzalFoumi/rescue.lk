@@ -1,7 +1,7 @@
 import type {
   AlertChannelType,
   VerifiedHazardReportDto,
-  HazardType,
+  WarningHazardType,
   SubmitWarningRequestDto,
   UpdateWarningRequestDto,
   WarningDto,
@@ -18,7 +18,7 @@ import { OTHER_HAZARD } from './constants';
 // Step 3 only checks that its own fields are filled in before moving on.
 export interface WarningFormValues {
   sourceReportId: string;
-  hazard: HazardType | '';
+  hazard: WarningHazardType | '';
   otherHazard: string;
   severity: WarningSeverity | '';
   areaIds: string[];
@@ -114,7 +114,7 @@ export const formFromWarning = (warning: WarningDto): WarningFormValues => ({
 export const toUpdateRequest = (
   values: WarningFormValues,
 ): UpdateWarningRequestDto => ({
-  hazard: values.hazard as HazardType,
+  hazard: values.hazard as WarningHazardType,
   otherHazard: values.otherHazard,
   severity: values.severity as WarningSeverity,
   areaIds: values.areaIds,

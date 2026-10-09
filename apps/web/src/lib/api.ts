@@ -1,9 +1,6 @@
 import type {
   CancelWarningRequestDto,
   DeliveryRecordDto,
-  DistrictDto,
-  HazardReportDto,
-  IncidentDto,
   ReachEstimateDto,
   SubmitWarningRequestDto,
   TargetAreaDto,
@@ -13,9 +10,77 @@ import type {
   WarningDto,
   WarningStatus,
 } from '@rescue-lk/shared';
-import { ApiError } from './api-error';
+import { ApiError as WarningsApiError } from './api-error';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+
+/** Shown when the request never reached the API (no network, server down). */
+export const NETWORK_ERROR_MESSAGE =
+  'Could not reach the server. Check your connection and try again.';
+
+/** A failed API call. `messages` are readable lines the UI can show. */
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly messages: string[],
+  ) {
+    super(messages.join(' '));
+    this.name = 'ApiError';
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+/**
+ * Finds the readable messages in an error body from the API.
+ * The API sends `{ message: "text" }`, or for validation errors
+ * `{ message: { message: ["text", ...] } }`.
+ */
+export function readErrorMessages(body: unknown): string[] {
+  if (typeof body === 'string') return [body];
+  if (Array.isArray(body))
+    return body.filter((item): item is string => typeof item === 'string');
+  if (isRecord(body)) return readErrorMessages(body.message);
+  return [];
+}
+
+/** Readable text for anything that was thrown, safe to show to the user. */
+export function errorMessage(error: unknown): string {
+  if (error instanceof ApiError) return error.messages.join(' ');
+  if (error instanceof Error) return error.message;
+  return 'Something went wrong. Please try again.';
+}
+
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      // Only requests with a body need the header (it avoids extra browser pre-checks on GET).
+      headers: {
+        ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+        ...init?.headers,
+      },
+    });
+  } catch {
+    throw new ApiError(0, [NETWORK_ERROR_MESSAGE]);
+  }
+
+  if (!response.ok) {
+    const body: unknown = await response.json().catch(() => undefined);
+    const messages = readErrorMessages(body);
+    throw new ApiError(
+      response.status,
+      messages.length > 0
+        ? messages
+        : [`The request failed (status ${response.status}).`],
+    );
+  }
+
+  return response.json() as Promise<T>;
+}
 
 // Parses a JSON body; keeps the raw text when the body is not JSON (e.g. a
 // proxy error page) so it can still be shown, and null when there is no body.
@@ -31,9 +96,12 @@ async function readBody(response: Response): Promise<unknown> {
   }
 }
 
-// Exception mapping in one place: a network failure or HTTP error always becomes an
+// UC1 warnings client. Exception mapping in one place (errors use ./api-error): a network failure or HTTP error always becomes an
 // ApiError, so hooks never read status codes or parse error bodies themselves.
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function warningsRequest<T>(
+  path: string,
+  init?: RequestInit,
+): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
@@ -41,12 +109,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       headers: { 'Content-Type': 'application/json', ...init?.headers },
     });
   } catch (error) {
-    throw ApiError.from(error);
+    throw WarningsApiError.from(error);
   }
 
   const body = await readBody(response);
   if (!response.ok) {
-    throw ApiError.fromResponse(response.status, body);
+    throw WarningsApiError.fromResponse(response.status, body);
   }
   return body as T;
 }
@@ -65,54 +133,46 @@ const encodePath = (value: string) => encodeURIComponent(value);
 // Requests and responses use the shared DTO types, so the web app and the API agree
 // on every shape at compile time.
 export const api = {
-  districts: {
-    list: () => request<DistrictDto[]>('/districts'),
-  },
   warnings: {
     list: (status?: WarningStatus) =>
-      request<WarningDto[]>(
+      warningsRequest<WarningDto[]>(
         status ? `/warnings?status=${encodePath(status)}` : '/warnings',
       ),
     verifiedReports: () =>
-      request<VerifiedHazardReportDto[]>('/warnings/verified-reports'),
-    targetAreas: () => request<TargetAreaDto[]>('/warnings/target-areas'),
+      warningsRequest<VerifiedHazardReportDto[]>('/warnings/verified-reports'),
+    targetAreas: () =>
+      warningsRequest<TargetAreaDto[]>('/warnings/target-areas'),
     reach: (areaIds: readonly string[]) =>
-      request<ReachEstimateDto>(
+      warningsRequest<ReachEstimateDto>(
         areaIds.length
           ? `/warnings/reach?${areaIds.map((areaId) => `areaIds=${encodePath(areaId)}`).join('&')}`
           : '/warnings/reach',
       ),
     saveDraft: (body: SubmitWarningRequestDto) =>
-      request<WarningDto>('/warnings/drafts', send('POST', body)),
+      warningsRequest<WarningDto>('/warnings/drafts', send('POST', body)),
     publish: (body: SubmitWarningRequestDto) =>
-      request<WarningDeliveryResultDto>(
+      warningsRequest<WarningDeliveryResultDto>(
         '/warnings/publish',
         send('POST', body),
       ),
     update: (warningId: string, body: UpdateWarningRequestDto) =>
-      request<WarningDeliveryResultDto>(
+      warningsRequest<WarningDeliveryResultDto>(
         `/warnings/${encodePath(warningId)}`,
         send('PATCH', body),
       ),
     cancel: (warningId: string, body: CancelWarningRequestDto) =>
-      request<WarningDto>(
+      warningsRequest<WarningDto>(
         `/warnings/${encodePath(warningId)}/cancel`,
         send('POST', body),
       ),
     deliveries: (warningId: string) =>
-      request<DeliveryRecordDto[]>(
+      warningsRequest<DeliveryRecordDto[]>(
         `/warnings/${encodePath(warningId)}/deliveries`,
       ),
     retryDelivery: (recordId: string) =>
-      request<DeliveryRecordDto>(
+      warningsRequest<DeliveryRecordDto>(
         `/warnings/deliveries/${encodePath(recordId)}/retry`,
         send('POST'),
       ),
-  },
-  hazardReports: {
-    list: () => request<HazardReportDto[]>('/hazard-reports'),
-  },
-  incidents: {
-    list: () => request<IncidentDto[]>('/response/incidents'),
   },
 };

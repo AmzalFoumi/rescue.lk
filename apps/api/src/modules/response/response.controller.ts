@@ -1,14 +1,22 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { ResponseService } from './response.service.js';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ResponseTargetResponseDto } from './dto/response.dto.js';
+import { ResponseTargetsService } from './response-targets.service.js';
 
 @ApiTags('response')
 @Controller('response')
 export class ResponseController {
-  constructor(private readonly responseService: ResponseService) {}
+  constructor(private readonly targetsService: ResponseTargetsService) {}
 
   @Get('health')
   health() {
-    return this.responseService.health();
+    return { status: 'ok', module: 'response' };
+  }
+
+  /** Step 2: the verified hazard reports that need a response. */
+  @Get('reports')
+  @ApiOkResponse({ type: ResponseTargetResponseDto, isArray: true })
+  listReports() {
+    return this.targetsService.list();
   }
 }
