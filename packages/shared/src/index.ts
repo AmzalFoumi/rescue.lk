@@ -331,3 +331,5 @@ export interface LogReliefDistributionRequest {
   district: DistrictDto['id'];
   owner: OwnerDto;
 }
+
+export * from './analytics/report.types.js';

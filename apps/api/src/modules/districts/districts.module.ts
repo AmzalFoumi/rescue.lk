@@ -20,5 +20,6 @@ import { MongooseDistrictsRepository } from './mongoose-districts.repository.js'
     DistrictsService,
     { provide: DISTRICTS_REPOSITORY, useClass: MongooseDistrictsRepository },
   ],
+  exports: [DISTRICTS_REPOSITORY],
 })
 export class DistrictsModule {}

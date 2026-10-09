@@ -91,5 +91,10 @@ const CHANNEL_IMPLEMENTATIONS = [SmsChannel, PushChannel, SirenChannel];
     WarningDeliveryService,
     { provide: CLOCK, useClass: SystemClock },
   ],
+  exports: [
+    WARNINGS_REPOSITORY,
+    DELIVERY_RECORDS_REPOSITORY,
+    TARGET_AREA_CATALOG,
+  ],
 })
 export class WarningsModule {}
